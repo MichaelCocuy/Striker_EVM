@@ -24,18 +24,17 @@ Del enunciado (`reto.md`) se derivan restricciones no negociables:
 
 ---
 
-## 2. Stack propuesto
+## 2. Stack (decidido el 2026-09-08)
 
-> **Decisión pendiente del autor.** La recomendación es la siguiente; la descomposición en
-> módulos de este documento es válida con cualquiera de las dos opciones preferidas por el
-> enunciado (Spring Boot o FastAPI), solo cambian las herramientas de cada módulo.
+> Decisión del autor: **FastAPI + PostgreSQL + React/Vite**, por velocidad de construcción
+> dentro del plazo de cinco días. Registrada en `AI_PROCESS.md` (Prompt 3).
 
-| Capa | Recomendación | Alternativa equivalente | Motivo de la recomendación |
-|---|---|---|---|
-| Backend | **Python 3.12+ / FastAPI** + SQLAlchemy 2 + Alembic + Pydantic v2 | Java 21 / Spring Boot 3 + Spring Data JPA + Flyway + springdoc | FastAPI genera OpenAPI automáticamente en `/docs` (se reubica en `/api-docs`), `Decimal` nativo para dinero, `pytest` + `pytest-cov` para cobertura, `ruff` como linter/formateador único. Menos ceremonia para un plazo de 5 días. |
-| Base de datos | **PostgreSQL 16** (Docker) | — | Preferencia explícita del enunciado. `NUMERIC` para dinero y porcentajes. |
-| Frontend | **React 18 + TypeScript + Vite** | Angular 17+ | Tipado del contrato, arranque rápido, `Recharts` para la gráfica PV/EV/AC, `ESLint` + `Prettier`. |
-| Orquestación local | **Docker Compose** | — | Un comando para levantar todo; el script SQL de inicialización se monta en el contenedor de PostgreSQL. |
+| Capa | Elección | Motivo |
+|---|---|---|
+| Backend | **Python 3.12 / FastAPI** + SQLAlchemy 2 + Alembic + Pydantic v2 + PyJWT + bcrypt | FastAPI genera OpenAPI automáticamente (se publica en `/api-docs`), `Decimal` nativo para dinero, `pytest` + `pytest-cov` para cobertura, `ruff` como linter/formateador único. JWT para autenticación por roles. |
+| Base de datos | **PostgreSQL 16** (Docker) | Preferencia explícita del enunciado. `NUMERIC` para dinero y porcentajes. |
+| Frontend | **React 18 + TypeScript + Vite** + Tailwind CSS + **GSAP** + Recharts | Tipado del contrato, arranque rápido. GSAP para transiciones y animaciones de entrada/actualización; Recharts para las gráficas. `ESLint` + `Prettier`. |
+| Orquestación local | **Docker Compose** | Un comando para levantar todo; el script SQL de inicialización se monta en el contenedor de PostgreSQL. |
 
 Herramientas disponibles en la máquina de desarrollo: Java 21, Node 24, Python 3.14, Docker
 29 con Compose v5. Nota: si se elige FastAPI, usar la imagen `python:3.12` en Docker para
@@ -79,16 +78,28 @@ llama al dominio, devuelve resultados que la capa API serializa.
 ```mermaid
 erDiagram
     PROJECT ||--o{ ACTIVITY : contiene
+    APP_USER ||--o{ ACTIVITY : "es responsable de"
+    APP_USER ||--o{ PROJECT : "creado por"
+    APP_USER {
+        uuid id PK
+        varchar email UK
+        varchar full_name
+        varchar role "REGISTRAR | REVIEWER"
+        varchar password_hash
+        timestamptz created_at
+    }
     PROJECT {
         uuid id PK
         varchar name
         text description
+        uuid created_by FK
         timestamptz created_at
         timestamptz updated_at
     }
     ACTIVITY {
         uuid id PK
         uuid project_id FK
+        uuid owner_id FK
         varchar name
         numeric budget_at_completion
         numeric planned_progress_percent
@@ -117,27 +128,38 @@ de abrir las ramas de ambos lados; cualquier cambio posterior pasa por PR propio
 
 Prefijo: `/api/v1`. Documentación: `/api-docs` (Swagger UI) y `/api-docs/openapi.json`.
 
-| Método | Ruta | Propósito | Códigos |
-|---|---|---|---|
-| GET | `/health` | Verificar que el servicio y la BD responden | 200 |
-| GET | `/projects` | Listar proyectos (con conteo de actividades) | 200 |
-| POST | `/projects` | Crear proyecto | 201, 400 |
-| GET | `/projects/{projectId}` | Obtener proyecto | 200, 404 |
-| PUT | `/projects/{projectId}` | Editar proyecto | 200, 400, 404 |
-| DELETE | `/projects/{projectId}` | Eliminar proyecto y sus actividades | 204, 404 |
-| GET | `/projects/{projectId}/activities` | Listar actividades (datos crudos) | 200, 404 |
-| POST | `/projects/{projectId}/activities` | Crear actividad | 201, 400, 404 |
-| PUT | `/projects/{projectId}/activities/{activityId}` | Editar actividad | 200, 400, 404 |
-| DELETE | `/projects/{projectId}/activities/{activityId}` | Eliminar actividad | 204, 404 |
-| GET | `/projects/{projectId}/evm` | **Reporte EVM**: indicadores por actividad + consolidado + interpretación | 200, 404 |
+Todos los endpoints salvo `/health` y `/auth/login` requieren `Authorization: Bearer <JWT>`
+y responden `401` sin token válido y `403` cuando el rol no tiene permiso (ver §11).
 
-Esquemas principales (JSON, `camelCase`; dinero como string decimal o número con 2
-decimales, se fija en el OpenAPI):
+| Método | Ruta | Propósito | Roles | Códigos |
+|---|---|---|---|---|
+| GET | `/health` | Verificar que el servicio y la BD responden | público | 200 |
+| POST | `/auth/login` | Obtener JWT con email y contraseña | público | 200, 400, 401 |
+| GET | `/auth/me` | Usuario autenticado y su rol | ambos | 200, 401 |
+| GET | `/users` | Listar usuarios (para asignar responsables) | REVIEWER | 200 |
+| GET | `/projects` | Listar proyectos (con conteo de actividades) | ambos | 200 |
+| POST | `/projects` | Crear proyecto | REVIEWER | 201, 400, 403 |
+| GET | `/projects/{projectId}` | Obtener proyecto | ambos | 200, 404 |
+| PUT | `/projects/{projectId}` | Editar proyecto | REVIEWER | 200, 400, 403, 404 |
+| DELETE | `/projects/{projectId}` | Eliminar proyecto y sus actividades | REVIEWER | 204, 403, 404 |
+| GET | `/projects/{projectId}/activities` | Listar actividades (datos crudos) | ambos | 200, 404 |
+| POST | `/projects/{projectId}/activities` | Crear actividad | ambos (REGISTRAR queda como responsable) | 201, 400, 404 |
+| PUT | `/projects/{projectId}/activities/{activityId}` | Editar actividad | REVIEWER; REGISTRAR solo las propias | 200, 400, 403, 404 |
+| DELETE | `/projects/{projectId}/activities/{activityId}` | Eliminar actividad | REVIEWER; REGISTRAR solo las propias | 204, 403, 404 |
+| GET | `/projects/{projectId}/evm` | **Reporte EVM**: indicadores por actividad + consolidado + interpretación | ambos | 200, 404 |
+
+Esquemas principales (JSON, `camelCase`; dinero como número con 2 decimales, se fija en el
+OpenAPI):
 
 ```jsonc
+// LoginRequest → LoginResponse
+{ "email": "revisor@striker.local", "password": "..." }
+{ "accessToken": "eyJ...", "tokenType": "bearer", "user": { "id": "...", "email": "...", "fullName": "...", "role": "REVIEWER" } }
+
 // ActivityInput (POST/PUT)
 {
   "name": "Desarrollo",
+  "ownerId": "uuid-del-registrador",     // opcional para REGISTRAR (se asigna a sí mismo); obligatorio para REVIEWER
   "budgetAtCompletion": 40000.00,
   "plannedProgressPercent": 50.00,
   "actualProgressPercent": 40.00,
@@ -190,16 +212,17 @@ definición de terminado.
 | **M0** | Fundaciones del repo | `main` inicial + `feature/docs-evm-guide-and-architecture` | Gitflow, README, guía EVM, este documento, AI_PROCESS.md | — |
 | **M1** | Contrato API y fixtures | `feature/api-contract` | `docs/api/openapi.yaml` con todos los endpoints, esquemas, errores; `docs/api/fixtures/*.json` con el proyecto de ejemplo y su reporte esperado | M0 |
 | **M2** | Dominio EVM | `feature/backend-evm-domain` | Módulo puro de cálculo: indicadores por actividad, consolidado, interpretación, casos borde. Tests unitarios con los valores de la guía. Cobertura ≥ 80 % (meta: ~100 %). | M0 (solo la guía) |
-| **M3** | Andamiaje backend + persistencia | `feature/backend-persistence` | Proyecto FastAPI con `ruff`, `pytest`, `docker-compose` (PostgreSQL), modelos ORM, migraciones, `db/init.sql`, repositorios, `GET /health` | M1 (nombres de campos) |
-| **M4** | API CRUD proyectos y actividades | `feature/backend-crud-api` | Routers + schemas + validación + manejo de errores uniforme; test de integración por endpoint contra el contrato | M1, M3 |
+| **M3** | Andamiaje backend + persistencia | `feature/backend-persistence` | Proyecto FastAPI con `ruff`, `pytest`, `docker-compose` (PostgreSQL), modelos ORM (usuarios, proyectos, actividades), migraciones, `db/init.sql` con usuarios semilla, repositorios, `GET /health` | M1 (nombres de campos), M2 (comparte `pyproject.toml`) |
+| **M3b** | Autenticación y roles | `feature/backend-auth-roles` | Login JWT, `GET /auth/me`, `GET /users`, dependencias de FastAPI `current_user` y `require_role`, política de propiedad de actividades; tests unitarios de la política y de integración de `/auth/*` | M3 |
+| **M4** | API CRUD proyectos y actividades | `feature/backend-crud-api` | Routers + schemas + validación + manejo de errores uniforme + autorización por rol; test de integración por endpoint contra el contrato (incluye 401/403) | M1, M3, M3b |
 | **M5** | API reporte EVM | `feature/backend-evm-report` | Caso de uso `GetProjectEvmReport` que compone M2 + repositorios; endpoint `GET /projects/{id}/evm`; test de integración con la fixture | M2, M4 |
 | **M6** | Documentación OpenAPI enriquecida | `feature/backend-openapi-docs` | Descripciones por endpoint, ejemplos, códigos de error, Swagger en `/api-docs`; verificación de que el OpenAPI generado coincide con M1 | M4, M5 |
-| **M7** | Andamiaje frontend | `feature/frontend-scaffold` | Vite + React + TS, ESLint/Prettier, layout base, cliente API tipado generado desde `openapi.yaml`, mocks (MSW) con las fixtures de M1, estado de carga/error | M1 |
-| **M8** | CRUD de actividades + tabla con indicadores | `feature/frontend-activities` | Formulario crear/editar/eliminar actividad, tabla de actividades con sus indicadores | M7 |
-| **M9** | Resumen consolidado y semáforos | `feature/frontend-project-summary` | Tarjetas de indicadores del proyecto, indicación visual de CPI/SPI (colores/etiquetas), manejo de `NOT_APPLICABLE` | M7 |
-| **M10** | Gráfica PV / EV / AC | `feature/frontend-evm-chart` | Gráfica de barras agrupadas por actividad con PV, EV y AC | M7 |
-| **M11** | Gestión de proyectos en UI | `feature/frontend-projects` | Lista/selección/creación de proyecto (mínimo viable para llegar al dashboard) | M7 |
-| **M12** | Integración y entrega local | `feature/integration` | `docker compose up` completo (BD + backend + frontend), CORS, variables de entorno, README con pasos de ejecución y datos de ejemplo cargados | M5, M6, M8, M9, M10, M11 |
+| **M7** | Andamiaje frontend | `feature/frontend-scaffold` | Vite + React + TS + Tailwind + GSAP, ESLint/Prettier, sistema de diseño (tokens, tema), layout base con transiciones GSAP, cliente API tipado desde `openapi.yaml`, mocks (MSW) con las fixtures de M1, login y sesión (JWT en memoria/`sessionStorage`), rutas protegidas por rol | M1 |
+| **M8** | CRUD de actividades + tabla con indicadores | `feature/frontend-activities` | Formulario crear/editar/eliminar actividad (respetando rol y propiedad), tabla animada de actividades con sus indicadores | M7 |
+| **M9** | Resumen consolidado y semáforos | `feature/frontend-project-summary` | Tarjetas de indicadores del proyecto con contadores animados, indicación visual de CPI/SPI, manejo de `NOT_APPLICABLE` | M7 |
+| **M10** | Gráficas | `feature/frontend-evm-chart` | Barras agrupadas PV/EV/AC por actividad + gauge/velocímetro de CPI y SPI, con animación de entrada y de actualización | M7 |
+| **M11** | Gestión de proyectos en UI | `feature/frontend-projects` | Lista/selección/creación de proyecto; vista del REVIEWER (portafolio) y del REGISTRAR (mis actividades) | M7 |
+| **M12** | Integración y entrega local | `feature/integration` | `docker compose up` completo (BD + backend + frontend), CORS, variables de entorno, README con pasos de ejecución, usuarios semilla y datos de ejemplo cargados | M5, M6, M8, M9, M10, M11 |
 | **M13** | Release | `release/1.0.0` → `main` | Versión, README final, AI_PROCESS.md cerrado, tag `v1.0.0` | M12 |
 
 Transversal (no es rama propia): actualizar `AI_PROCESS.md` en cada PR que involucre
@@ -214,8 +237,10 @@ flowchart TD
     M0[M0 Fundaciones] --> M1[M1 Contrato API + fixtures]
     M0 --> M2[M2 Dominio EVM]
     M1 --> M3[M3 Andamiaje backend + persistencia]
-    M1 --> M7[M7 Andamiaje frontend + mocks]
-    M3 --> M4[M4 API CRUD]
+    M2 --> M3
+    M1 --> M7[M7 Andamiaje frontend + mocks + login]
+    M3 --> M3b[M3b Autenticación y roles]
+    M3b --> M4[M4 API CRUD + autorización]
     M2 --> M5[M5 API reporte EVM]
     M4 --> M5
     M4 --> M6[M6 OpenAPI enriquecido]
@@ -235,12 +260,13 @@ flowchart TD
     classDef done fill:#2e7d32,color:#fff,stroke:#1b5e20
     classDef critical stroke:#c62828,stroke-width:3px
     class M0 done
-    class M1,M3,M4,M5,M12,M13 critical
+    class M1,M3,M3b,M4,M5,M12,M13 critical
 ```
 
-**Ruta crítica** (borde rojo): M1 → M3 → M4 → M5 → M12 → M13. Es la cadena backend: no se
-puede exponer el reporte sin CRUD, ni CRUD sin persistencia, ni persistencia sin haber
-fijado el contrato. Todo lo demás cuelga en paralelo de esa cadena.
+**Ruta crítica** (borde rojo): M1 → M3 → M3b → M4 → M5 → M12 → M13. Es la cadena backend:
+no se puede exponer el reporte sin CRUD, ni CRUD autorizado sin roles, ni roles sin
+persistencia, ni persistencia sin haber fijado el contrato. Todo lo demás cuelga en paralelo
+de esa cadena.
 
 ---
 
@@ -283,7 +309,8 @@ gantt
 
     section Ola 2 · Backend
     M3 Persistencia               :crit, m3, 2, 4
-    M4 API CRUD                   :crit, m4, 4, 6
+    M3b Autenticación y roles     :crit, m3b, 4, 5
+    M4 API CRUD + autorización    :crit, m4, 5, 6
     M5 API reporte EVM            :crit, m5, 6, 7
     M6 OpenAPI enriquecido        :m6, 7, 8
 
@@ -303,7 +330,7 @@ gantt
 |---|---|---|
 | 0 | M0 | Este documento mergeado en `develop`. |
 | 1 | **M1, M2** | Contrato congelado y fixtures publicadas; dominio con tests verdes. |
-| 2 | **Backend**: M3 → M4 → M5 → M6 (secuencial) · **Frontend**: M7 → {M8, M9, M10, M11} (paralelo tras M7) | Backend expone `/evm` real; frontend funciona completo contra mocks. |
+| 2 | **Backend**: M3 → M3b → M4 → M5 → M6 (secuencial) · **Frontend**: M7 → {M8, M9, M10, M11} (paralelo tras M7) | Backend expone `/evm` real con autorización; frontend funciona completo contra mocks. |
 | 3 | M12 → M13 | Demo con un proyecto y tres actividades funciona con `docker compose up`. |
 
 ### Mecánica para trabajar varias ramas a la vez
@@ -328,9 +355,11 @@ Striker_EVM/
 ├── backend/
 │   ├── app/
 │   │   ├── domain/evm/          # M2: cálculo puro (sin FastAPI, sin SQLAlchemy)
-│   │   ├── application/         # casos de uso: proyectos, actividades, reporte EVM
+│   │   ├── domain/auth/         # M3b: roles y política de permisos (pura)
+│   │   ├── application/         # casos de uso: proyectos, actividades, reporte EVM, login
 │   │   ├── infrastructure/db/   # M3: modelos ORM, repositorios, sesión, migraciones
-│   │   └── api/v1/              # M4–M6: routers, schemas (Pydantic), errores
+│   │   ├── infrastructure/security/ # M3b: JWT, hash de contraseñas
+│   │   └── api/v1/              # M4–M6: routers, schemas (Pydantic), errores, dependencias de auth
 │   ├── tests/
 │   │   ├── unit/domain/         # oráculo: EVM_GUIA.md §5 y §6
 │   │   └── integration/api/     # un test por endpoint contra el contrato
@@ -378,3 +407,90 @@ confirme o cambie (los cambios se anotan en `AI_PROCESS.md`):
    importa.
 6. **Porcentajes en escala 0–100 en la API** (como los ingresa un humano) y fracción 0–1 solo
    dentro del dominio.
+
+---
+
+## 11. Roles y autenticación
+
+Decisión propia del autor (Prompt 3 en `AI_PROCESS.md`): distinguir **quién registra** el
+avance de **quién lo revisa**.
+
+### Roles
+
+| Rol | Enum | Quién es | Qué hace |
+|---|---|---|---|
+| Registrador | `REGISTRAR` | Miembro del equipo responsable de una o varias actividades | Crea actividades (queda como responsable) y actualiza el avance real y el costo real de **sus** actividades. Consulta el reporte del proyecto en el que participa. |
+| Revisor | `REVIEWER` | Líder de proyecto / PMO | Crea y administra proyectos, asigna responsables, edita cualquier actividad, revisa el reporte EVM consolidado para conocer el estado del proyecto. |
+
+### Matriz de permisos
+
+| Acción | REGISTRAR | REVIEWER |
+|---|---|---|
+| Iniciar sesión, ver perfil | ✓ | ✓ |
+| Listar y ver proyectos | ✓ | ✓ |
+| Crear / editar / eliminar proyecto | ✗ (403) | ✓ |
+| Listar usuarios (para asignar responsables) | ✗ (403) | ✓ |
+| Crear actividad | ✓, `ownerId` = él mismo | ✓, `ownerId` obligatorio |
+| Editar / eliminar actividad propia | ✓ | ✓ |
+| Editar / eliminar actividad ajena | ✗ (403) | ✓ |
+| Ver reporte EVM del proyecto | ✓ | ✓ |
+
+### Mecanismo
+
+- **Autenticación:** `POST /auth/login` con email y contraseña; respuesta con JWT (HS256,
+  expiración 8 h) que lleva `sub` (id de usuario) y `role`. Contraseñas con `bcrypt`.
+- **Autorización:** dependencias de FastAPI `get_current_user` (401 si el token falta o es
+  inválido) y `require_role(...)` (403). La regla de propiedad de actividades vive en el
+  **dominio** (`domain/auth/policy.py`: `can_modify_activity(user, activity)`), probada
+  unitariamente sin framework.
+- **Usuarios semilla** en `db/init.sql` (la contraseña se documenta en el README, solo para
+  entorno local):
+
+| Email | Rol | Nombre |
+|---|---|---|
+| `revisor@striker.local` | REVIEWER | Laura Revisora |
+| `registrador@striker.local` | REGISTRAR | Carlos Registrador |
+| `registrador2@striker.local` | REGISTRAR | Ana Registradora |
+
+- **Fuera de alcance** (registrado a propósito): registro de usuarios desde la UI,
+  recuperación de contraseña, refresh tokens. Los usuarios se gestionan por el script de
+  inicialización.
+
+### Impacto en el frontend
+
+- Pantalla de **login** y sesión en memoria (`sessionStorage` para sobrevivir recargas).
+- Rutas protegidas; el layout muestra la vista según rol:
+  - **REVIEWER:** portafolio de proyectos → dashboard del proyecto (resumen, semáforos,
+    gráficas, tabla completa, asignación de responsables).
+  - **REGISTRAR:** "Mis actividades" con edición de avance y costo, más el estado del proyecto
+    en modo lectura.
+- Los botones de acciones no permitidas no se muestran; además el backend responde 403 si
+  se intentan por otra vía.
+
+---
+
+## 12. Lineamientos de diseño del frontend
+
+El autor pidió un frontend "de última generación", con gráficas y animaciones **GSAP** en las
+transiciones. Reglas para todas las ramas `feature/frontend-*`:
+
+- **Sistema de diseño único.** Tokens en CSS (colores, radios, sombras, tipografía) con tema
+  claro y oscuro. Tipografía con jerarquía clara (números grandes para indicadores). Superficies
+  tipo tarjeta con profundidad sutil; nada de plantillas genéricas.
+- **Semáforo EVM consistente en toda la app:** verde = bajo presupuesto / adelantado, ámbar =
+  en presupuesto / en cronograma, rojo = sobre presupuesto / atrasado, gris = no aplica. Los
+  mismos colores en tarjetas, tabla y gráficas.
+- **GSAP** se usa para: transición entre vistas (login → dashboard, cambio de proyecto),
+  entrada escalonada de tarjetas y filas, contadores numéricos que animan hacia el nuevo valor
+  cuando el reporte se recalcula, y cambios de color del semáforo. Toda animación respeta
+  `prefers-reduced-motion`. Duraciones cortas (150–500 ms); la UI nunca espera a una animación
+  para ser usable.
+- **Gráficas (Recharts):** barras agrupadas PV / EV / AC por actividad con tooltip explicativo,
+  y gauges de CPI y SPI con la aguja apuntando a 1.0 como referencia. Animación de entrada y de
+  actualización.
+- **Feedback en tiempo real:** tras cada alta/edición/borrado se vuelve a pedir
+  `GET /projects/{id}/evm`; los valores cambian con animación, no con parpadeo.
+- **Accesibilidad mínima:** contraste AA, foco visible, etiquetas en formularios, tabla con
+  encabezados. Responsive desde 360 px.
+- **Estados:** carga (skeletons), vacío (proyecto sin actividades con llamada a la acción),
+  error (mensaje claro, reintento).
