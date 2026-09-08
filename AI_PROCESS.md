@@ -114,30 +114,113 @@ continua
 autenticación y roles, matriz de permisos, usuarios semilla, lineamientos de diseño con GSAP),
 la integró a `develop` por PR y arrancó la ola 1.
 
+### Prompt 5 — 2026-09-08 — Claude Code
+
+```text
+continua y restablece los subagentes
+```
+
+**Qué hizo la IA:** los tres subagentes en curso (M4 CRUD, M5 reporte EVM, M7 frontend) se
+habían cortado por límite de sesión dejando trabajo sin commitear en sus worktrees. Verificó
+el estado de cada rama y reanudó los tres con su contexto intacto, sin repetir trabajo.
+
 ---
 
 ## 3. Cómo aprendí EVM y cómo validé las fórmulas
 
-_Pendiente de completar a medida que avance el aprendizaje. Punto de partida: el Prompt 1
-pidió una explicación conceptual (no solo fórmulas) y un ejemplo resuelto a mano con tres
-actividades, que servirá como oráculo para las pruebas unitarias. Ver
-[`docs/EVM_GUIA.md`](docs/EVM_GUIA.md)._
+**Qué pedí.** En el Prompt 1 pedí explícitamente que **no** me dieran solo las fórmulas: qué
+significa cada indicador, por qué EV no es el dinero gastado, qué pasa en los casos raros
+(costo cero, sin avance, sin actividades) y un ejemplo con tres actividades resuelto paso a
+paso. El resultado es [`docs/EVM_GUIA.md`](docs/EVM_GUIA.md). La razón de pedirlo así: el
+video exige explicar EVM con mis palabras, y una lista de fórmulas no se puede explicar.
+
+**Cómo validé que entendí antes de implementar.** Tres filtros, en este orden:
+
+1. **Prueba de intuición previa al cálculo.** En el ejemplo de `EVM_GUIA.md §6.1` primero
+   escribí qué debería pasar leyendo los datos (Diseño terminó y costó menos: bien;
+   Desarrollo debía ir al 50 % y va al 40 % habiendo gastado la mitad: atrasado y caro;
+   Pruebas arrancó antes y barato: bien). Después calculé. Los números coincidieron con la
+   intuición. Si no hubieran coincidido, el error estaría en mi entendimiento o en las
+   fórmulas, y había que parar.
+2. **Recálculo independiente con `Decimal`.** Antes de escribir una línea de código de
+   producción, recalculé el ejemplo completo y los ocho casos borde con un script aparte
+   usando `decimal.Decimal` y redondeo *half up*, y comparé campo por campo con la tabla de
+   la guía. Todo coincidió.
+3. **Comprobación cruzada de EAC.** El reto fija `EAC = BAC / CPI`. Verifiqué que es
+   algebraicamente igual a `AC + (BAC − EV) / CPI`: ambas dan 65 172,41 para el proyecto de
+   ejemplo. Dos caminos distintos al mismo número es evidencia de que la fórmula se entendió,
+   no se copió.
+
+**Dónde me equivocaría sin esto.** Dos confusiones que la guía desmonta y que eran mías al
+empezar: creer que EV es "lo que llevo gastado" (es lo producido valorado al precio del plan)
+y creer que el CPI del proyecto es el promedio de los CPI de las actividades (§6.7 demuestra
+que el promedio da 1,0370 —"va bien"— cuando el consolidado real es 0,9206 —"va mal"—).
 
 ---
 
 ## 4. Decisiones donde no seguí a la IA
 
-_Pendiente. Se registrarán aquí al menos dos decisiones: qué propuso la IA, qué se hizo en
-su lugar y por qué._
+_El autor redacta esta sección con sus palabras. Estos son los desacuerdos reales que
+ocurrieron durante la sesión, anotados en el momento para que no haya que reconstruirlos
+después:_
+
+**Candidato 1 — Sin usuarios ni roles.** La propuesta de arquitectura de la IA modelaba
+proyectos y actividades sin ningún concepto de usuario: cualquiera podía editar cualquier
+cosa. El enunciado no pide autenticación, así que la IA la omitió por economía. Decidí
+incorporar roles `REGISTRAR` / `REVIEWER` porque el dato de avance necesita un dueño
+responsable y porque la herramienta que describe el enunciado tiene dos audiencias
+distintas. Costo asumido: un módulo extra (M3b) y más superficie de pruebas. Detalle en la
+sección 6.
+
+**Candidato 2 — Textos de las notas de indicadores no calculables.** El agente que escribió
+el contrato del API generó notas verbosas y autoexplicativas del tipo `"CPI no calculable:
+sin costo registrado (AC = 0). EAC y VAC no se pueden proyectar."`. El módulo de dominio, ya
+integrado, usaba las constantes cortas de `EVM_GUIA.md` (`"No aplica: sin costo
+registrado"`). En vez de aceptar la versión del contrato, se alinearon las *fixtures* con las
+constantes del dominio: el dominio es la fuente de verdad de un texto que es **dato de
+negocio**, no documentación, y tener dos redacciones del mismo estado habría hecho imposible
+que el test de integración comparara la respuesta completa.
+
+**Candidato 3 — `EmailStr` en el login.** La IA propuso validar el email con `EmailStr` de
+Pydantic. Se rechazó: `email-validator` rechaza el TLD reservado `.local` que usan los
+usuarios semilla, así que la validación "más correcta" habría roto el login de la demo. Se
+usó un `string` con longitud acotada.
 
 ---
 
 ## 5. Cómo verifiqué que los cálculos son correctos
 
-_Pendiente. Estrategia prevista: el ejemplo de tres actividades de `docs/EVM_GUIA.md` se
-resolvió a mano antes de escribir código; las pruebas unitarias usan esos mismos números
-como valores esperados, y la interpretación (sobre/bajo presupuesto, adelantado/atrasado)
-se contrasta con la intuición del caso._
+La distinción que me importaba: **que el código corra no prueba que los números tengan
+sentido**. Un test que solo verifica que una función retorna algo no verifica nada. Lo que
+hice:
+
+1. **Oráculo escrito antes del código.** `docs/EVM_GUIA.md §5` y `§6` contienen los valores
+   esperados de las tres actividades, del consolidado y de los ocho casos borde, resueltos a
+   mano y recalculados aparte con `Decimal`. Ese documento se escribió y se mergeó **antes**
+   de la rama del dominio. Los tests unitarios comparan contra esas cifras exactas, no contra
+   lo que devuelva la implementación.
+2. **Cifras exactas, no aproximaciones.** Las pruebas comparan `Decimal` con la escala
+   definida (2 decimales en dinero, 4 en índices) y modo *half up* explícito. Esto atrapó una
+   decisión que un `assertAlmostEqual` habría escondido: `0.90625` redondea a `0.9063` con
+   *half up* y a `0.9062` con el modo por defecto de Python (*banker's rounding*).
+3. **Prueba de que no se promedian índices.** Hay un test dedicado a que el CPI del proyecto
+   sea `ΣEV / ΣAC = 0.9206` y **no** el promedio de los CPI de actividad (`1.0370`). Es el
+   error conceptual más fácil de cometer y el que más engaña al usuario, así que está fijado
+   por un test que falla si alguien "simplifica" el cálculo.
+4. **Comprobación de cordura en casos límite.** En la actividad terminada al 100 % con
+   sobrecosto (`§5.7`), `EAC` debe dar exactamente el `AC` real (1 200): si ya terminó, lo que
+   costará al terminar es lo que costó. Que el número caiga solo, sin caso especial en el
+   código, es señal de que la fórmula es la correcta.
+5. **Precisión intermedia.** `EAC = BAC / CPI` se calcula con el CPI **sin redondear**. Con el
+   CPI redondeado a 4 decimales el proyecto daría 65 174,89 en vez de 65 172,41. Hay un test
+   que fija ese valor para que nadie mueva el redondeo hacia arriba en la cadena.
+6. **Contrato y dominio comparados entre sí.** Las *fixtures* del contrato
+   (`docs/api/fixtures/evm-report.json`) se validaron con un recálculo independiente y luego
+   se alinearon con las constantes de texto del dominio, de modo que el test de integración
+   pueda comparar la respuesta HTTP completa contra el mismo oráculo.
+
+Resultado en el momento de escribir esto: dominio EVM con 49 pruebas unitarias y 100 % de
+cobertura; capa de negocio del backend por encima del 80 % exigido.
 
 ---
 
