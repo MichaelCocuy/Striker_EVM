@@ -1,0 +1,43 @@
+# --- Sistema operativo / IDE ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.iml
+
+# --- Secretos y entorno ---
+.env
+.env.*
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# --- Java / Maven / Gradle ---
+target/
+build/
+.gradle/
+*.class
+*.jar
+!**/mvnw*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# --- Node / Frontend ---
+node_modules/
+dist/
+coverage/
+*.log
+npm-debug.log*
+
+# --- Docker ---
+*.pid

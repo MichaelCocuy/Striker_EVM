@@ -1,0 +1,17 @@
+# Normaliza finales de línea: LF en el repositorio, nativo en el checkout.
+* text=auto eol=lf
+
+# Scripts de shell siempre en LF.
+*.sh text eol=lf
+mvnw text eol=lf
+
+# Scripts de Windows en CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binarios.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jar binary
