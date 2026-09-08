@@ -1,0 +1,5 @@
+{
+  "code": "UNAUTHORIZED",
+  "message": "Se requiere un token de acceso válido",
+  "details": []
+}
