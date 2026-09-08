@@ -972,7 +972,7 @@ components:
           costStatus: NOT_APPLICABLE
           scheduleStatus: BEHIND_SCHEDULE
           notes:
-            - 'CPI no calculable: sin costo registrado (AC = 0). EAC y VAC no se pueden proyectar.'
+            - 'No aplica: sin costo registrado'
 
     EvmActivityReport:
       type: object

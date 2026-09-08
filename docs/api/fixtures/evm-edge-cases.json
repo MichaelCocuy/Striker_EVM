@@ -23,7 +23,7 @@
       "costStatus": "NOT_APPLICABLE",
       "scheduleStatus": "BEHIND_SCHEDULE",
       "notes": [
-        "CPI no calculable: sin costo registrado (AC = 0). EAC y VAC no se pueden proyectar."
+        "No aplica: sin costo registrado"
       ]
     }
   },
@@ -51,8 +51,7 @@
       "costStatus": "NOT_APPLICABLE",
       "scheduleStatus": "NOT_APPLICABLE",
       "notes": [
-        "CPI no calculable: actividad no iniciada (EV = 0 y AC = 0). EAC y VAC no se pueden proyectar.",
-        "SPI no calculable: actividad no iniciada (EV = 0 y PV = 0)."
+        "No aplica: actividad no iniciada"
       ]
     }
   },
@@ -80,7 +79,7 @@
       "costStatus": "NOT_APPLICABLE",
       "scheduleStatus": "BEHIND_SCHEDULE",
       "notes": [
-        "CPI no calculable: actividad no iniciada (EV = 0 y AC = 0). EAC y VAC no se pueden proyectar."
+        "No aplica: actividad no iniciada"
       ]
     }
   },
@@ -108,7 +107,7 @@
       "costStatus": "OVER_BUDGET",
       "scheduleStatus": "BEHIND_SCHEDULE",
       "notes": [
-        "EAC y VAC no calculables: sin avance real (CPI = 0), no se puede proyectar el costo final."
+        "No aplica: sin avance real, no se puede proyectar"
       ]
     }
   },
@@ -136,7 +135,7 @@
       "costStatus": "UNDER_BUDGET",
       "scheduleStatus": "NOT_APPLICABLE",
       "notes": [
-        "SPI no calculable: actividad no programada a la fecha de corte (PV = 0)."
+        "No aplica: actividad no programada a la fecha de corte"
       ]
     }
   },
@@ -211,7 +210,7 @@
       "costStatus": "NOT_APPLICABLE",
       "scheduleStatus": "NOT_APPLICABLE",
       "notes": [
-        "Sin datos: el proyecto no tiene actividades."
+        "Sin datos: el proyecto no tiene actividades"
       ]
     }
   }

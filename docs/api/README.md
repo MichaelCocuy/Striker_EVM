@@ -59,8 +59,8 @@ y los mocks del frontend hablen de los mismos objetos:
   `activities.json`, llaman a `GET /projects/{id}/evm` y comparan la respuesta con
   `evm-report.json` campo por campo (ignorando `generatedAt`, y `createdAt`/`updatedAt` donde
   aplique). Los tests unitarios del dominio se parametrizan con `evm-edge-cases.json`. Los
-  textos de `notes` de las fixtures son los canónicos: el dominio debe producir exactamente
-  esos.
+  textos de `notes` los define el dominio (`backend/app/domain/evm/notes.py`); las fixtures
+  copian exactamente esas constantes.
 - **Frontend.** Los *handlers* de MSW devuelven estas fixtures sin modificarlas; el cliente
   tipado se genera desde `openapi.yaml`. Nunca se recalcula un indicador en la UI: lo que se
   muestra es lo que trae `evm-report.json`.
