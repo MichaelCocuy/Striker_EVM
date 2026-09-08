@@ -1,10 +1,8 @@
 """`GetProjectEvmReport` against in-memory fakes, checked with the shared contract fixtures."""
 
-import json
 from dataclasses import asdict
 from datetime import UTC, datetime
 from decimal import Decimal
-from pathlib import Path
 from uuid import UUID, uuid4
 
 import pytest
@@ -13,6 +11,11 @@ from pydantic.alias_generators import to_camel
 from app.application.errors import NotFoundError
 from app.application.evm.get_project_report import GetProjectEvmReport, ProjectEvmReport
 from app.domain.evm import EvmIndicators
+from tests.contract_fixtures import (
+    EVM_REPORT_EMPTY_PROJECT_FIXTURE,
+    EVM_REPORT_FIXTURE,
+    load_json_fixture,
+)
 from tests.unit.application.fakes import (
     REGISTRAR_ID,
     REVIEWER_ID,
@@ -25,10 +28,6 @@ from tests.unit.application.fakes import (
     registrar,
     reviewer,
 )
-
-FIXTURES_DIR = Path(__file__).resolve().parents[5] / "docs" / "api" / "fixtures"
-SEED_REPORT_FIXTURE = FIXTURES_DIR / "evm-report.json"
-EMPTY_REPORT_FIXTURE = FIXTURES_DIR / "evm-report-empty-project.json"
 
 PORTAL_ID = UUID("22222222-2222-4222-8222-000000000001")
 EMPTY_PROJECT_ID = UUID("22222222-2222-4222-8222-000000000002")
@@ -52,11 +51,6 @@ PORTAL_ACTIVITIES: tuple[RawActivity, ...] = (
     ),
     ("33333333-3333-4333-8333-000000000003", REGISTRAR_ID, "Pruebas", "10000", "20", "30", "2500"),
 )
-
-
-def load_fixture(path: Path) -> dict[str, object]:
-    """Parse a fixture keeping every number as an exact `Decimal`."""
-    return json.loads(path.read_text(encoding="utf-8"), parse_float=Decimal, parse_int=Decimal)
 
 
 def indicators_as_fixture(indicators: EvmIndicators) -> dict[str, object]:
@@ -116,7 +110,7 @@ class TestSeedProject:
 
     @pytest.fixture
     def expected(self) -> dict[str, object]:
-        return load_fixture(SEED_REPORT_FIXTURE)
+        return load_json_fixture(EVM_REPORT_FIXTURE)
 
     def test_project_summary_matches_the_guide(
         self, report: ProjectEvmReport, expected: dict[str, object]
@@ -154,7 +148,7 @@ class TestEmptyProject:
     def test_report_has_zero_indicators_and_the_no_activities_note(
         self, use_case: GetProjectEvmReport, users: FakeUserDirectory
     ) -> None:
-        expected = load_fixture(EMPTY_REPORT_FIXTURE)
+        expected = load_json_fixture(EVM_REPORT_EMPTY_PROJECT_FIXTURE)
 
         report = use_case.execute(EMPTY_PROJECT_ID)
 
