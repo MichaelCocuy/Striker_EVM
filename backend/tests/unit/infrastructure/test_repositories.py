@@ -73,6 +73,14 @@ class TestUserRepository:
 
         assert names == ["Ana Registradora", "Carlos Registrador", "Laura Revisora"]
 
+    def test_list_by_ids_returns_only_existing_requested_users(
+        self, users: SqlAlchemyUserRepository
+    ) -> None:
+        found = users.list_by_ids({REGISTRAR_ID, SECOND_REGISTRAR_ID, uuid4()})
+
+        assert {user.id for user in found} == {REGISTRAR_ID, SECOND_REGISTRAR_ID}
+        assert users.list_by_ids([]) == []
+
     def test_role_check_constraint_rejects_unknown_roles(self, session: Session) -> None:
         session.add(
             UserModel(email="x@striker.local", full_name="X", role="ADMIN", password_hash="h")
