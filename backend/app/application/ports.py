@@ -4,6 +4,7 @@ Records are structural `Protocol`s so ORM models satisfy them without the applic
 importing SQLAlchemy.
 """
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
@@ -84,6 +85,8 @@ class UserRepository(Protocol):
     def get_by_email(self, email: str) -> UserRecord | None: ...
 
     def list_all(self) -> list[UserRecord]: ...
+
+    def list_by_ids(self, user_ids: Iterable[UUID]) -> list[UserRecord]: ...
 
 
 class ProjectRepository(Protocol):

@@ -6,7 +6,8 @@ FastAPI + SQLAlchemy 2 + PostgreSQL backend of Striker EVM. This package contain
 - `app/domain/auth` — user roles (`REGISTRAR`, `REVIEWER`) and the authorization policy
   (`policy.py`: who manages projects, lists users and modifies or owns activities).
 - `app/application` — framework-free errors, ports (repositories, password hasher, token
-  service), mappers and the auth use cases (login, current user, list users).
+  service), mappers, the auth use cases (login, current user, list users) and the EVM report
+  use case (`evm/get_project_report.py`).
 - `app/infrastructure/db` — SQLAlchemy models, repositories, session and health probe.
 - `app/infrastructure/security` — bcrypt password hasher and PyJWT token service.
 - `app/api` — FastAPI routers, uniform error handlers, dependencies and the security
@@ -121,6 +122,35 @@ Routers of later modules protect endpoints with the dependencies of `app/api/sec
 `require_role(...)` for other combinations. Activity ownership rules live in
 `app/domain/auth/policy.py` (`can_modify_activity`, `resolve_activity_owner`).
 
+## EVM report
+
+`GET /projects/{projectId}/evm` is the only source of indicators: it returns, in one call, the
+EVM indicators of every activity of the project plus the consolidated total, each with its cost
+and schedule interpretation. Both roles may call it. Indicators are never stored — they are
+computed on read by `app/domain/evm` from the raw inputs (BAC, planned %, actual %, actual cost),
+so the report always reflects the current data.
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"revisor@striker.local","password":"Striker2026!"}' | jq -r .accessToken)
+
+curl -s http://localhost:8000/api/v1/projects/22222222-2222-4222-8222-000000000001/evm \
+  -H "Authorization: Bearer $TOKEN" | jq .project.indicators
+```
+
+Money carries 2 decimals and the performance indices 4, both as JSON numbers; an indicator that
+cannot be computed (a division by zero) is `null`, its status is `NOT_APPLICABLE` and `notes`
+explains why. A project without activities answers `200` with `activities: []` and a consolidated
+block in zero / `null` / `NOT_APPLICABLE` — never `404`. An unknown project answers `404`.
+
+The numbers can be checked by hand: the seed project "Portal de clientes" is the worked example
+of [`docs/EVM_GUIA.md` §6](../docs/EVM_GUIA.md), so the response above must match its §6.6 table
+(BAC 60 000.00, PV 32 000.00, EV 29 000.00, AC 31 500.00, CPI 0.9206, SPI 0.9063, EAC 65 172.41,
+VAC −5 172.41) and each activity its §6.5 row. The same expected response is committed as
+`docs/api/fixtures/evm-report.json`, which the unit and integration tests compare against field
+by field.
+
 ## Error contract
 
 Every 4xx/5xx response has the shape `{"code", "message", "details"}` with codes
@@ -137,7 +167,8 @@ Coverage is measured over `app/` and the run fails below 80 % (see `pyproject.to
 and API tests run against SQLite in-memory through SQLAlchemy, so no PostgreSQL is needed.
 `tests/conftest.py` provides a seeded `client` plus `auth_headers(email)`, `reviewer_headers`
 and `registrar_headers` fixtures for authenticated requests (seed users and the fast-bcrypt test
-settings live in `tests/seed.py`).
+settings live in `tests/seed.py`). `tests/contract_fixtures.py` loads the shared response fixtures
+of `docs/api/fixtures` with exact decimals, so tests assert against the published contract.
 
 ## Lint and format
 
