@@ -1,33 +1,16 @@
 """`EvmReport` schemas of the contract (`GET /projects/{projectId}/evm`).
 
 Monetary values and indices are `Decimal` in Python (already rounded by the domain to 2 and 4
-decimals) and plain JSON numbers on the wire, as the contract's `Money` and `PerformanceIndex`
-types require. A JSON number carries no scale, so trailing zeros are not part of the payload
-(`0.8000` travels as `0.8`); the value is the rounded one and clients format it for display.
+decimals) and plain JSON numbers on the wire through the shared `JsonNumber` type, as the
+contract's `Money` and `PerformanceIndex` types require.
 """
 
 from datetime import datetime
-from decimal import Decimal
-from typing import Annotated
 from uuid import UUID
 
-from pydantic import PlainSerializer
-
-from app.api.v1.schemas.common import CamelCaseModel
+from app.api.v1.schemas.common import CamelCaseModel, JsonNumber, UserSummary
 from app.application.evm.get_project_report import ActivityEvmReport, ProjectEvmReport
 from app.domain.evm import ActivityInput, CostStatus, EvmIndicators, ScheduleStatus
-
-JSON_MODE = "json"
-
-# Rounded decimals travel as JSON numbers (`65172.41`, `0.9206`), never as strings.
-JsonNumber = Annotated[Decimal, PlainSerializer(float, return_type=float, when_used=JSON_MODE)]
-
-
-class OwnerSummary(CamelCaseModel):
-    """`UserSummary`: the user responsible for an activity."""
-
-    id: UUID
-    full_name: str
 
 
 class ActivityMeasures(CamelCaseModel):
@@ -72,7 +55,7 @@ class EvmActivityReportSchema(CamelCaseModel):
 
     id: UUID
     name: str
-    owner: OwnerSummary
+    owner: UserSummary
     input: ActivityMeasures
     indicators: EvmIndicatorsSchema
 
@@ -82,7 +65,7 @@ class EvmActivityReportSchema(CamelCaseModel):
         return cls(
             id=activity.id,
             name=activity.name,
-            owner=OwnerSummary.model_validate(activity.owner),
+            owner=UserSummary.model_validate(activity.owner),
             input=ActivityMeasures.from_input(activity.input),
             indicators=EvmIndicatorsSchema.from_indicators(activity.indicators),
         )
