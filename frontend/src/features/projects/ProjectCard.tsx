@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 
+import { Button } from '@/components/ui/Button';
+import { BUTTON_VARIANT } from '@/components/ui/button-variants';
 import { projectDashboardPath } from '@/constants/routes';
 import { formatIndex } from '@/lib/format';
 import { REVEAL_ATTRIBUTE } from '@/motion/constants';
@@ -7,14 +9,17 @@ import { REVEAL_ATTRIBUTE } from '@/motion/constants';
 import { ProjectStatusPills } from './ProjectStatusPills';
 
 import type { PortfolioEntry } from './usePortfolio';
+import type { Project } from '@/api/types';
 
 const COPY = {
   NO_DESCRIPTION: 'Sin descripción.',
   ACTIVITY_SINGULAR: 'actividad',
   ACTIVITY_PLURAL: 'actividades',
   STATUS_UNAVAILABLE_HINT: 'No pudimos leer el reporte de este proyecto. Ábrelo para reintentar.',
+  ACTIONS_LABEL: 'Acciones del proyecto',
   CPI: 'CPI',
   SPI: 'SPI',
+  EDIT: 'Editar',
 } as const;
 
 const SINGLE_ACTIVITY = 1;
@@ -25,10 +30,13 @@ function activityCountLabel(count: number): string {
 
 interface ProjectCardProps {
   entry: PortfolioEntry;
+  /** REVIEWER-only actions; the backend answers 403 for anyone else. */
+  canManage: boolean;
+  onEdit: (project: Project) => void;
 }
 
 /** Portfolio tile: identity, size and the consolidated traffic light of one project. */
-export function ProjectCard({ entry }: ProjectCardProps) {
+export function ProjectCard({ entry, canManage, onEdit }: ProjectCardProps) {
   const { project, indicators } = entry;
 
   return (
@@ -69,6 +77,22 @@ export function ProjectCard({ entry }: ProjectCardProps) {
             </dd>
           </div>
         </dl>
+      )}
+
+      {canManage && (
+        <div
+          role="group"
+          aria-label={COPY.ACTIONS_LABEL}
+          className="relative z-10 mt-auto flex flex-wrap gap-2 border-t border-line pt-4"
+        >
+          <Button
+            variant={BUTTON_VARIANT.SECONDARY}
+            aria-label={`${COPY.EDIT} ${project.name}`}
+            onClick={() => onEdit(project)}
+          >
+            {COPY.EDIT}
+          </Button>
+        </div>
       )}
     </article>
   );
