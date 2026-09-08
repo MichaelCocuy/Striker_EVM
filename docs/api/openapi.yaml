@@ -75,10 +75,13 @@ paths:
         Comprueba que el servicio responde y que la base de datos está accesible. Es público
         (no requiere token). Lo usa Docker Compose como *healthcheck* y el frontend para mostrar
         el estado de conexión.
+
+        Una base de datos caída **no** es un error del servicio: se reporta con `200` y
+        `database: unavailable`, tal como fija `docs/ARQUITECTURA.md` §5 (códigos: 200).
       security: []
       responses:
         '200':
-          description: El servicio y la base de datos responden correctamente.
+          description: El servicio responde; `database` indica el estado de la base de datos.
           content:
             application/json:
               schema:
@@ -87,16 +90,8 @@ paths:
                 status: ok
                 database: ok
                 version: 1.0.0
-        '503':
-          description: El servicio responde pero la base de datos no está disponible.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: INTERNAL_ERROR
-                message: La base de datos no responde
-                details: []
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /auth/login:
     post:
@@ -328,8 +323,9 @@ paths:
           queda a su nombre.
         - `REVIEWER`: `ownerId` es **obligatorio** y debe corresponder a un usuario existente.
 
-        Un `ownerId` ausente (REVIEWER), ajeno (REGISTRAR) o inexistente responde `400` con
-        código `VALIDATION_ERROR`.
+        Un `ownerId` ausente (REVIEWER) o inexistente responde `400` con código
+        `VALIDATION_ERROR`; un `ownerId` ajeno (REGISTRAR) responde `403` con código `FORBIDDEN`,
+        porque la política de responsables prohíbe la acción en lugar de corregirla en silencio.
       requestBody:
         required: true
         content:
@@ -347,6 +343,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -573,12 +571,15 @@ components:
     # ------------------------------------------------------------------ errores
     ErrorCode:
       type: string
-      description: Catálogo de códigos de error del API.
+      description: |
+        Catálogo de códigos de error del API. `HTTP_ERROR` es el código de los estados que
+        produce el framework y ningún caso de uso levanta (por ejemplo `405 Method Not Allowed`).
       enum:
         - VALIDATION_ERROR
         - UNAUTHORIZED
         - FORBIDDEN
         - NOT_FOUND
+        - HTTP_ERROR
         - INTERNAL_ERROR
 
     ErrorDetail:
@@ -592,6 +593,11 @@ components:
         message:
           type: string
           description: Descripción legible del problema.
+        type:
+          type: [string, 'null']
+          description: |
+            Identificador técnico del error de validación (por ejemplo `int_parsing`). Solo
+            aparece cuando la falla es de forma del cuerpo, no de una regla de negocio.
       examples:
         - field: budgetAtCompletion
           message: budgetAtCompletion must be greater than 0
@@ -619,18 +625,21 @@ components:
               message: plannedProgressPercent must be between 0 and 100
 
     # ------------------------------------------------------------------ sistema
+    ComponentStatus:
+      type: string
+      description: Estado de un componente del servicio.
+      enum: [ok, unavailable]
+
     HealthResponse:
       type: object
       description: Estado del servicio y de la base de datos.
       required: [status, database]
       properties:
         status:
-          type: string
-          enum: [ok]
-          description: Estado del servicio HTTP.
+          $ref: '#/components/schemas/ComponentStatus'
+          description: Estado del servicio HTTP; es `ok` siempre que el API alcance a responder.
         database:
-          type: string
-          enum: [ok]
+          $ref: '#/components/schemas/ComponentStatus'
           description: Estado de la conexión a PostgreSQL.
         version:
           type: string
