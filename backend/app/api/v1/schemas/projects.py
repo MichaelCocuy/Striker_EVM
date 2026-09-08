@@ -4,8 +4,9 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from pydantic import StringConstraints
+from pydantic import ConfigDict, Field, StringConstraints
 
+from app.api.v1.docs.examples import PROJECT_EXAMPLE, PROJECT_INPUT_EXAMPLE
 from app.api.v1.schemas.common import CamelCaseModel, UserSummary
 from app.application.ports import ProjectData
 from app.application.projects.views import ProjectView
@@ -13,6 +14,15 @@ from app.application.projects.views import ProjectView
 NAME_MAX_LENGTH = 120
 NAME_MIN_LENGTH = 1
 DESCRIPTION_MAX_LENGTH = 2000
+
+NAME_DESCRIPTION = (
+    f"Nombre del proyecto, hasta {NAME_MAX_LENGTH} caracteres; se recortan los espacios "
+    "sobrantes y no puede quedar vacío."
+)
+DESCRIPTION_DESCRIPTION = (
+    f"Descripción libre del proyecto, hasta {DESCRIPTION_MAX_LENGTH} caracteres. "
+    "Opcional: `null` cuando no se registró ninguna."
+)
 
 ProjectName = Annotated[
     str,
@@ -26,10 +36,14 @@ ProjectDescription = Annotated[
 
 
 class ProjectRequest(CamelCaseModel):
-    """`ProjectInput`: the editable fields of a project, sent to POST and PUT."""
+    """Datos editables de un proyecto; es el cuerpo de la creación (POST) y la edición (PUT)."""
 
-    name: ProjectName
-    description: ProjectDescription | None = None
+    model_config = ConfigDict(json_schema_extra={"example": PROJECT_INPUT_EXAMPLE})
+
+    name: ProjectName = Field(description=NAME_DESCRIPTION)
+    description: ProjectDescription | None = Field(
+        default=None, description=DESCRIPTION_DESCRIPTION
+    )
 
     def to_data(self) -> ProjectData:
         """Payload the project use cases persist."""
@@ -37,15 +51,23 @@ class ProjectRequest(CamelCaseModel):
 
 
 class ProjectResponse(CamelCaseModel):
-    """`Project`: the stored project with its activity count and its creator."""
+    """Proyecto almacenado, con su conteo de actividades y el usuario que lo creó."""
 
-    id: UUID
-    name: str
-    description: str | None
-    activity_count: int
-    created_by: UserSummary
-    created_at: datetime
-    updated_at: datetime
+    model_config = ConfigDict(json_schema_extra={"example": PROJECT_EXAMPLE})
+
+    id: UUID = Field(description="Identificador (UUID) del proyecto.")
+    name: str = Field(description=NAME_DESCRIPTION)
+    description: str | None = Field(description=DESCRIPTION_DESCRIPTION)
+    activity_count: int = Field(
+        description="Número de actividades registradas en el proyecto (0 si no tiene ninguna)."
+    )
+    created_by: UserSummary = Field(
+        description="Usuario `REVIEWER` que creó el proyecto; no cambia."
+    )
+    created_at: datetime = Field(description="Fecha y hora (UTC) de creación del proyecto.")
+    updated_at: datetime = Field(
+        description="Fecha y hora (UTC) de la última edición; igual a `createdAt` si no se editó."
+    )
 
     @classmethod
     def from_view(cls, view: ProjectView) -> "ProjectResponse":

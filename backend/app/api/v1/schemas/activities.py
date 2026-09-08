@@ -10,8 +10,10 @@ from decimal import Decimal
 from typing import Annotated
 from uuid import UUID
 
-from pydantic import Field, StringConstraints
+from pydantic import ConfigDict, Field, StringConstraints
 
+from app.api.v1.docs import fields
+from app.api.v1.docs.examples import ACTIVITY_EXAMPLE, ACTIVITY_INPUT_EXAMPLE
 from app.api.v1.schemas.common import CamelCaseModel, JsonNumber, UserSummary
 from app.application.activities.commands import ActivityCommand
 from app.application.activities.views import ActivityView
@@ -26,6 +28,11 @@ PERCENT_MAX_DIGITS = 5
 PERCENT_MIN = Decimal("0")
 PERCENT_MAX = Decimal("100")
 
+OWNER_ID_DESCRIPTION = (
+    "Id del usuario responsable. Un `REGISTRAR` puede omitirlo (queda a su nombre) y solo puede "
+    "enviar su propio id; un `REVIEWER` está obligado a enviar el id de un usuario existente."
+)
+
 ActivityName = Annotated[
     str,
     StringConstraints(
@@ -39,6 +46,7 @@ BudgetAtCompletion = Annotated[
         le=MONEY_MAX,
         max_digits=MONEY_MAX_DIGITS,
         decimal_places=MONEY_DECIMAL_PLACES,
+        description=fields.BUDGET_AT_COMPLETION,
     ),
 ]
 ActualCost = Annotated[
@@ -48,27 +56,41 @@ ActualCost = Annotated[
         le=MONEY_MAX,
         max_digits=MONEY_MAX_DIGITS,
         decimal_places=MONEY_DECIMAL_PLACES,
+        description=fields.ACTUAL_COST,
     ),
 ]
-ProgressPercent = Annotated[
+PlannedProgressPercent = Annotated[
     Decimal,
     Field(
         ge=PERCENT_MIN,
         le=PERCENT_MAX,
         max_digits=PERCENT_MAX_DIGITS,
         decimal_places=MONEY_DECIMAL_PLACES,
+        description=fields.PLANNED_PROGRESS_PERCENT,
+    ),
+]
+ActualProgressPercent = Annotated[
+    Decimal,
+    Field(
+        ge=PERCENT_MIN,
+        le=PERCENT_MAX,
+        max_digits=PERCENT_MAX_DIGITS,
+        decimal_places=MONEY_DECIMAL_PLACES,
+        description=fields.ACTUAL_PROGRESS_PERCENT,
     ),
 ]
 
 
 class ActivityRequest(CamelCaseModel):
-    """`ActivityInput`: create and edit body; `ownerId` follows the rules of each role."""
+    """Cuerpo de creación y edición de una actividad; con él se registra el avance y el costo."""
 
-    name: ActivityName
-    owner_id: UUID | None = None
+    model_config = ConfigDict(json_schema_extra={"example": ACTIVITY_INPUT_EXAMPLE})
+
+    name: ActivityName = Field(description=fields.ACTIVITY_NAME)
+    owner_id: UUID | None = Field(default=None, description=OWNER_ID_DESCRIPTION)
     budget_at_completion: BudgetAtCompletion
-    planned_progress_percent: ProgressPercent
-    actual_progress_percent: ProgressPercent
+    planned_progress_percent: PlannedProgressPercent
+    actual_progress_percent: ActualProgressPercent
     actual_cost: ActualCost
 
     def to_command(self) -> ActivityCommand:
@@ -84,18 +106,22 @@ class ActivityRequest(CamelCaseModel):
 
 
 class ActivityResponse(CamelCaseModel):
-    """`Activity`: the stored activity with its raw measures and its owner (no indicators)."""
+    """Actividad almacenada con sus datos crudos y su responsable; sin indicadores EVM."""
 
-    id: UUID
-    project_id: UUID
-    name: str
-    owner: UserSummary
-    budget_at_completion: JsonNumber
-    planned_progress_percent: JsonNumber
-    actual_progress_percent: JsonNumber
-    actual_cost: JsonNumber
-    created_at: datetime
-    updated_at: datetime
+    model_config = ConfigDict(json_schema_extra={"example": ACTIVITY_EXAMPLE})
+
+    id: UUID = Field(description="Identificador (UUID) de la actividad.")
+    project_id: UUID = Field(description="Identificador (UUID) del proyecto que la contiene.")
+    name: str = Field(description=fields.ACTIVITY_NAME)
+    owner: UserSummary = Field(description=fields.ACTIVITY_OWNER)
+    budget_at_completion: JsonNumber = Field(description=fields.BUDGET_AT_COMPLETION)
+    planned_progress_percent: JsonNumber = Field(description=fields.PLANNED_PROGRESS_PERCENT)
+    actual_progress_percent: JsonNumber = Field(description=fields.ACTUAL_PROGRESS_PERCENT)
+    actual_cost: JsonNumber = Field(description=fields.ACTUAL_COST)
+    created_at: datetime = Field(description="Fecha y hora (UTC) de creación de la actividad.")
+    updated_at: datetime = Field(
+        description="Fecha y hora (UTC) del último registro de avance o costo."
+    )
 
     @classmethod
     def from_view(cls, view: ActivityView) -> "ActivityResponse":
