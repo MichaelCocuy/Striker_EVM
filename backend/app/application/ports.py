@@ -112,3 +112,34 @@ class ActivityRepository(Protocol):
     def update(self, activity: ActivityRecord, data: ActivityData) -> ActivityRecord: ...
 
     def delete(self, activity: ActivityRecord) -> None: ...
+
+
+class InvalidTokenError(Exception):
+    """The access token is malformed, expired, tampered with or lacks a required claim."""
+
+
+@dataclass(frozen=True)
+class TokenClaims:
+    """Identity carried by a valid access token."""
+
+    user_id: UUID
+    role: str
+
+
+class PasswordHasher(Protocol):
+    """Hashing and verification of user passwords."""
+
+    def hash(self, password: str) -> str: ...
+
+    def verify(self, password: str, password_hash: str) -> bool: ...
+
+
+class TokenService(Protocol):
+    """Issuing and validation of access tokens."""
+
+    @property
+    def expires_in_seconds(self) -> int: ...
+
+    def create_token(self, user_id: UUID, role: str) -> str: ...
+
+    def decode_token(self, token: str) -> TokenClaims: ...
