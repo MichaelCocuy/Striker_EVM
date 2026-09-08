@@ -89,6 +89,31 @@ Orca cerro la sesion, continuemos
   que todos los números del ejemplo y de los casos borde de la guía son correctos, abrió el
   PR hacia `develop` y lo integró.
 
+### Prompt 3 — 2026-09-08 — Claude Code
+
+```text
+Vamo a usar el Stack FastAPI con PostgreSQL y React con Vite por velocidad, vamos a arrancar con construccion en paralelo de los modulos y del front, es importante mencionar que el diseño del front debe ser de ultima generacion, con graficas y usando animaciones de gsap para las transiciones, es importante mencionar y es decision netamente mia, necesito implementar una logica de roles basada en quienes registran sus actividades y quienes la revisan para saber el estado actual del proyecto
+```
+
+**Qué hizo la IA:**
+
+- Registró la decisión de stack (FastAPI + PostgreSQL + React/Vite) y la decisión propia del
+  autor de incorporar roles (ver sección 6), y actualizó `docs/ARQUITECTURA.md` con el
+  módulo de autenticación y roles, los lineamientos de diseño del frontend (GSAP, gráficas)
+  y el grafo de dependencias ajustado.
+- Lanzó la ola 1 de construcción en paralelo, cada módulo en su propio *git worktree* y rama
+  `feature/*`: contrato OpenAPI + fixtures, dominio EVM con tests, andamiaje del frontend.
+
+### Prompt 4 — 2026-09-08 — Claude Code
+
+```text
+continua
+```
+
+**Qué hizo la IA:** terminó la actualización de `docs/ARQUITECTURA.md` (módulo M3b de
+autenticación y roles, matriz de permisos, usuarios semilla, lineamientos de diseño con GSAP),
+la integró a `develop` por PR y arrancó la ola 1.
+
 ---
 
 ## 3. Cómo aprendí EVM y cómo validé las fórmulas
@@ -118,7 +143,23 @@ se contrasta con la intuición del caso._
 
 ## 6. Decisión de arquitectura tomada de forma independiente
 
-_Pendiente._
+**Roles: quién registra y quién revisa.** Decisión tomada por el autor en el Prompt 3, sin
+que la IA lo propusiera (la propuesta de arquitectura inicial no tenía usuarios ni roles).
+
+- **Qué se decidió:** la herramienta distingue dos roles. El **registrador** (`REGISTRAR`)
+  es quien ejecuta el trabajo y reporta el avance real y el costo de *sus* actividades. El
+  **revisor** (`REVIEWER`) administra los proyectos, asigna responsables y revisa el estado
+  consolidado (indicadores EVM) para saber cómo va el proyecto.
+- **Por qué:** en un proyecto real quien registra el avance y quien lo evalúa no son la
+  misma persona; separar los roles hace que el dato de avance tenga un dueño responsable y
+  que el reporte EVM llegue a quien toma decisiones. También refleja cómo funciona la
+  herramienta interna que describe el enunciado (líderes que registran, dirección que
+  revisa).
+- **Costo asumido:** un módulo adicional de autenticación (JWT) y autorización en el
+  backend, una pantalla de login y vistas por rol en el frontend, y usuarios semilla en el
+  script de base de datos. El detalle del diseño está en `docs/ARQUITECTURA.md §11`.
+
+_El autor ampliará esta sección con sus propias palabras al cerrar el módulo._
 
 ---
 
