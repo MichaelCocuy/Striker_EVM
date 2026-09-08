@@ -20,6 +20,7 @@ const COPY = {
   CPI: 'CPI',
   SPI: 'SPI',
   EDIT: 'Editar',
+  DELETE: 'Eliminar',
 } as const;
 
 const SINGLE_ACTIVITY = 1;
@@ -33,10 +34,11 @@ interface ProjectCardProps {
   /** REVIEWER-only actions; the backend answers 403 for anyone else. */
   canManage: boolean;
   onEdit: (project: Project) => void;
+  onDelete: (project: Project) => void;
 }
 
 /** Portfolio tile: identity, size and the consolidated traffic light of one project. */
-export function ProjectCard({ entry, canManage, onEdit }: ProjectCardProps) {
+export function ProjectCard({ entry, canManage, onEdit, onDelete }: ProjectCardProps) {
   const { project, indicators } = entry;
 
   return (
@@ -91,6 +93,13 @@ export function ProjectCard({ entry, canManage, onEdit }: ProjectCardProps) {
             onClick={() => onEdit(project)}
           >
             {COPY.EDIT}
+          </Button>
+          <Button
+            variant={BUTTON_VARIANT.DANGER}
+            aria-label={`${COPY.DELETE} ${project.name}`}
+            onClick={() => onDelete(project)}
+          >
+            {COPY.DELETE}
           </Button>
         </div>
       )}

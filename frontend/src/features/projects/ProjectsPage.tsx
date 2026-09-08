@@ -9,6 +9,7 @@ import { PERMISSIONS } from '@/features/auth/permissions';
 import { useCan } from '@/features/auth/useCan';
 import { useStaggerReveal } from '@/motion/useStaggerReveal';
 
+import { DeleteProjectConfirm } from './DeleteProjectConfirm';
 import { ProjectCard } from './ProjectCard';
 import { ProjectDialog } from './ProjectDialog';
 import { ProjectForm } from './ProjectForm';
@@ -34,6 +35,8 @@ const COPY = {
     CREATE_DESCRIPTION: 'Registra el proyecto; después podrás agregarle actividades.',
     EDIT_TITLE: 'Editar proyecto',
     EDIT_DESCRIPTION: 'Actualiza el nombre o la descripción del proyecto.',
+    DELETE_TITLE: 'Eliminar proyecto',
+    DELETE_DESCRIPTION: 'Confirma la eliminación; es definitiva.',
   },
 } as const;
 
@@ -44,10 +47,13 @@ const GRID_CLASSES = 'grid gap-6 md:grid-cols-2 xl:grid-cols-3';
 const DIALOG_KIND = {
   CREATE: 'create',
   EDIT: 'edit',
+  DELETE: 'delete',
 } as const;
 
 type DialogState =
-  { kind: typeof DIALOG_KIND.CREATE } | { kind: typeof DIALOG_KIND.EDIT; project: Project };
+  | { kind: typeof DIALOG_KIND.CREATE }
+  | { kind: typeof DIALOG_KIND.EDIT; project: Project }
+  | { kind: typeof DIALOG_KIND.DELETE; project: Project };
 
 function PortfolioSkeleton() {
   return (
@@ -119,12 +125,26 @@ function PortfolioDialog({ dialog, onClose, onCompleted }: PortfolioDialogProps)
           <ProjectForm project={dialog.project} onSaved={onCompleted} onCancel={onClose} />
         </ProjectDialog>
       );
+    case DIALOG_KIND.DELETE:
+      return (
+        <ProjectDialog
+          title={COPY.DIALOG.DELETE_TITLE}
+          description={COPY.DIALOG.DELETE_DESCRIPTION}
+          onClose={onClose}
+        >
+          <DeleteProjectConfirm
+            project={dialog.project}
+            onDeleted={onCompleted}
+            onCancel={onClose}
+          />
+        </ProjectDialog>
+      );
   }
 }
 
 /**
- * REVIEWER home: every project with its consolidated traffic light, plus the create and edit
- * flows. A REGISTRAR who reaches this page sees the same portfolio without the actions
+ * REVIEWER home: every project with its consolidated traffic light, plus the create, edit and
+ * delete flows. A REGISTRAR who reaches this page sees the same portfolio without the actions
  * (the backend still answers 403 if they are attempted another way).
  */
 export function ProjectsPage() {
@@ -150,6 +170,9 @@ export function ProjectsPage() {
   }, []);
   const openEdit = useCallback((project: Project) => {
     setDialog({ kind: DIALOG_KIND.EDIT, project });
+  }, []);
+  const openDelete = useCallback((project: Project) => {
+    setDialog({ kind: DIALOG_KIND.DELETE, project });
   }, []);
 
   const isEmpty = portfolio.status === 'success' && entries.length === 0;
@@ -179,6 +202,7 @@ export function ProjectsPage() {
               entry={entry}
               canManage={canManage}
               onEdit={openEdit}
+              onDelete={openDelete}
             />
           ))}
         </div>
