@@ -1,4 +1,5 @@
-const LOCALE = 'es-CO';
+/** Presentation locale of the whole app; number separators follow it. */
+export const LOCALE = 'es-CO';
 
 /** Shown wherever an indicator is not computable (`null` in the API response). */
 export const NOT_COMPUTABLE = '—';
