@@ -1,5 +1,6 @@
 import gsap from 'gsap';
 import { useEffect, useId, useLayoutEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 import { Button } from '@/components/ui/Button';
 import { BUTTON_VARIANT } from '@/components/ui/button-variants';
@@ -11,14 +12,26 @@ import type { ReactNode, RefObject } from 'react';
 const ESCAPE_KEY = 'Escape';
 const CLOSE_LABEL = 'Cerrar';
 
-/** Focuses the panel and slides it in; under reduced motion it simply appears. */
+/** Moves focus into the dialog and hands it back to whatever opened it on close. */
+function useDialogFocus(panelRef: RefObject<HTMLDivElement | null>): void {
+  useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    panelRef.current?.focus();
+    return () => {
+      if (previouslyFocused instanceof HTMLElement) {
+        previouslyFocused.focus();
+      }
+    };
+  }, [panelRef]);
+}
+
+/** Slides the panel in; under reduced motion it simply appears. */
 function useDialogEntrance(panelRef: RefObject<HTMLDivElement | null>): void {
   useLayoutEffect(() => {
     const panel = panelRef.current;
     if (panel === null) {
       return;
     }
-    panel.focus();
     const finalState = { autoAlpha: 1, y: 0 };
     if (prefersReducedMotion()) {
       gsap.set(panel, finalState);
@@ -45,11 +58,14 @@ interface ProjectDialogProps {
 /**
  * Modal shell for the portfolio's own flows (create, edit and delete confirmation), so the
  * page never falls back to `window.confirm`. Escape and the close button both dismiss it.
+ * It renders in a portal because the page transition leaves a transform on `main`, which
+ * would otherwise become the containing block of the fixed overlay.
  */
 export function ProjectDialog({ title, description, onClose, children }: ProjectDialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
+  useDialogFocus(panelRef);
   useDialogEntrance(panelRef);
 
   useEffect(() => {
@@ -64,7 +80,7 @@ export function ProjectDialog({ title, description, onClose, children }: Project
     };
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-canvas/80 p-4 backdrop-blur-sm md:items-center">
       <div
         ref={panelRef}
@@ -90,6 +106,7 @@ export function ProjectDialog({ title, description, onClose, children }: Project
         </header>
         <div className="mt-5">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
