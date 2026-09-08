@@ -1,0 +1,218 @@
+[
+  {
+    "case": "5.1",
+    "title": "AC = 0 con avance: trabajo hecho sin costo registrado",
+    "scope": "activity",
+    "input": {
+      "budgetAtCompletion": 1000.00,
+      "plannedProgressPercent": 50.00,
+      "actualProgressPercent": 20.00,
+      "actualCost": 0.00
+    },
+    "expected": {
+      "budgetAtCompletion": 1000.00,
+      "plannedValue": 500.00,
+      "earnedValue": 200.00,
+      "actualCost": 0.00,
+      "costVariance": 200.00,
+      "scheduleVariance": -300.00,
+      "costPerformanceIndex": null,
+      "schedulePerformanceIndex": 0.4000,
+      "estimateAtCompletion": null,
+      "varianceAtCompletion": null,
+      "costStatus": "NOT_APPLICABLE",
+      "scheduleStatus": "BEHIND_SCHEDULE",
+      "notes": [
+        "CPI no calculable: sin costo registrado (AC = 0). EAC y VAC no se pueden proyectar."
+      ]
+    }
+  },
+  {
+    "case": "5.2",
+    "title": "AC = 0 y EV = 0: actividad no iniciada",
+    "scope": "activity",
+    "input": {
+      "budgetAtCompletion": 1000.00,
+      "plannedProgressPercent": 0.00,
+      "actualProgressPercent": 0.00,
+      "actualCost": 0.00
+    },
+    "expected": {
+      "budgetAtCompletion": 1000.00,
+      "plannedValue": 0.00,
+      "earnedValue": 0.00,
+      "actualCost": 0.00,
+      "costVariance": 0.00,
+      "scheduleVariance": 0.00,
+      "costPerformanceIndex": null,
+      "schedulePerformanceIndex": null,
+      "estimateAtCompletion": null,
+      "varianceAtCompletion": null,
+      "costStatus": "NOT_APPLICABLE",
+      "scheduleStatus": "NOT_APPLICABLE",
+      "notes": [
+        "CPI no calculable: actividad no iniciada (EV = 0 y AC = 0). EAC y VAC no se pueden proyectar.",
+        "SPI no calculable: actividad no iniciada (EV = 0 y PV = 0)."
+      ]
+    }
+  },
+  {
+    "case": "5.2-variant",
+    "title": "Planificada pero no iniciada: PV > 0, EV = 0, AC = 0",
+    "scope": "activity",
+    "input": {
+      "budgetAtCompletion": 1000.00,
+      "plannedProgressPercent": 30.00,
+      "actualProgressPercent": 0.00,
+      "actualCost": 0.00
+    },
+    "expected": {
+      "budgetAtCompletion": 1000.00,
+      "plannedValue": 300.00,
+      "earnedValue": 0.00,
+      "actualCost": 0.00,
+      "costVariance": 0.00,
+      "scheduleVariance": -300.00,
+      "costPerformanceIndex": null,
+      "schedulePerformanceIndex": 0.0000,
+      "estimateAtCompletion": null,
+      "varianceAtCompletion": null,
+      "costStatus": "NOT_APPLICABLE",
+      "scheduleStatus": "BEHIND_SCHEDULE",
+      "notes": [
+        "CPI no calculable: actividad no iniciada (EV = 0 y AC = 0). EAC y VAC no se pueden proyectar."
+      ]
+    }
+  },
+  {
+    "case": "5.3",
+    "title": "Avance real = 0 con gasto: se gastó sin producir nada",
+    "scope": "activity",
+    "input": {
+      "budgetAtCompletion": 1000.00,
+      "plannedProgressPercent": 30.00,
+      "actualProgressPercent": 0.00,
+      "actualCost": 150.00
+    },
+    "expected": {
+      "budgetAtCompletion": 1000.00,
+      "plannedValue": 300.00,
+      "earnedValue": 0.00,
+      "actualCost": 150.00,
+      "costVariance": -150.00,
+      "scheduleVariance": -300.00,
+      "costPerformanceIndex": 0.0000,
+      "schedulePerformanceIndex": 0.0000,
+      "estimateAtCompletion": null,
+      "varianceAtCompletion": null,
+      "costStatus": "OVER_BUDGET",
+      "scheduleStatus": "BEHIND_SCHEDULE",
+      "notes": [
+        "EAC y VAC no calculables: sin avance real (CPI = 0), no se puede proyectar el costo final."
+      ]
+    }
+  },
+  {
+    "case": "5.4",
+    "title": "PV = 0 con avance: trabajo adelantado a lo programado",
+    "scope": "activity",
+    "input": {
+      "budgetAtCompletion": 1000.00,
+      "plannedProgressPercent": 0.00,
+      "actualProgressPercent": 10.00,
+      "actualCost": 80.00
+    },
+    "expected": {
+      "budgetAtCompletion": 1000.00,
+      "plannedValue": 0.00,
+      "earnedValue": 100.00,
+      "actualCost": 80.00,
+      "costVariance": 20.00,
+      "scheduleVariance": 100.00,
+      "costPerformanceIndex": 1.2500,
+      "schedulePerformanceIndex": null,
+      "estimateAtCompletion": 800.00,
+      "varianceAtCompletion": 200.00,
+      "costStatus": "UNDER_BUDGET",
+      "scheduleStatus": "NOT_APPLICABLE",
+      "notes": [
+        "SPI no calculable: actividad no programada a la fecha de corte (PV = 0)."
+      ]
+    }
+  },
+  {
+    "case": "5.7",
+    "title": "Actividad terminada (100 %) con sobrecosto",
+    "scope": "activity",
+    "input": {
+      "budgetAtCompletion": 1000.00,
+      "plannedProgressPercent": 100.00,
+      "actualProgressPercent": 100.00,
+      "actualCost": 1200.00
+    },
+    "expected": {
+      "budgetAtCompletion": 1000.00,
+      "plannedValue": 1000.00,
+      "earnedValue": 1000.00,
+      "actualCost": 1200.00,
+      "costVariance": -200.00,
+      "scheduleVariance": 0.00,
+      "costPerformanceIndex": 0.8333,
+      "schedulePerformanceIndex": 1.0000,
+      "estimateAtCompletion": 1200.00,
+      "varianceAtCompletion": -200.00,
+      "costStatus": "OVER_BUDGET",
+      "scheduleStatus": "ON_SCHEDULE",
+      "notes": []
+    }
+  },
+  {
+    "case": "5.8",
+    "title": "Índices exactamente iguales a 1: en presupuesto y en cronograma",
+    "scope": "activity",
+    "input": {
+      "budgetAtCompletion": 1000.00,
+      "plannedProgressPercent": 50.00,
+      "actualProgressPercent": 50.00,
+      "actualCost": 500.00
+    },
+    "expected": {
+      "budgetAtCompletion": 1000.00,
+      "plannedValue": 500.00,
+      "earnedValue": 500.00,
+      "actualCost": 500.00,
+      "costVariance": 0.00,
+      "scheduleVariance": 0.00,
+      "costPerformanceIndex": 1.0000,
+      "schedulePerformanceIndex": 1.0000,
+      "estimateAtCompletion": 1000.00,
+      "varianceAtCompletion": 0.00,
+      "costStatus": "ON_BUDGET",
+      "scheduleStatus": "ON_SCHEDULE",
+      "notes": []
+    }
+  },
+  {
+    "case": "5.5",
+    "title": "Proyecto sin actividades",
+    "scope": "project",
+    "activities": [],
+    "expected": {
+      "budgetAtCompletion": 0.00,
+      "plannedValue": 0.00,
+      "earnedValue": 0.00,
+      "actualCost": 0.00,
+      "costVariance": 0.00,
+      "scheduleVariance": 0.00,
+      "costPerformanceIndex": null,
+      "schedulePerformanceIndex": null,
+      "estimateAtCompletion": null,
+      "varianceAtCompletion": null,
+      "costStatus": "NOT_APPLICABLE",
+      "scheduleStatus": "NOT_APPLICABLE",
+      "notes": [
+        "Sin datos: el proyecto no tiene actividades."
+      ]
+    }
+  }
+]
