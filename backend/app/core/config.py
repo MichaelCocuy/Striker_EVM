@@ -6,13 +6,10 @@ from typing import Annotated
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
+# The user-facing OpenAPI metadata (summary, description, tags, servers, contact) lives in
+# `app/api/openapi.py`; only the identity of the service belongs here.
 APP_TITLE = "Striker EVM API"
 APP_VERSION = "0.1.0"
-APP_DESCRIPTION = (
-    "Earned Value Management for projects and activities: registration of planned and actual "
-    "progress and cost, and EVM indicators (PV, EV, CV, SV, CPI, SPI, EAC, VAC) per activity "
-    "and consolidated per project."
-)
 
 DEFAULT_DATABASE_URL = "postgresql+psycopg://striker:striker@localhost:5432/striker"
 DEFAULT_FRONTEND_ORIGIN = "http://localhost:5173"

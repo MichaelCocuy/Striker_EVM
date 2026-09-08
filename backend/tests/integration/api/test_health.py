@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session
 
-from app.core.config import Settings
+from app.core.config import APP_VERSION, Settings
 from app.infrastructure.db.session import get_db_session
 from app.main import create_app
 
@@ -45,7 +45,7 @@ def test_health_reports_ok_when_database_answers(healthy_client: TestClient) -> 
     response = healthy_client.get(HEALTH_PATH)
 
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {"status": "ok", "database": "ok"}
+    assert response.json() == {"status": "ok", "database": "ok", "version": APP_VERSION}
 
 
 def test_health_reports_database_unavailable_when_query_fails(
@@ -54,7 +54,7 @@ def test_health_reports_database_unavailable_when_query_fails(
     response = unhealthy_client.get(HEALTH_PATH)
 
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {"status": "ok", "database": "unavailable"}
+    assert response.json() == {"status": "ok", "database": "unavailable", "version": APP_VERSION}
 
 
 def test_openapi_document_is_served_at_api_docs(healthy_client: TestClient) -> None:

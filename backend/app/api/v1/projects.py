@@ -6,13 +6,20 @@ by the use cases through the domain policy rather than here.
 
 from http import HTTPStatus
 from typing import Annotated
-from uuid import UUID
 
-from fastapi import APIRouter, Depends, Path, Response
+from fastapi import APIRouter, Depends, Response
 
 from app.api.dependencies import DbSession
-from app.api.errors import ErrorResponse
 from app.api.security import CurrentUser
+from app.api.v1.docs.operations import (
+    CREATE_PROJECT,
+    DELETE_PROJECT,
+    GET_PROJECT,
+    LIST_PROJECTS,
+    UPDATE_PROJECT,
+    documented,
+)
+from app.api.v1.params import PROJECT_ID_PARAM, ProjectId
 from app.api.v1.schemas.projects import ProjectRequest, ProjectResponse
 from app.application.projects.create_project_use_case import CreateProjectUseCase
 from app.application.projects.delete_project_use_case import DeleteProjectUseCase
@@ -24,13 +31,10 @@ from app.infrastructure.db.repositories import (
     SqlAlchemyUserRepository,
 )
 
-PROJECT_ID_PARAM = "projectId"
 PROJECT_PATH = f"/{{{PROJECT_ID_PARAM}}}"
 COLLECTION_PATH = ""
 
 router = APIRouter(prefix="/projects", tags=["projects"])
-
-ProjectId = Annotated[UUID, Path(alias=PROJECT_ID_PARAM, description="Project identifier")]
 
 
 def get_list_use_case(session: DbSession) -> ListProjectsUseCase:
@@ -73,9 +77,8 @@ DeleteUseCase = Annotated[DeleteProjectUseCase, Depends(get_delete_use_case)]
 
 @router.get(
     COLLECTION_PATH,
-    summary="List projects",
     response_model=list[ProjectResponse],
-    responses={HTTPStatus.UNAUTHORIZED: {"model": ErrorResponse}},
+    **documented(LIST_PROJECTS, HTTPStatus.UNAUTHORIZED),
 )
 def list_projects(_: CurrentUser, use_case: ListUseCase) -> list[ProjectResponse]:
     """Every project with its activity count, newest first; both roles may read it."""
@@ -84,14 +87,11 @@ def list_projects(_: CurrentUser, use_case: ListUseCase) -> list[ProjectResponse
 
 @router.post(
     COLLECTION_PATH,
-    summary="Create a project",
     status_code=HTTPStatus.CREATED,
     response_model=ProjectResponse,
-    responses={
-        HTTPStatus.BAD_REQUEST: {"model": ErrorResponse},
-        HTTPStatus.UNAUTHORIZED: {"model": ErrorResponse},
-        HTTPStatus.FORBIDDEN: {"model": ErrorResponse},
-    },
+    **documented(
+        CREATE_PROJECT, HTTPStatus.BAD_REQUEST, HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN
+    ),
 )
 def create_project(
     body: ProjectRequest, actor: CurrentUser, use_case: CreateUseCase
@@ -102,12 +102,8 @@ def create_project(
 
 @router.get(
     PROJECT_PATH,
-    summary="Get a project",
     response_model=ProjectResponse,
-    responses={
-        HTTPStatus.UNAUTHORIZED: {"model": ErrorResponse},
-        HTTPStatus.NOT_FOUND: {"model": ErrorResponse},
-    },
+    **documented(GET_PROJECT, HTTPStatus.UNAUTHORIZED, HTTPStatus.NOT_FOUND),
 )
 def get_project(project_id: ProjectId, _: CurrentUser, use_case: ReadUseCase) -> ProjectResponse:
     """One project by id, with its activity count; both roles may read it."""
@@ -116,14 +112,14 @@ def get_project(project_id: ProjectId, _: CurrentUser, use_case: ReadUseCase) ->
 
 @router.put(
     PROJECT_PATH,
-    summary="Replace a project",
     response_model=ProjectResponse,
-    responses={
-        HTTPStatus.BAD_REQUEST: {"model": ErrorResponse},
-        HTTPStatus.UNAUTHORIZED: {"model": ErrorResponse},
-        HTTPStatus.FORBIDDEN: {"model": ErrorResponse},
-        HTTPStatus.NOT_FOUND: {"model": ErrorResponse},
-    },
+    **documented(
+        UPDATE_PROJECT,
+        HTTPStatus.BAD_REQUEST,
+        HTTPStatus.UNAUTHORIZED,
+        HTTPStatus.FORBIDDEN,
+        HTTPStatus.NOT_FOUND,
+    ),
 )
 def update_project(
     project_id: ProjectId, body: ProjectRequest, actor: CurrentUser, use_case: UpdateUseCase
@@ -134,13 +130,10 @@ def update_project(
 
 @router.delete(
     PROJECT_PATH,
-    summary="Delete a project",
     status_code=HTTPStatus.NO_CONTENT,
-    responses={
-        HTTPStatus.UNAUTHORIZED: {"model": ErrorResponse},
-        HTTPStatus.FORBIDDEN: {"model": ErrorResponse},
-        HTTPStatus.NOT_FOUND: {"model": ErrorResponse},
-    },
+    **documented(
+        DELETE_PROJECT, HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN, HTTPStatus.NOT_FOUND
+    ),
 )
 def delete_project(project_id: ProjectId, actor: CurrentUser, use_case: DeleteUseCase) -> Response:
     """Delete a project and, in cascade, its activities (REVIEWER only)."""

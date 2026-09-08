@@ -6,7 +6,7 @@ from http import HTTPStatus
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from starlette.exceptions import HTTPException
 
 from app.application.errors import AppError, ErrorCode
@@ -29,20 +29,46 @@ MESSAGE_INTERNAL_ERROR = "An unexpected error occurred"
 LOCATION_SEPARATOR = "."
 
 
+class ErrorDetail(BaseModel):
+    """Detalle de un problema puntual, normalmente asociado a un campo del cuerpo."""
+
+    field: str | None = Field(
+        default=None,
+        description=(
+            "Nombre del campo al que aplica el detalle, como lo escribe el contrato "
+            "(`camelCase`); ausente cuando el problema no es de un campo concreto."
+        ),
+    )
+    message: str = Field(description="Descripción del problema, legible para una persona.")
+    type: str | None = Field(
+        default=None,
+        description=(
+            "Identificador técnico del error de validación (por ejemplo `int_parsing`); solo "
+            "aparece cuando la falla es de forma del cuerpo, no de una regla de negocio."
+        ),
+    )
+
+
 class ErrorResponse(BaseModel):
-    """Body returned for every error response."""
+    """Cuerpo uniforme de todas las respuestas de error (4xx y 5xx) del API."""
 
-    code: ErrorCode
-    message: str
-    details: list[object] = Field(default_factory=list)
+    # An error body always carries `details`, so the schema declares it required.
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
 
-
-class ValidationDetail(BaseModel):
-    """One invalid field of a request."""
-
-    field: str
-    message: str
-    type: str
+    code: ErrorCode = Field(
+        description=(
+            "Código de error legible por máquina: `VALIDATION_ERROR` (400), `UNAUTHORIZED` "
+            "(401), `FORBIDDEN` (403), `NOT_FOUND` (404), `HTTP_ERROR` (otros estados del "
+            "framework, como 405) o `INTERNAL_ERROR` (500)."
+        )
+    )
+    message: str = Field(description="Mensaje del error, legible para el usuario final.")
+    details: list[ErrorDetail] = Field(
+        default_factory=list,
+        description=(
+            "Un detalle por campo inválido en `VALIDATION_ERROR`; lista vacía en los demás casos."
+        ),
+    )
 
 
 def error_response(
@@ -53,18 +79,21 @@ def error_response(
 ) -> JSONResponse:
     """Serialize an error; the HTTP status defaults to the one that corresponds to its code."""
     body = ErrorResponse(code=code, message=message, details=details or [])
+    # `exclude_none` keeps out the keys that do not apply to a given detail (`type` for a domain
+    # rule, `field` for a general problem) instead of publishing them as `null`.
     return JSONResponse(
-        status_code=status or STATUS_BY_CODE[code], content=body.model_dump(mode="json")
+        status_code=status or STATUS_BY_CODE[code],
+        content=body.model_dump(mode="json", exclude_none=True),
     )
 
 
 def _validation_details(exc: RequestValidationError) -> list[object]:
     return [
-        ValidationDetail(
+        ErrorDetail(
             field=LOCATION_SEPARATOR.join(str(part) for part in error["loc"]),
             message=error["msg"],
             type=error["type"],
-        ).model_dump()
+        )
         for error in exc.errors()
     ]
 
