@@ -1,84 +1,94 @@
 import { useRef } from 'react';
 
+import { Card } from '@/components/ui/Card';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { PlaceholderCard } from '@/components/ui/PlaceholderCard';
 import { Skeleton, SkeletonLines } from '@/components/ui/Skeleton';
-import { REVEAL_ATTRIBUTE } from '@/motion/constants';
+import { PERMISSIONS } from '@/features/auth/permissions';
+import { useCan } from '@/features/auth/useCan';
 import { useStaggerReveal } from '@/motion/useStaggerReveal';
+
+import { ProjectCard } from './ProjectCard';
+import { usePortfolio } from './usePortfolio';
 
 const COPY = {
   EYEBROW: 'Portafolio',
   TITLE: 'Proyectos',
   DESCRIPTION:
-    'Estado consolidado de cada proyecto: costo, cronograma y pronóstico al cierre a partir de las actividades registradas.',
-  PROJECT_LIST: {
-    EYEBROW: 'Listado',
-    TITLE: 'Proyectos activos',
-    DESCRIPTION: 'Cada tarjeta mostrará nombre, actividades y su semáforo consolidado.',
-  },
-  CREATE: {
-    EYEBROW: 'Gestión',
-    TITLE: 'Nuevo proyecto',
-    DESCRIPTION: 'Alta de proyectos y asignación de responsables (solo revisores).',
-  },
-  HEALTH: {
-    EYEBROW: 'Resumen',
-    TITLE: 'Salud del portafolio',
-    DESCRIPTION: 'Proyectos bajo, en y sobre presupuesto de un vistazo.',
+    'Estado consolidado de cada proyecto: costo y cronograma tal como los reporta el cálculo EVM del backend.',
+  LOADING: 'Cargando el portafolio…',
+  EMPTY: {
+    EYEBROW: 'Portafolio vacío',
+    TITLE: 'Todavía no hay proyectos',
+    REVIEWER_BODY: 'Crea el primer proyecto para registrar sus actividades y seguir su estado EVM.',
+    READ_ONLY_BODY: 'Cuando un revisor cree un proyecto, aparecerá aquí con su estado.',
   },
 } as const;
 
-const PROJECT_CARD_SKELETONS = 3;
-const KPI_SKELETONS = 3;
+const PORTFOLIO_SKELETONS = 3;
+const SKELETON_DESCRIPTION_LINES = 2;
+const GRID_CLASSES = 'grid gap-6 md:grid-cols-2 xl:grid-cols-3';
 
-/** REVIEWER home. Module M11 replaces the placeholders with the real project list. */
+function PortfolioSkeleton() {
+  return (
+    <>
+      <p role="status" className="sr-only">
+        {COPY.LOADING}
+      </p>
+      <div className={GRID_CLASSES} aria-hidden="true">
+        {Array.from({ length: PORTFOLIO_SKELETONS }, (_, index) => (
+          <div key={index} className="card flex flex-col gap-4 p-6">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-6 w-3/4" />
+            <SkeletonLines count={SKELETON_DESCRIPTION_LINES} />
+            <Skeleton className="h-8 w-44 rounded-pill" />
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/**
+ * REVIEWER home: every project with the consolidated traffic light of its EVM report.
+ * A REGISTRAR who reaches this page sees the same portfolio in read-only mode.
+ */
 export function ProjectsPage() {
+  const can = useCan();
+  const canManage = can(PERMISSIONS.PROJECT_CREATE);
+  const portfolio = usePortfolio();
+
   const gridRef = useRef<HTMLDivElement>(null);
-  useStaggerReveal(gridRef);
+  const entries = portfolio.data ?? [];
+  useStaggerReveal(gridRef, { revealKey: entries.length });
+
+  const isEmpty = portfolio.status === 'success' && entries.length === 0;
 
   return (
     <>
       <PageHeader eyebrow={COPY.EYEBROW} title={COPY.TITLE} description={COPY.DESCRIPTION} />
-      <div ref={gridRef} className="grid gap-6 lg:grid-cols-3">
-        <PlaceholderCard
-          {...{ [REVEAL_ATTRIBUTE]: true }}
-          eyebrow={COPY.PROJECT_LIST.EYEBROW}
-          title={COPY.PROJECT_LIST.TITLE}
-          description={COPY.PROJECT_LIST.DESCRIPTION}
-          className="lg:col-span-2"
-        >
-          <ul className="grid gap-4 sm:grid-cols-3" aria-hidden="true">
-            {Array.from({ length: PROJECT_CARD_SKELETONS }, (_, index) => (
-              <li key={index} className="flex flex-col gap-3 rounded-md bg-surface-sunken/60 p-4">
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
-                <Skeleton className="mt-2 h-8 w-24 rounded-pill" />
-              </li>
-            ))}
-          </ul>
-        </PlaceholderCard>
-        <PlaceholderCard
-          {...{ [REVEAL_ATTRIBUTE]: true }}
-          eyebrow={COPY.HEALTH.EYEBROW}
-          title={COPY.HEALTH.TITLE}
-          description={COPY.HEALTH.DESCRIPTION}
-        >
-          <div className="grid grid-cols-3 gap-3" aria-hidden="true">
-            {Array.from({ length: KPI_SKELETONS }, (_, index) => (
-              <Skeleton key={index} className="h-16 w-full rounded-md" />
-            ))}
-          </div>
-        </PlaceholderCard>
-        <PlaceholderCard
-          {...{ [REVEAL_ATTRIBUTE]: true }}
-          eyebrow={COPY.CREATE.EYEBROW}
-          title={COPY.CREATE.TITLE}
-          description={COPY.CREATE.DESCRIPTION}
-          className="lg:col-span-3"
-        >
-          <SkeletonLines count={2} />
-        </PlaceholderCard>
-      </div>
+
+      {portfolio.status === 'error' && portfolio.error !== null && (
+        <ErrorState message={portfolio.error.message} onRetry={portfolio.refetch} />
+      )}
+
+      {portfolio.status === 'loading' && <PortfolioSkeleton />}
+
+      {isEmpty && (
+        <Card
+          eyebrow={COPY.EMPTY.EYEBROW}
+          title={COPY.EMPTY.TITLE}
+          description={canManage ? COPY.EMPTY.REVIEWER_BODY : COPY.EMPTY.READ_ONLY_BODY}
+        />
+      )}
+
+      {entries.length > 0 && (
+        <div ref={gridRef} className={GRID_CLASSES}>
+          {entries.map((entry) => (
+            <ProjectCard key={entry.project.id} entry={entry} />
+          ))}
+        </div>
+      )}
     </>
   );
 }
