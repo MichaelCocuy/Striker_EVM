@@ -6,8 +6,9 @@ FastAPI + SQLAlchemy 2 + PostgreSQL backend of Striker EVM. This package contain
 - `app/domain/auth` — user roles (`REGISTRAR`, `REVIEWER`) and the authorization policy
   (`policy.py`: who manages projects, lists users and modifies or owns activities).
 - `app/application` — framework-free errors, ports (repositories, password hasher, token
-  service), mappers, the auth use cases (login, current user, list users) and the EVM report
-  use case (`evm/get_project_report.py`).
+  service), mappers, the auth use cases (login, current user, list users), the project and
+  activity use cases (`projects/`, `activities/`) and the EVM report use case
+  (`evm/get_project_report.py`).
 - `app/infrastructure/db` — SQLAlchemy models, repositories, session and health probe.
 - `app/infrastructure/security` — bcrypt password hasher and PyJWT token service.
 - `app/api` — FastAPI routers, uniform error handlers, dependencies and the security
@@ -121,6 +122,65 @@ Routers of later modules protect endpoints with the dependencies of `app/api/sec
 `CurrentUser` (any authenticated user) and `ReviewerUser` (REVIEWER only), or
 `require_role(...)` for other combinations. Activity ownership rules live in
 `app/domain/auth/policy.py` (`can_modify_activity`, `resolve_activity_owner`).
+
+## Projects and activities
+
+CRUD of the two resources; every endpoint needs a bearer token and answers the uniform error
+shape below.
+
+| Method and path | Who | What it does |
+|---|---|---|
+| `GET /projects` | both roles | Projects, newest first, each with its `activityCount`. |
+| `POST /projects` | REVIEWER | Creates a project; the caller becomes `createdBy`. |
+| `GET /projects/{projectId}` | both roles | One project with its activity count. |
+| `PUT /projects/{projectId}` | REVIEWER | Replaces name and description. |
+| `DELETE /projects/{projectId}` | REVIEWER | Deletes the project and, in cascade, its activities. |
+| `GET /projects/{projectId}/activities` | both roles | Raw measures of its activities, oldest first. |
+| `POST /projects/{projectId}/activities` | both roles | Creates an activity (see the owner rules). |
+| `PUT /projects/{projectId}/activities/{activityId}` | owner or REVIEWER | Replaces the activity. |
+| `DELETE /projects/{projectId}/activities/{activityId}` | owner or REVIEWER | Deletes the activity. |
+
+Owner rules (`docs/ARQUITECTURA.md` §11): a `REGISTRAR` owns the activities they create, so
+`ownerId` is optional and, if sent, must be their own id (`403` otherwise); a `REVIEWER` must
+send an `ownerId` of an existing user (`400` when it is missing or unknown) and may reassign it
+when editing. A `REGISTRAR` editing or deleting an activity of somebody else gets `403`, and an
+activity reached through a project it does not belong to answers `404`.
+
+`budgetAtCompletion` must be greater than 0, `actualCost` 0 or greater and both percents between
+0 and 100, with at most two decimals; breaking any of these answers `400 VALIDATION_ERROR` with
+the offending field in `details`. Amounts and percents are JSON numbers rounded to two decimals
+(a JSON number has no scale, so `10000.00` travels as `10000.0`).
+
+Create a project and an activity in it with the seed users:
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"revisor@striker.local","password":"Striker2026!"}' | jq -r .accessToken)
+
+# 1. A REVIEWER creates the project and keeps its id
+PROJECT_ID=$(curl -s -X POST http://localhost:8000/api/v1/projects \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"name":"Portal de clientes","description":"Portal de autogestión"}' | jq -r .id)
+
+# 2. The same REVIEWER adds an activity, naming its owner (Carlos Registrador)
+curl -s -X POST "http://localhost:8000/api/v1/projects/$PROJECT_ID/activities" \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"name":"Desarrollo","ownerId":"11111111-1111-4111-8111-000000000002",
+       "budgetAtCompletion":40000.00,"plannedProgressPercent":50.00,
+       "actualProgressPercent":40.00,"actualCost":20000.00}' | jq .
+
+# 3. Its owner (a REGISTRAR) registers progress on it; ownerId may be omitted
+REG_TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"registrador@striker.local","password":"Striker2026!"}' | jq -r .accessToken)
+
+curl -s "http://localhost:8000/api/v1/projects/$PROJECT_ID/activities" \
+  -H "Authorization: Bearer $REG_TOKEN" | jq '.[].name'
+```
+
+A `REGISTRAR` calling step 1 answers `403 FORBIDDEN`, which is what the frontend relies on to
+hide the project management actions.
 
 ## EVM report
 
