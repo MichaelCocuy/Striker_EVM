@@ -33,7 +33,7 @@ def activities() -> FakeActivityRepository:
 
 @pytest.fixture
 def projects(activities: FakeActivityRepository) -> FakeProjectRepository:
-    return FakeProjectRepository(activities)
+    return FakeProjectRepository(activities=activities)
 
 
 @pytest.fixture

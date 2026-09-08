@@ -25,7 +25,7 @@ def build_project_views(
 ) -> list[ProjectView]:
     """Resolve the creators of several projects with a single user query."""
     creator_ids = {item.project.created_by for item in counted}
-    creators = {user.id: user for user in users.get_by_ids(creator_ids)}
+    creators = {user.id: user for user in users.list_by_ids(creator_ids)}
     return [
         ProjectView(
             project=item.project,

@@ -18,7 +18,7 @@ def build_activity_views(
     activities: Sequence[ActivityRecord], users: UserRepository
 ) -> list[ActivityView]:
     """Resolve the owners of several activities with a single user query."""
-    owners = {user.id: user for user in users.get_by_ids({item.owner_id for item in activities})}
+    owners = {user.id: user for user in users.list_by_ids({item.owner_id for item in activities})}
     return [
         ActivityView(activity=activity, owner=owners[activity.owner_id]) for activity in activities
     ]

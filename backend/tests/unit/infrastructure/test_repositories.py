@@ -69,16 +69,18 @@ class TestUserRepository:
         assert users.get_by_id(uuid4()) is None
         assert users.get_by_email("nobody@striker.local") is None
 
-    def test_get_by_ids_returns_only_known_users(self, users: SqlAlchemyUserRepository) -> None:
-        found = users.get_by_ids([REVIEWER_ID, SECOND_REGISTRAR_ID, uuid4()])
-
-        assert {user.id for user in found} == {REVIEWER_ID, SECOND_REGISTRAR_ID}
-        assert users.get_by_ids([]) == []
-
     def test_list_all_is_ordered_by_full_name(self, users: SqlAlchemyUserRepository) -> None:
         names = [user.full_name for user in users.list_all()]
 
         assert names == ["Ana Registradora", "Carlos Registrador", "Laura Revisora"]
+
+    def test_list_by_ids_returns_only_existing_requested_users(
+        self, users: SqlAlchemyUserRepository
+    ) -> None:
+        found = users.list_by_ids({REGISTRAR_ID, SECOND_REGISTRAR_ID, uuid4()})
+
+        assert {user.id for user in found} == {REGISTRAR_ID, SECOND_REGISTRAR_ID}
+        assert users.list_by_ids([]) == []
 
     def test_role_check_constraint_rejects_unknown_roles(self, session: Session) -> None:
         session.add(

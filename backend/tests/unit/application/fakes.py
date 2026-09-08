@@ -78,10 +78,10 @@ def second_registrar(password: str = "secret") -> FakeUser:
 class FakeProject:
     """Structural `ProjectRecord`."""
 
+    id: UUID
     name: str
     created_by: UUID
     description: str | None = None
-    id: UUID = field(default_factory=uuid4)
     created_at: datetime = field(default_factory=lambda: datetime.now(tz=UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(tz=UTC))
 
@@ -90,6 +90,7 @@ class FakeProject:
 class FakeActivity:
     """Structural `ActivityRecord`."""
 
+    id: UUID
     project_id: UUID
     owner_id: UUID
     name: str
@@ -97,7 +98,6 @@ class FakeActivity:
     planned_progress_percent: Decimal
     actual_progress_percent: Decimal
     actual_cost: Decimal
-    id: UUID = field(default_factory=uuid4)
     created_at: datetime = field(default_factory=lambda: datetime.now(tz=UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(tz=UTC))
 
@@ -114,19 +114,19 @@ class FakeUserRepository:
     def get_by_email(self, email: str) -> FakeUser | None:
         return next((user for user in self._users if user.email == email), None)
 
-    def get_by_ids(self, user_ids: Iterable[UUID]) -> list[FakeUser]:
-        wanted = set(user_ids)
-        return [user for user in self._users if user.id in wanted]
-
     def list_all(self) -> list[FakeUser]:
         return sorted(self._users, key=lambda user: user.full_name)
 
+    def list_by_ids(self, user_ids: Iterable[UUID]) -> list[FakeUser]:
+        wanted = set(user_ids)
+        return [user for user in self._users if user.id in wanted]
+
 
 class FakeActivityRepository:
-    """`ActivityRepository` over a list."""
+    """`ActivityRepository` over a list, preserving insertion order."""
 
-    def __init__(self) -> None:
-        self._activities: list[FakeActivity] = []
+    def __init__(self, activities: list[FakeActivity] | None = None) -> None:
+        self._activities = activities if activities is not None else []
 
     def list_by_project(self, project_id: UUID) -> list[FakeActivity]:
         return [activity for activity in self._activities if activity.project_id == project_id]
@@ -139,7 +139,7 @@ class FakeActivityRepository:
         return activity if activity is not None and activity.project_id == project_id else None
 
     def add(self, project_id: UUID, data: ActivityData) -> FakeActivity:
-        activity = FakeActivity(project_id=project_id, **data.__dict__)
+        activity = FakeActivity(id=uuid4(), project_id=project_id, **data.__dict__)
         self._activities.append(activity)
         return activity
 
@@ -157,11 +157,15 @@ class FakeActivityRepository:
 
 
 class FakeProjectRepository:
-    """`ProjectRepository` over a list; activity counts come from the activity fake."""
+    """`ProjectRepository` over a list; the activity fake supplies the activity counts."""
 
-    def __init__(self, activities: FakeActivityRepository) -> None:
-        self._projects: list[FakeProject] = []
-        self._activities = activities
+    def __init__(
+        self,
+        projects: list[FakeProject] | None = None,
+        activities: FakeActivityRepository | None = None,
+    ) -> None:
+        self._projects = projects if projects is not None else []
+        self._activities = activities if activities is not None else FakeActivityRepository()
 
     def list_with_activity_count(self) -> list[ProjectWithActivityCount]:
         return [self._count(project) for project in self._projects]
@@ -174,7 +178,9 @@ class FakeProjectRepository:
         return None if project is None else self._count(project)
 
     def add(self, data: ProjectData, created_by: UUID) -> FakeProject:
-        project = FakeProject(name=data.name, description=data.description, created_by=created_by)
+        project = FakeProject(
+            id=uuid4(), name=data.name, description=data.description, created_by=created_by
+        )
         self._projects.append(project)
         return project
 
@@ -190,6 +196,18 @@ class FakeProjectRepository:
     def _count(self, project: FakeProject) -> ProjectWithActivityCount:
         count = len(self._activities.list_by_project(project.id))
         return ProjectWithActivityCount(project=project, activity_count=count)
+
+
+class FakeUserDirectory(FakeUserRepository):
+    """`FakeUserRepository` that counts how often the bulk owner lookup is used."""
+
+    def __init__(self, users: list[FakeUser]) -> None:
+        super().__init__(users)
+        self.lookups = 0
+
+    def list_by_ids(self, user_ids: Iterable[UUID]) -> list[FakeUser]:
+        self.lookups += 1
+        return super().list_by_ids(user_ids)
 
 
 class FakePasswordHasher:
