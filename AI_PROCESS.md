@@ -70,6 +70,24 @@ Configura gitflow desde el primer commit: main, develop, feature/* por módulo y
   actividades resuelto paso a paso) y `docs/ARQUITECTURA.md` (módulos, dependencias y
   plan de construcción en paralelo) en la rama `feature/docs-evm-guide-and-architecture`,
   integrada a `develop` mediante Pull Request.
+- La sesión se cerró de forma inesperada después del commit inicial local (antes de
+  publicar en GitHub). Se retomó con el Prompt 2.
+
+### Prompt 2 — 2026-09-08 — Claude Code
+
+```text
+Orca cerro la sesion, continuemos
+```
+
+**Qué hizo la IA:**
+
+- Revisó el estado del directorio: el commit inicial existía en `main` local pero no había
+  remoto configurado. Conectó `origin`, publicó `main`, creó y publicó `develop`, la fijó
+  como rama por defecto en GitHub y protegió `main` (requiere Pull Request).
+- Creó la rama `feature/docs-evm-guide-and-architecture`, escribió `docs/EVM_GUIA.md` y
+  `docs/ARQUITECTURA.md`, verificó con un script en Python (`Decimal`, redondeo *half up*)
+  que todos los números del ejemplo y de los casos borde de la guía son correctos, abrió el
+  PR hacia `develop` y lo integró.
 
 ---
 
