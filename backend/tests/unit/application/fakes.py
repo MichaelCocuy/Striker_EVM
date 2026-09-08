@@ -22,6 +22,15 @@ HASH_PREFIX = "hashed:"
 TOKEN_SEPARATOR = "|"
 FAKE_EXPIRES_IN = 28_800
 
+DESIGN_ACTIVITY = ActivityData(
+    owner_id=REGISTRAR_ID,
+    name="Diseño",
+    budget_at_completion=Decimal("10000.00"),
+    planned_progress_percent=Decimal("100.00"),
+    actual_progress_percent=Decimal("100.00"),
+    actual_cost=Decimal("9000.00"),
+)
+
 
 @dataclass
 class FakeUser:
