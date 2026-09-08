@@ -4,6 +4,7 @@ import { api } from '@/api/endpoints';
 import { ROLES } from '@/api/types';
 import { Button } from '@/components/ui/Button';
 import { BUTTON_VARIANT } from '@/components/ui/button-variants';
+import { ModalDialog } from '@/components/ui/ModalDialog';
 import { TextField } from '@/components/ui/TextField';
 import { useAuth } from '@/features/auth/useAuth';
 
@@ -15,7 +16,6 @@ import {
   buildActivityInput,
   EMPTY_ACTIVITY_FORM_VALUES,
 } from './activity-form';
-import { ModalDialog } from './ModalDialog';
 import { OwnerSelect } from './OwnerSelect';
 import { useActivityMutation } from './useActivityMutation';
 

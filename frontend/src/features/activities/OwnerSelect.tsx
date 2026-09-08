@@ -5,8 +5,7 @@ import { useApiQuery } from '@/api/useApiQuery';
 import { Button } from '@/components/ui/Button';
 import { BUTTON_VARIANT } from '@/components/ui/button-variants';
 import { ROLE_LABEL } from '@/components/ui/role-labels';
-
-import { SelectField } from './SelectField';
+import { SelectField } from '@/components/ui/SelectField';
 
 const COPY = {
   LABEL: 'Responsable',

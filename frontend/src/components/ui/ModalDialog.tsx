@@ -2,10 +2,11 @@ import gsap from 'gsap';
 import { useEffect, useId, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
-import { Button } from '@/components/ui/Button';
-import { BUTTON_VARIANT } from '@/components/ui/button-variants';
 import { MOTION_DURATION_SECONDS, MOTION_EASE, MOTION_OFFSET_PX } from '@/motion/constants';
 import { prefersReducedMotion } from '@/motion/reduced-motion';
+
+import { Button } from './Button';
+import { BUTTON_VARIANT } from './button-variants';
 
 import type { MouseEvent, ReactNode, RefObject } from 'react';
 
@@ -18,42 +19,27 @@ interface ModalDialogProps {
 
 const COPY = {
   CLOSE: 'Cerrar',
+  CLOSE_GLYPH: '×',
 } as const;
 
 const ESCAPE_KEY = 'Escape';
 const ENTER_SCALE = 0.98;
 
 /**
- * Modal shell shared by the activity form and the delete confirmation: it renders in a portal
- * so the dashboard's GSAP transforms cannot become its containing block, closes on Escape or
- * on a click outside, and returns focus to whatever opened it.
+ * Modal shell of the app: activity and project forms, and their delete confirmations.
+ *
+ * It renders in a portal because the page transition leaves a GSAP transform on `main`, which
+ * would otherwise become the containing block of the fixed overlay. Escape, the close button and
+ * a click on the backdrop all dismiss it, and focus returns to whatever opened it.
  */
 export function ModalDialog({ title, description, onClose, children }: ModalDialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
 
+  useDialogFocus(panelRef);
   useDialogEntrance(panelRef);
-
-  useEffect(() => {
-    const previouslyFocused = document.activeElement;
-    panelRef.current?.focus();
-    return () => {
-      if (previouslyFocused instanceof HTMLElement) {
-        previouslyFocused.focus();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === ESCAPE_KEY) {
-        onClose();
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  useDismissOnEscape(onClose);
 
   function handleBackdropMouseDown(event: MouseEvent<HTMLDivElement>) {
     if (event.target === event.currentTarget) {
@@ -87,7 +73,7 @@ export function ModalDialog({ title, description, onClose, children }: ModalDial
             )}
           </div>
           <Button variant={BUTTON_VARIANT.GHOST} onClick={onClose} aria-label={COPY.CLOSE}>
-            <span aria-hidden="true">×</span>
+            <span aria-hidden="true">{COPY.CLOSE_GLYPH}</span>
           </Button>
         </header>
         {children}
@@ -97,6 +83,20 @@ export function ModalDialog({ title, description, onClose, children }: ModalDial
   );
 }
 
+/** Moves focus into the dialog and hands it back to whatever opened it on close. */
+function useDialogFocus(panelRef: RefObject<HTMLElement | null>): void {
+  useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    panelRef.current?.focus();
+    return () => {
+      if (previouslyFocused instanceof HTMLElement) {
+        previouslyFocused.focus();
+      }
+    };
+  }, [panelRef]);
+}
+
+/** Slides and scales the panel in; under reduced motion it simply appears. */
 function useDialogEntrance(panelRef: RefObject<HTMLElement | null>): void {
   useLayoutEffect(() => {
     const panel = panelRef.current;
@@ -117,4 +117,18 @@ function useDialogEntrance(panelRef: RefObject<HTMLElement | null>): void {
       tween.kill();
     };
   }, [panelRef]);
+}
+
+function useDismissOnEscape(onClose: () => void): void {
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === ESCAPE_KEY) {
+        onClose();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
 }

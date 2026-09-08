@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ModalDialog } from '@/components/ui/ModalDialog';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Skeleton, SkeletonLines } from '@/components/ui/Skeleton';
 import { PERMISSIONS } from '@/features/auth/permissions';
@@ -11,7 +12,6 @@ import { useStaggerReveal } from '@/motion/useStaggerReveal';
 
 import { DeleteProjectConfirm } from './DeleteProjectConfirm';
 import { ProjectCard } from './ProjectCard';
-import { ProjectDialog } from './ProjectDialog';
 import { ProjectForm } from './ProjectForm';
 import { usePortfolio } from './usePortfolio';
 
@@ -107,27 +107,27 @@ function PortfolioDialog({ dialog, onClose, onCompleted }: PortfolioDialogProps)
   switch (dialog.kind) {
     case DIALOG_KIND.CREATE:
       return (
-        <ProjectDialog
+        <ModalDialog
           title={COPY.DIALOG.CREATE_TITLE}
           description={COPY.DIALOG.CREATE_DESCRIPTION}
           onClose={onClose}
         >
           <ProjectForm project={null} onSaved={onCompleted} onCancel={onClose} />
-        </ProjectDialog>
+        </ModalDialog>
       );
     case DIALOG_KIND.EDIT:
       return (
-        <ProjectDialog
+        <ModalDialog
           title={COPY.DIALOG.EDIT_TITLE}
           description={COPY.DIALOG.EDIT_DESCRIPTION}
           onClose={onClose}
         >
           <ProjectForm project={dialog.project} onSaved={onCompleted} onCancel={onClose} />
-        </ProjectDialog>
+        </ModalDialog>
       );
     case DIALOG_KIND.DELETE:
       return (
-        <ProjectDialog
+        <ModalDialog
           title={COPY.DIALOG.DELETE_TITLE}
           description={COPY.DIALOG.DELETE_DESCRIPTION}
           onClose={onClose}
@@ -137,7 +137,7 @@ function PortfolioDialog({ dialog, onClose, onCompleted }: PortfolioDialogProps)
             onDeleted={onCompleted}
             onCancel={onClose}
           />
-        </ProjectDialog>
+        </ModalDialog>
       );
   }
 }
