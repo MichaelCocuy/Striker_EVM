@@ -5,7 +5,7 @@ from decimal import Decimal
 from app.application.mappers import to_activity_input
 from app.domain.evm import calculate_activity_indicators
 from app.infrastructure.db.models import ActivityModel
-from tests.conftest import REGISTRAR_ID
+from tests.seed import REGISTRAR_ID
 
 
 def test_to_activity_input_copies_raw_fields() -> None:

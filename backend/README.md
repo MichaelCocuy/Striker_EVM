@@ -3,10 +3,14 @@
 FastAPI + SQLAlchemy 2 + PostgreSQL backend of Striker EVM. This package contains:
 
 - `app/domain/evm` — pure EVM calculator (no framework, 100 % covered).
-- `app/domain/auth` — user roles (`REGISTRAR`, `REVIEWER`).
-- `app/application` — framework-free errors, repository ports (Protocols) and mappers.
+- `app/domain/auth` — user roles (`REGISTRAR`, `REVIEWER`) and the authorization policy
+  (`policy.py`: who manages projects, lists users and modifies or owns activities).
+- `app/application` — framework-free errors, ports (repositories, password hasher, token
+  service), mappers and the auth use cases (login, current user, list users).
 - `app/infrastructure/db` — SQLAlchemy models, repositories, session and health probe.
-- `app/api` — FastAPI routers, uniform error handlers and dependencies.
+- `app/infrastructure/security` — bcrypt password hasher and PyJWT token service.
+- `app/api` — FastAPI routers, uniform error handlers, dependencies and the security
+  dependencies (`CurrentUser`, `ReviewerUser`, `require_role`).
 - `alembic/` — schema migrations; `db/init.sql` — database initialization script.
 
 Layers depend inwards only: API → application → domain; infrastructure sits behind the ports.
@@ -58,9 +62,10 @@ development default.
 | `APP_ENV` | `development` | Environment name. |
 | `DATABASE_URL` | `postgresql+psycopg://striker:striker@localhost:5432/striker` | SQLAlchemy URL (psycopg 3 driver). |
 | `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated allowed browser origins. |
-| `JWT_SECRET` | `change-me-in-production` | Signing key for access tokens (auth module). |
+| `JWT_SECRET` | `change-me-in-production-at-least-32-bytes` | HS256 signing key, at least 32 bytes. **Must be overridden outside the local environment.** |
 | `JWT_ALGORITHM` | `HS256` | JWT algorithm. |
-| `JWT_EXPIRES_MINUTES` | `480` | Token lifetime (8 h). |
+| `JWT_EXPIRES_MINUTES` | `480` | Token lifetime (8 h); reported as `expiresIn` (seconds) on login. |
+| `BCRYPT_ROUNDS` | `12` | bcrypt cost factor used when hashing passwords (tests lower it to 4). |
 
 Compose also accepts `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` and
 `BACKEND_PORT` from a root `.env`.
@@ -90,6 +95,32 @@ All seed users share the password `Striker2026!`.
 The seed project "Portal de clientes" has the three activities of the EVM guide (Diseño,
 Desarrollo, Pruebas).
 
+## Authentication and roles
+
+Every endpoint except `GET /health` and `POST /auth/login` requires `Authorization: Bearer
+<JWT>`. Tokens are HS256, valid for 8 hours, and carry the claims `sub` (user id), `role`,
+`iat` and `exp`. A missing, malformed or expired token answers `401 UNAUTHORIZED`; a valid
+token whose role is not allowed answers `403 FORBIDDEN` (permission matrix in
+`docs/ARQUITECTURA.md §11`). Only `REVIEWER` users can call `GET /users`.
+
+```bash
+# 1. Log in (public) and keep the token
+TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \n  -H 'Content-Type: application/json' \n  -d '{"email":"revisor@striker.local","password":"Striker2026!"}' | jq -r .accessToken)
+
+# 2. Call protected endpoints with it
+curl -s http://localhost:8000/api/v1/auth/me -H "Authorization: Bearer $TOKEN"
+curl -s http://localhost:8000/api/v1/users   -H "Authorization: Bearer $TOKEN"
+```
+
+The login response is `{"accessToken", "tokenType": "bearer", "expiresIn": 28800, "user"}`.
+Wrong email or password both answer `401` with the same message, so the API does not reveal
+which emails exist. In Swagger UI use **Authorize** and paste the token (scheme `bearerAuth`).
+
+Routers of later modules protect endpoints with the dependencies of `app/api/security.py`:
+`CurrentUser` (any authenticated user) and `ReviewerUser` (REVIEWER only), or
+`require_role(...)` for other combinations. Activity ownership rules live in
+`app/domain/auth/policy.py` (`can_modify_activity`, `resolve_activity_owner`).
+
 ## Error contract
 
 Every 4xx/5xx response has the shape `{"code", "message", "details"}` with codes
@@ -104,6 +135,9 @@ pytest --cov
 
 Coverage is measured over `app/` and the run fails below 80 % (see `pyproject.toml`). Repository
 and API tests run against SQLite in-memory through SQLAlchemy, so no PostgreSQL is needed.
+`tests/conftest.py` provides a seeded `client` plus `auth_headers(email)`, `reviewer_headers`
+and `registrar_headers` fixtures for authenticated requests (seed users and the fast-bcrypt test
+settings live in `tests/seed.py`).
 
 ## Lint and format
 
