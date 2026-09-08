@@ -7,13 +7,19 @@ edit or delete an activity is decided by the use cases through the domain policy
 
 from http import HTTPStatus
 from typing import Annotated
-from uuid import UUID
 
-from fastapi import APIRouter, Depends, Path, Response
+from fastapi import APIRouter, Depends, Response
 
 from app.api.dependencies import DbSession
-from app.api.errors import ErrorResponse
 from app.api.security import CurrentUser
+from app.api.v1.docs.operations import (
+    CREATE_ACTIVITY,
+    DELETE_ACTIVITY,
+    LIST_ACTIVITIES,
+    UPDATE_ACTIVITY,
+    documented,
+)
+from app.api.v1.params import ACTIVITY_ID_PARAM, PROJECT_ID_PARAM, ActivityId, ProjectId
 from app.api.v1.schemas.activities import ActivityRequest, ActivityResponse
 from app.application.activities.create_activity_use_case import CreateActivityUseCase
 from app.application.activities.delete_activity_use_case import DeleteActivityUseCase
@@ -25,15 +31,10 @@ from app.infrastructure.db.repositories import (
     SqlAlchemyUserRepository,
 )
 
-PROJECT_ID_PARAM = "projectId"
-ACTIVITY_ID_PARAM = "activityId"
 ACTIVITY_PATH = f"/{{{ACTIVITY_ID_PARAM}}}"
 COLLECTION_PATH = ""
 
 router = APIRouter(prefix=f"/projects/{{{PROJECT_ID_PARAM}}}/activities", tags=["activities"])
-
-ProjectId = Annotated[UUID, Path(alias=PROJECT_ID_PARAM, description="Project identifier")]
-ActivityId = Annotated[UUID, Path(alias=ACTIVITY_ID_PARAM, description="Activity identifier")]
 
 
 def get_list_use_case(session: DbSession) -> ListActivitiesUseCase:
@@ -74,12 +75,8 @@ DeleteUseCase = Annotated[DeleteActivityUseCase, Depends(get_delete_use_case)]
 
 @router.get(
     COLLECTION_PATH,
-    summary="List the activities of a project",
     response_model=list[ActivityResponse],
-    responses={
-        HTTPStatus.UNAUTHORIZED: {"model": ErrorResponse},
-        HTTPStatus.NOT_FOUND: {"model": ErrorResponse},
-    },
+    **documented(LIST_ACTIVITIES, HTTPStatus.UNAUTHORIZED, HTTPStatus.NOT_FOUND),
 )
 def list_activities(
     project_id: ProjectId, _: CurrentUser, use_case: ListUseCase
@@ -90,15 +87,15 @@ def list_activities(
 
 @router.post(
     COLLECTION_PATH,
-    summary="Create an activity",
     status_code=HTTPStatus.CREATED,
     response_model=ActivityResponse,
-    responses={
-        HTTPStatus.BAD_REQUEST: {"model": ErrorResponse},
-        HTTPStatus.UNAUTHORIZED: {"model": ErrorResponse},
-        HTTPStatus.FORBIDDEN: {"model": ErrorResponse},
-        HTTPStatus.NOT_FOUND: {"model": ErrorResponse},
-    },
+    **documented(
+        CREATE_ACTIVITY,
+        HTTPStatus.BAD_REQUEST,
+        HTTPStatus.UNAUTHORIZED,
+        HTTPStatus.FORBIDDEN,
+        HTTPStatus.NOT_FOUND,
+    ),
 )
 def create_activity(
     project_id: ProjectId, body: ActivityRequest, actor: CurrentUser, use_case: CreateUseCase
@@ -109,14 +106,14 @@ def create_activity(
 
 @router.put(
     ACTIVITY_PATH,
-    summary="Replace an activity",
     response_model=ActivityResponse,
-    responses={
-        HTTPStatus.BAD_REQUEST: {"model": ErrorResponse},
-        HTTPStatus.UNAUTHORIZED: {"model": ErrorResponse},
-        HTTPStatus.FORBIDDEN: {"model": ErrorResponse},
-        HTTPStatus.NOT_FOUND: {"model": ErrorResponse},
-    },
+    **documented(
+        UPDATE_ACTIVITY,
+        HTTPStatus.BAD_REQUEST,
+        HTTPStatus.UNAUTHORIZED,
+        HTTPStatus.FORBIDDEN,
+        HTTPStatus.NOT_FOUND,
+    ),
 )
 def update_activity(
     project_id: ProjectId,
@@ -133,13 +130,10 @@ def update_activity(
 
 @router.delete(
     ACTIVITY_PATH,
-    summary="Delete an activity",
     status_code=HTTPStatus.NO_CONTENT,
-    responses={
-        HTTPStatus.UNAUTHORIZED: {"model": ErrorResponse},
-        HTTPStatus.FORBIDDEN: {"model": ErrorResponse},
-        HTTPStatus.NOT_FOUND: {"model": ErrorResponse},
-    },
+    **documented(
+        DELETE_ACTIVITY, HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN, HTTPStatus.NOT_FOUND
+    ),
 )
 def delete_activity(
     project_id: ProjectId, activity_id: ActivityId, actor: CurrentUser, use_case: DeleteUseCase

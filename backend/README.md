@@ -35,7 +35,8 @@ example project of `docs/EVM_GUIA.md §6`) and the API on <http://localhost:8000
 
 - Swagger UI: <http://localhost:8000/api-docs>
 - OpenAPI document: <http://localhost:8000/api-docs/openapi.json>
-- Health: `curl http://localhost:8000/api/v1/health` → `{"status":"ok","database":"ok"}`
+- Health: `curl http://localhost:8000/api/v1/health` →
+  `{"status":"ok","database":"ok","version":"0.1.0"}`
 
 Stop and wipe the database with `docker compose down -v`.
 
@@ -215,7 +216,35 @@ by field.
 
 Every 4xx/5xx response has the shape `{"code", "message", "details"}` with codes
 `VALIDATION_ERROR` (400), `UNAUTHORIZED` (401), `FORBIDDEN` (403), `NOT_FOUND` (404),
-`HTTP_ERROR` (other framework-level statuses, e.g. 405) and `INTERNAL_ERROR` (500).
+`HTTP_ERROR` (other framework-level statuses, e.g. 405) and `INTERNAL_ERROR` (500). Each entry
+of `details` names the offending `field` and its `message`, plus the technical `type` when the
+failure is about the shape of the body.
+
+## Documentación del API
+
+The API documents itself — in Spanish, the language of its readers — at:
+
+- Swagger UI: <http://localhost:8000/api-docs>
+- OpenAPI document: <http://localhost:8000/api-docs/openapi.json>
+
+Every operation carries a summary, a description of what it does and which role may call it, the
+description of its success response and the catalogue of errors it can answer (400, 401, 403 and
+404 where they apply, plus the 500 every operation shares), each with the uniform error schema,
+when it happens and an example body. Every field carries its units and scale: money with 2
+decimals, percentages on the 0 to 100 scale, indices with 4 decimals and `null` for an indicator
+that is not computable; the EVM indicators are documented with the question each one answers,
+following [`docs/EVM_GUIA.md` §3](../docs/EVM_GUIA.md). The texts live in `app/api/openapi.py`
+(document-level metadata) and in `app/api/v1/docs/` (operations, error catalogue, shared field
+descriptions and the examples of `docs/api/fixtures`).
+
+[`docs/api/openapi.yaml`](../docs/api/openapi.yaml) is the **canonical contract**: the hand-written
+document backend and frontend agreed on. `tests/contract/test_openapi_agreement.py` loads it
+together with the generated one and fails when they diverge in operations, status codes, schema
+properties, required fields, enumeration values or which operations are public. The differences
+that are legitimate (schema naming, the scalar schemas the contract factors out, where the
+`/api/v1` prefix is written, the document version and the tag labels) are named allow-lists in
+that module, with the reason. When the two disagree the contract wins, unless the contract is the
+one that is wrong.
 
 ## Run the tests with coverage
 

@@ -8,18 +8,30 @@ contract's `Money` and `PerformanceIndex` types require.
 from datetime import datetime
 from uuid import UUID
 
+from pydantic import ConfigDict, Field
+
+from app.api.v1.docs import fields
+from app.api.v1.docs.examples import (
+    ACTIVITY_MEASURES_EXAMPLE,
+    EVM_ACTIVITY_REPORT_EXAMPLE,
+    EVM_INDICATORS_EXAMPLE,
+    EVM_PROJECT_SUMMARY_EXAMPLE,
+    EVM_REPORT_EXAMPLE,
+)
 from app.api.v1.schemas.common import CamelCaseModel, JsonNumber, UserSummary
 from app.application.evm.get_project_report import ActivityEvmReport, ProjectEvmReport
 from app.domain.evm import ActivityInput, CostStatus, EvmIndicators, ScheduleStatus
 
 
 class ActivityMeasures(CamelCaseModel):
-    """`ActivityMeasures`: raw inputs of the calculation (percents on the 0-100 scale)."""
+    """Datos crudos de una actividad: son la entrada con la que se calculan los indicadores."""
 
-    budget_at_completion: JsonNumber
-    planned_progress_percent: JsonNumber
-    actual_progress_percent: JsonNumber
-    actual_cost: JsonNumber
+    model_config = ConfigDict(json_schema_extra={"example": ACTIVITY_MEASURES_EXAMPLE})
+
+    budget_at_completion: JsonNumber = Field(description=fields.BUDGET_AT_COMPLETION)
+    planned_progress_percent: JsonNumber = Field(description=fields.PLANNED_PROGRESS_PERCENT)
+    actual_progress_percent: JsonNumber = Field(description=fields.ACTUAL_PROGRESS_PERCENT)
+    actual_cost: JsonNumber = Field(description=fields.ACTUAL_COST)
 
     @classmethod
     def from_input(cls, activity_input: ActivityInput) -> "ActivityMeasures":
@@ -28,21 +40,31 @@ class ActivityMeasures(CamelCaseModel):
 
 
 class EvmIndicatorsSchema(CamelCaseModel):
-    """`EvmIndicators`: money with 2 decimals, indices with 4, `null` when not computable."""
+    """Indicadores de Valor Ganado.
 
-    budget_at_completion: JsonNumber
-    planned_value: JsonNumber
-    earned_value: JsonNumber
-    actual_cost: JsonNumber
-    cost_variance: JsonNumber
-    schedule_variance: JsonNumber
-    cost_performance_index: JsonNumber | None
-    schedule_performance_index: JsonNumber | None
-    estimate_at_completion: JsonNumber | None
-    variance_at_completion: JsonNumber | None
-    cost_status: CostStatus
-    schedule_status: ScheduleStatus
-    notes: list[str]
+    El mismo esquema se usa para una actividad y para el consolidado del proyecto. El dinero
+    lleva 2 decimales y los índices 4, con redondeo *half up* aplicado solo al final. Un
+    indicador que no se puede calcular (división por cero) llega como `null`, con el estado en
+    `NOT_APPLICABLE` y el motivo en `notes`.
+    """
+
+    model_config = ConfigDict(json_schema_extra={"example": EVM_INDICATORS_EXAMPLE})
+
+    budget_at_completion: JsonNumber = Field(description=fields.INDICATOR_BUDGET_AT_COMPLETION)
+    planned_value: JsonNumber = Field(description=fields.PLANNED_VALUE)
+    earned_value: JsonNumber = Field(description=fields.EARNED_VALUE)
+    actual_cost: JsonNumber = Field(description=fields.INDICATOR_ACTUAL_COST)
+    cost_variance: JsonNumber = Field(description=fields.COST_VARIANCE)
+    schedule_variance: JsonNumber = Field(description=fields.SCHEDULE_VARIANCE)
+    cost_performance_index: JsonNumber | None = Field(description=fields.COST_PERFORMANCE_INDEX)
+    schedule_performance_index: JsonNumber | None = Field(
+        description=fields.SCHEDULE_PERFORMANCE_INDEX
+    )
+    estimate_at_completion: JsonNumber | None = Field(description=fields.ESTIMATE_AT_COMPLETION)
+    variance_at_completion: JsonNumber | None = Field(description=fields.VARIANCE_AT_COMPLETION)
+    cost_status: CostStatus = Field(description=fields.COST_STATUS)
+    schedule_status: ScheduleStatus = Field(description=fields.SCHEDULE_STATUS)
+    notes: list[str] = Field(description=fields.NOTES)
 
     @classmethod
     def from_indicators(cls, indicators: EvmIndicators) -> "EvmIndicatorsSchema":
@@ -51,13 +73,17 @@ class EvmIndicatorsSchema(CamelCaseModel):
 
 
 class EvmActivityReportSchema(CamelCaseModel):
-    """`EvmActivityReport`: one activity with its owner, raw inputs and indicators."""
+    """Una actividad dentro del reporte: su responsable, sus datos crudos y sus indicadores."""
 
-    id: UUID
-    name: str
-    owner: UserSummary
-    input: ActivityMeasures
-    indicators: EvmIndicatorsSchema
+    model_config = ConfigDict(json_schema_extra={"example": EVM_ACTIVITY_REPORT_EXAMPLE})
+
+    id: UUID = Field(description="Identificador (UUID) de la actividad.")
+    name: str = Field(description=fields.ACTIVITY_NAME)
+    owner: UserSummary = Field(description=fields.ACTIVITY_OWNER)
+    input: ActivityMeasures = Field(
+        description="Datos crudos con los que se calcularon los indicadores de la actividad."
+    )
+    indicators: EvmIndicatorsSchema = Field(description="Indicadores EVM de la actividad.")
 
     @classmethod
     def from_report(cls, activity: ActivityEvmReport) -> "EvmActivityReportSchema":
@@ -72,19 +98,36 @@ class EvmActivityReportSchema(CamelCaseModel):
 
 
 class EvmProjectSummary(CamelCaseModel):
-    """`EvmProjectSummary`: project identification and consolidated indicators."""
+    """Identificación del proyecto y sus indicadores consolidados."""
 
-    id: UUID
-    name: str
-    indicators: EvmIndicatorsSchema
+    model_config = ConfigDict(json_schema_extra={"example": EVM_PROJECT_SUMMARY_EXAMPLE})
+
+    id: UUID = Field(description="Identificador (UUID) del proyecto.")
+    name: str = Field(description="Nombre del proyecto.")
+    indicators: EvmIndicatorsSchema = Field(
+        description=(
+            "Indicadores consolidados: se **suman los valores en dinero** de las actividades y "
+            "se recalculan varianzas, índices y pronósticos sobre esas sumas. Nunca se promedian "
+            "índices."
+        )
+    )
 
 
 class EvmReportSchema(CamelCaseModel):
-    """`EvmReport`: the whole response of the report endpoint."""
+    """Reporte EVM completo de un proyecto: el consolidado y el detalle por actividad."""
 
-    project: EvmProjectSummary
-    activities: list[EvmActivityReportSchema]
-    generated_at: datetime
+    model_config = ConfigDict(json_schema_extra={"example": EVM_REPORT_EXAMPLE})
+
+    project: EvmProjectSummary = Field(description="Proyecto y sus indicadores consolidados.")
+    activities: list[EvmActivityReportSchema] = Field(
+        description=(
+            "Actividades del proyecto en orden de creación, cada una con sus indicadores. "
+            "Vacío si el proyecto no tiene actividades."
+        )
+    )
+    generated_at: datetime = Field(
+        description="Instante (UTC) en que se calculó el reporte; los indicadores no se guardan."
+    )
 
     @classmethod
     def from_report(cls, report: ProjectEvmReport) -> "EvmReportSchema":
