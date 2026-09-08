@@ -1,0 +1,42 @@
+# Local stack: PostgreSQL (initialized with backend/db/init.sql), the FastAPI backend and the
+# frontend served by nginx, which proxies /api to the backend so everything shares one origin.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-striker}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-striker}
+      POSTGRES_DB: ${POSTGRES_DB:-striker}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-striker} -d ${POSTGRES_DB:-striker}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-striker}:${POSTGRES_PASSWORD:-striker}@db:5432/${POSTGRES_DB:-striker}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:

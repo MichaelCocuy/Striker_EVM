@@ -1,0 +1,25 @@
+{
+  "project": {
+    "id": "22222222-2222-4222-8222-000000000002",
+    "name": "Proyecto sin actividades",
+    "indicators": {
+      "budgetAtCompletion": 0.00,
+      "plannedValue": 0.00,
+      "earnedValue": 0.00,
+      "actualCost": 0.00,
+      "costVariance": 0.00,
+      "scheduleVariance": 0.00,
+      "costPerformanceIndex": null,
+      "schedulePerformanceIndex": null,
+      "estimateAtCompletion": null,
+      "varianceAtCompletion": null,
+      "costStatus": "NOT_APPLICABLE",
+      "scheduleStatus": "NOT_APPLICABLE",
+      "notes": [
+        "Sin datos: el proyecto no tiene actividades"
+      ]
+    }
+  },
+  "activities": [],
+  "generatedAt": "2026-09-08T12:00:00Z"
+}

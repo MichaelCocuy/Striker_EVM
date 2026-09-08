@@ -1,0 +1,5 @@
+{
+  "code": "FORBIDDEN",
+  "message": "Solo un usuario con rol REVIEWER puede crear proyectos",
+  "details": []
+}

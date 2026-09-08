@@ -15,6 +15,7 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 .venv/
+*.egg-info/
 venv/
 .pytest_cache/
 .mypy_cache/
@@ -22,6 +23,10 @@ venv/
 htmlcov/
 .coverage
 coverage.xml
+# Local SQLite database created when running the API without PostgreSQL.
+*.sqlite
+*.sqlite3
+local.db
 
 # --- Java / Maven / Gradle ---
 target/

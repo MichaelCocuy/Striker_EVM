@@ -1,0 +1,7 @@
+# Configuración de Redocly CLI para validar el contrato del API.
+# Uso: npx @redocly/cli lint   (o: npx @redocly/cli preview-docs striker-v1)
+apis:
+  striker-v1:
+    root: docs/api/openapi.yaml
+extends:
+  - recommended

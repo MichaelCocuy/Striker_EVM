@@ -1,0 +1,11 @@
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTExMTExMS0xMTExLTQxMTEtODExMS0wMDAwMDAwMDAwMDEiLCJyb2xlIjoiUkVWSUVXRVIiLCJlbWFpbCI6InJldmlzb3JAc3RyaWtlci5sb2NhbCIsImlhdCI6MTc4ODg2ODgwMCwiZXhwIjoxNzg4ODk3NjAwfQ.ECxzZpnA5iwwxG6UF5VvqNNC9fcTQgmCFJcKVs79PBU",
+  "tokenType": "bearer",
+  "expiresIn": 28800,
+  "user": {
+    "id": "11111111-1111-4111-8111-000000000001",
+    "email": "revisor@striker.local",
+    "fullName": "Laura Revisora",
+    "role": "REVIEWER"
+  }
+}

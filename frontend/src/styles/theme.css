@@ -1,0 +1,55 @@
+/* Maps the raw tokens onto Tailwind's theme so utilities such as bg-surface or text-evm-good exist. */
+@theme inline {
+  --color-*: initial;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-ink-inverse: var(--ink-inverse);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-focus-ring: var(--focus-ring);
+  --color-evm-good: var(--evm-good);
+  --color-evm-good-soft: var(--evm-good-soft);
+  --color-evm-neutral: var(--evm-neutral);
+  --color-evm-neutral-soft: var(--evm-neutral-soft);
+  --color-evm-bad: var(--evm-bad);
+  --color-evm-bad-soft: var(--evm-bad-soft);
+  --color-evm-na: var(--evm-na);
+  --color-evm-na-soft: var(--evm-na-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+
+  --radius-*: initial;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-*: initial;
+  --shadow-card: var(--shadow-card);
+  --shadow-raised: var(--shadow-raised);
+  --shadow-glow: var(--shadow-glow);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --text-display: var(--text-display);
+  --text-display--line-height: 1.05;
+  --text-kpi: var(--text-kpi);
+  --text-kpi--line-height: 1;
+
+  --tracking-tight: var(--tracking-tight);
+  --tracking-wide: var(--tracking-wide);
+}
