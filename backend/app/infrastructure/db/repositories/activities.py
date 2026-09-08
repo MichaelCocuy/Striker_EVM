@@ -28,6 +28,13 @@ class SqlAlchemyActivityRepository:
         """Return the activity with the given id, or None."""
         return self._session.get(ActivityModel, activity_id)
 
+    def get_in_project(self, project_id: UUID, activity_id: UUID) -> ActivityModel | None:
+        """Return the activity only when it belongs to the given project, else None."""
+        statement = select(ActivityModel).where(
+            ActivityModel.id == activity_id, ActivityModel.project_id == project_id
+        )
+        return self._session.scalars(statement).one_or_none()
+
     def add(self, project_id: UUID, data: ActivityData) -> ActivityModel:
         """Persist a new activity inside the given project."""
         activity = ActivityModel(project_id=project_id, **_editable_fields(data))
