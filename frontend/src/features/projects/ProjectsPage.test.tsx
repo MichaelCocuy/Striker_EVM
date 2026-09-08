@@ -10,18 +10,16 @@ import { env } from '@/config/env';
 import { HTTP_STATUS } from '@/constants/http';
 import { projectDashboardPath, ROUTES } from '@/constants/routes';
 import { formatIndex } from '@/lib/format';
-import { issueMockToken } from '@/mocks/auth';
 import { resetMockDatabase } from '@/mocks/db';
-import { evmReportFixture, usersFixture } from '@/mocks/fixtures';
+import { evmReportFixture } from '@/mocks/fixtures';
 import { SEED_IDS } from '@/mocks/seed';
 import { mockServer } from '@/mocks/server';
-import { setSession } from '@/session/session-store';
-import { renderWithRouter } from '@/test/render';
+import { renderWithRouter, signInAs } from '@/test/render';
 
 import { PROJECT_FORM_MESSAGES, PROJECT_NAME_MAX_LENGTH } from './project-form';
 import { ProjectsPage } from './ProjectsPage';
 
-import type { ApiErrorBody, Project, Role, User } from '@/api/types';
+import type { ApiErrorBody, Project, Role } from '@/api/types';
 import type { RouteObject } from 'react-router-dom';
 
 /** docs/api/fixtures: the seeded project and the report the portfolio must show for it. */
@@ -56,21 +54,9 @@ function apiPattern(path: string): string {
   return `*${env.apiBaseUrl}${path}`;
 }
 
-/**
- * Signs in as a seed user with a token the mock backend accepts (`test/render`'s helper uses
- * an opaque token that MSW rejects with 401).
- */
-function signIn(role: Role): User {
-  const user = usersFixture.find((candidate) => candidate.role === role);
-  if (user === undefined) {
-    throw new Error(`No seed user with role ${role}`);
-  }
-  setSession({ accessToken: issueMockToken(user.id), user });
-  return user;
-}
-
+/** Signs in as a seed user of that role, then renders the portfolio route. */
 function renderPortfolio(role: Role) {
-  signIn(role);
+  signInAs(role);
   return renderWithRouter({ routes: portfolioRoutes, initialPath: ROUTES.PROJECTS });
 }
 
@@ -309,7 +295,7 @@ describe('ProjectsPage delete', () => {
 
 describe('role-aware landing', () => {
   it('lands a REVIEWER on the portfolio', async () => {
-    signIn(ROLES.REVIEWER);
+    signInAs(ROLES.REVIEWER);
     const { router } = renderWithRouter({ routes: appRoutes, initialPath: ROUTES.ROOT });
 
     await waitFor(() => {
@@ -319,7 +305,7 @@ describe('role-aware landing', () => {
   });
 
   it('lands a REGISTRAR on "mis actividades"', async () => {
-    signIn(ROLES.REGISTRAR);
+    signInAs(ROLES.REGISTRAR);
     const { router } = renderWithRouter({ routes: appRoutes, initialPath: ROUTES.ROOT });
 
     await waitFor(() => {

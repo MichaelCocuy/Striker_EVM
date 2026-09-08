@@ -4,6 +4,7 @@ import { api } from '@/api/endpoints';
 import { Button } from '@/components/ui/Button';
 import { BUTTON_VARIANT } from '@/components/ui/button-variants';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { TextAreaField } from '@/components/ui/TextAreaField';
 import { TextField } from '@/components/ui/TextField';
 
 import {
@@ -16,7 +17,6 @@ import {
   toProjectInput,
   validateProject,
 } from './project-form';
-import { TextAreaField } from './TextAreaField';
 
 import type { ProjectFieldErrors, ProjectFormValues } from './project-form';
 import type { Project } from '@/api/types';

@@ -23,6 +23,10 @@ venv/
 htmlcov/
 .coverage
 coverage.xml
+# Local SQLite database created when running the API without PostgreSQL.
+*.sqlite
+*.sqlite3
+local.db
 
 # --- Java / Maven / Gradle ---
 target/

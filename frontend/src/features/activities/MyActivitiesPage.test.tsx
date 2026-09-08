@@ -6,9 +6,8 @@ import { ROUTES } from '@/constants/routes';
 import { mockDb, resetMockDatabase } from '@/mocks/db';
 import { SEED_IDS } from '@/mocks/seed';
 import { mockServer } from '@/mocks/server';
-import { renderWithRouter } from '@/test/render';
+import { SEED_USER_EMAIL, renderWithRouter, signInAsSeedUser } from '@/test/render';
 
-import { SEED_USER_EMAIL, signInAsSeedUser } from './activities-test-support';
 import { MyActivitiesPage } from './MyActivitiesPage';
 
 import type { RouteObject } from 'react-router-dom';

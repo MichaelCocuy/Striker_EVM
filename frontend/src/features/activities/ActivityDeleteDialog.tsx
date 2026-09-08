@@ -1,8 +1,8 @@
 import { api } from '@/api/endpoints';
 import { Button } from '@/components/ui/Button';
 import { BUTTON_VARIANT } from '@/components/ui/button-variants';
+import { ModalDialog } from '@/components/ui/ModalDialog';
 
-import { ModalDialog } from './ModalDialog';
 import { useActivityMutation } from './useActivityMutation';
 
 import type { EvmActivityReport } from '@/api/types';
