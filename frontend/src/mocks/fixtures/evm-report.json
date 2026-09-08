@@ -1,0 +1,111 @@
+{
+  "project": {
+    "id": "22222222-2222-4222-8222-000000000001",
+    "name": "Portal de clientes",
+    "indicators": {
+      "budgetAtCompletion": 60000.0,
+      "plannedValue": 32000.0,
+      "earnedValue": 29000.0,
+      "actualCost": 31500.0,
+      "costVariance": -2500.0,
+      "scheduleVariance": -3000.0,
+      "costPerformanceIndex": 0.9206,
+      "schedulePerformanceIndex": 0.9063,
+      "estimateAtCompletion": 65172.41,
+      "varianceAtCompletion": -5172.41,
+      "costStatus": "OVER_BUDGET",
+      "scheduleStatus": "BEHIND_SCHEDULE",
+      "notes": []
+    }
+  },
+  "activities": [
+    {
+      "id": "33333333-3333-4333-8333-000000000001",
+      "name": "Diseño",
+      "owner": {
+        "id": "11111111-1111-4111-8111-000000000002",
+        "fullName": "Carlos Registrador"
+      },
+      "input": {
+        "budgetAtCompletion": 10000.0,
+        "plannedProgressPercent": 100.0,
+        "actualProgressPercent": 100.0,
+        "actualCost": 9000.0
+      },
+      "indicators": {
+        "budgetAtCompletion": 10000.0,
+        "plannedValue": 10000.0,
+        "earnedValue": 10000.0,
+        "actualCost": 9000.0,
+        "costVariance": 1000.0,
+        "scheduleVariance": 0.0,
+        "costPerformanceIndex": 1.1111,
+        "schedulePerformanceIndex": 1.0,
+        "estimateAtCompletion": 9000.0,
+        "varianceAtCompletion": 1000.0,
+        "costStatus": "UNDER_BUDGET",
+        "scheduleStatus": "ON_SCHEDULE",
+        "notes": []
+      }
+    },
+    {
+      "id": "33333333-3333-4333-8333-000000000002",
+      "name": "Desarrollo",
+      "owner": {
+        "id": "11111111-1111-4111-8111-000000000003",
+        "fullName": "Ana Registradora"
+      },
+      "input": {
+        "budgetAtCompletion": 40000.0,
+        "plannedProgressPercent": 50.0,
+        "actualProgressPercent": 40.0,
+        "actualCost": 20000.0
+      },
+      "indicators": {
+        "budgetAtCompletion": 40000.0,
+        "plannedValue": 20000.0,
+        "earnedValue": 16000.0,
+        "actualCost": 20000.0,
+        "costVariance": -4000.0,
+        "scheduleVariance": -4000.0,
+        "costPerformanceIndex": 0.8,
+        "schedulePerformanceIndex": 0.8,
+        "estimateAtCompletion": 50000.0,
+        "varianceAtCompletion": -10000.0,
+        "costStatus": "OVER_BUDGET",
+        "scheduleStatus": "BEHIND_SCHEDULE",
+        "notes": []
+      }
+    },
+    {
+      "id": "33333333-3333-4333-8333-000000000003",
+      "name": "Pruebas",
+      "owner": {
+        "id": "11111111-1111-4111-8111-000000000002",
+        "fullName": "Carlos Registrador"
+      },
+      "input": {
+        "budgetAtCompletion": 10000.0,
+        "plannedProgressPercent": 20.0,
+        "actualProgressPercent": 30.0,
+        "actualCost": 2500.0
+      },
+      "indicators": {
+        "budgetAtCompletion": 10000.0,
+        "plannedValue": 2000.0,
+        "earnedValue": 3000.0,
+        "actualCost": 2500.0,
+        "costVariance": 500.0,
+        "scheduleVariance": 1000.0,
+        "costPerformanceIndex": 1.2,
+        "schedulePerformanceIndex": 1.5,
+        "estimateAtCompletion": 8333.33,
+        "varianceAtCompletion": 1666.67,
+        "costStatus": "UNDER_BUDGET",
+        "scheduleStatus": "AHEAD_OF_SCHEDULE",
+        "notes": []
+      }
+    }
+  ],
+  "generatedAt": "2026-09-08T12:00:00Z"
+}

@@ -1,0 +1,3 @@
+# Local-only overrides keep secrets; the committed dev file only toggles mocks.
+!.env.development
+.env.*.local

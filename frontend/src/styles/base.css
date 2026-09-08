@@ -1,0 +1,89 @@
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--canvas);
+    background-image: var(--canvas-gradient);
+    background-attachment: fixed;
+    color: var(--ink);
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: var(--tracking-tight);
+    text-wrap: balance;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility numeric {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+@utility eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+}
+
+@utility card {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--surface-overlay), transparent);
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
