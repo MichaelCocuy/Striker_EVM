@@ -1,0 +1,14 @@
+{
+  "code": "VALIDATION_ERROR",
+  "message": "La solicitud contiene campos inválidos",
+  "details": [
+    {
+      "field": "plannedProgressPercent",
+      "message": "plannedProgressPercent must be between 0 and 100"
+    },
+    {
+      "field": "budgetAtCompletion",
+      "message": "budgetAtCompletion must be greater than 0"
+    }
+  ]
+}
