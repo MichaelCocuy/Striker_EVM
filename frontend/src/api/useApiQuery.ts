@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { API_ERROR_CODE, ApiError, isApiError } from './errors';
+import { ERROR_CODE, ApiError, isApiError } from './errors';
 
 export type QueryStatus = 'loading' | 'success' | 'error';
 
@@ -27,7 +27,7 @@ function toApiError(error: unknown): ApiError {
     return error;
   }
   return new ApiError(0, {
-    code: API_ERROR_CODE.NETWORK_ERROR,
+    code: ERROR_CODE.NETWORK_ERROR,
     message: error instanceof Error ? error.message : UNKNOWN_ERROR_MESSAGE,
     details: [],
   });

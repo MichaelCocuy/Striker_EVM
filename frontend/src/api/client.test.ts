@@ -7,7 +7,7 @@ import { TEST_TOKEN, TEST_USERS } from '@/test/render';
 
 import { createApiClient } from './client';
 import { createApi } from './endpoints';
-import { API_ERROR_CODE, ApiError } from './errors';
+import { ERROR_CODE, ApiError } from './errors';
 
 const BASE_URL = 'http://api.test/api/v1';
 
@@ -50,7 +50,11 @@ describe('api client', () => {
   });
 
   it('normalizes error bodies into ApiError with code, message and details', async () => {
-    const errorBody = { code: 'VALIDATION_ERROR', message: 'bad input', details: ['name'] };
+    const errorBody = {
+      code: 'VALIDATION_ERROR',
+      message: 'bad input',
+      details: [{ field: 'name', message: 'name must not be empty' }],
+    };
     const api = createApi(
       createApiClient(BASE_URL, mockFetch(jsonResponse(errorBody, HTTP_STATUS.BAD_REQUEST))),
     );
@@ -74,7 +78,7 @@ describe('api client', () => {
 
     const failure = (await api.listProjects().catch((error: unknown) => error)) as ApiError;
 
-    expect(failure.code).toBe(API_ERROR_CODE.HTTP_ERROR);
+    expect(failure.code).toBe(ERROR_CODE.HTTP_ERROR);
     expect(failure.message).toBe('Internal Server Error');
   });
 
@@ -104,7 +108,7 @@ describe('api client', () => {
 
     const failure = (await api.listProjects().catch((error: unknown) => error)) as ApiError;
 
-    expect(failure.code).toBe(API_ERROR_CODE.NETWORK_ERROR);
+    expect(failure.code).toBe(ERROR_CODE.NETWORK_ERROR);
     expect(failure.status).toBe(0);
   });
 });

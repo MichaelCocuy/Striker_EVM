@@ -1,10 +1,10 @@
 /**
- * Hand-written mirror of the API contract in docs/ARQUITECTURA.md §5.
+ * Hand-written mirror of docs/api/openapi.yaml (components/schemas).
  *
  * This file is the single place where wire types live so it can be swapped for types
- * generated from docs/api/openapi.yaml (module M1) without touching feature code.
- * All payloads are camelCase JSON; money is a number with two decimals and indices are
- * numbers with four decimals (or null when not computable).
+ * generated from the OpenAPI document without touching feature code. Names follow the
+ * contract schemas. All payloads are camelCase JSON; money is a number with two decimals
+ * and indices are numbers with four decimals (or null when not computable).
  */
 
 export const ROLES = {
@@ -32,12 +32,34 @@ export const SCHEDULE_STATUS = {
 
 export type ScheduleStatus = (typeof SCHEDULE_STATUS)[keyof typeof SCHEDULE_STATUS];
 
-export const TOKEN_TYPE_BEARER = 'bearer';
+/** Contract `ErrorCode` catalogue plus the client-side codes used when no API body exists. */
+export const ERROR_CODE = {
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN',
+  NOT_FOUND: 'NOT_FOUND',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  /** Non-JSON or unexpected HTTP failure. */
+  HTTP_ERROR: 'HTTP_ERROR',
+  /** The request never reached the server (offline, CORS, aborted). */
+  NETWORK_ERROR: 'NETWORK_ERROR',
+  /** The server answered 2xx with a body that is not valid JSON. */
+  INVALID_RESPONSE: 'INVALID_RESPONSE',
+} as const;
 
-export interface User {
+export type ErrorCode = (typeof ERROR_CODE)[keyof typeof ERROR_CODE];
+
+export const TOKEN_TYPE_BEARER = 'bearer';
+export const HEALTH_OK = 'ok';
+
+/** `UserSummary`: reference to a user embedded in projects and activities. */
+export interface UserSummary {
   id: string;
-  email: string;
   fullName: string;
+}
+
+export interface User extends UserSummary {
+  email: string;
   role: Role;
 }
 
@@ -49,22 +71,15 @@ export interface LoginRequest {
 export interface LoginResponse {
   accessToken: string;
   tokenType: typeof TOKEN_TYPE_BEARER;
+  /** Seconds of validity since issuance (8 hours). */
+  expiresIn: number;
   user: User;
 }
 
 export interface HealthResponse {
-  status: string;
-  database: string;
-}
-
-export interface Project {
-  id: string;
-  name: string;
-  description: string | null;
-  createdBy: string;
-  activityCount: number;
-  createdAt: string;
-  updatedAt: string;
+  status: typeof HEALTH_OK;
+  database: typeof HEALTH_OK;
+  version?: string;
 }
 
 export interface ProjectInput {
@@ -72,34 +87,37 @@ export interface ProjectInput {
   description?: string | null;
 }
 
-/** Owner as embedded in an Activity: enough to render a name and check ownership. */
-export interface ActivityOwner {
+export interface Project {
   id: string;
-  fullName: string;
-  email: string;
-}
-
-export interface Activity {
-  id: string;
-  projectId: string;
   name: string;
-  owner: ActivityOwner;
-  budgetAtCompletion: number;
-  plannedProgressPercent: number;
-  actualProgressPercent: number;
-  actualCost: number;
+  description: string | null;
+  activityCount: number;
+  createdBy: UserSummary;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ActivityInput {
-  name: string;
-  /** Optional for REGISTRAR (assigned to themselves); required for REVIEWER. */
-  ownerId?: string;
+/** `ActivityMeasures`: the four raw numbers the EVM calculation is based on. */
+export interface ActivityMeasures {
   budgetAtCompletion: number;
   plannedProgressPercent: number;
   actualProgressPercent: number;
   actualCost: number;
+}
+
+/** POST/PUT body. `ownerId` is optional for REGISTRAR (self) and required for REVIEWER. */
+export type ActivityInput = ActivityMeasures & {
+  name: string;
+  ownerId?: string | null;
+};
+
+export interface Activity extends ActivityMeasures {
+  id: string;
+  projectId: string;
+  name: string;
+  owner: UserSummary;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface EvmIndicators {
@@ -118,26 +136,35 @@ export interface EvmIndicators {
   notes: string[];
 }
 
-export interface EvmReportProject {
+export interface EvmProjectSummary {
   id: string;
   name: string;
   indicators: EvmIndicators;
 }
 
-export interface EvmReportActivity {
+export interface EvmActivityReport {
   id: string;
   name: string;
-  input: ActivityInput;
+  owner: UserSummary;
+  input: ActivityMeasures;
   indicators: EvmIndicators;
 }
 
 export interface EvmReport {
-  project: EvmReportProject;
-  activities: EvmReportActivity[];
+  project: EvmProjectSummary;
+  activities: EvmActivityReport[];
+  /** UTC instant at which the report was computed. */
+  generatedAt: string;
+}
+
+export interface ErrorDetail {
+  /** camelCase field name the detail applies to, or null when general. */
+  field?: string | null;
+  message: string;
 }
 
 export interface ApiErrorBody {
-  code: string;
+  code: ErrorCode;
   message: string;
-  details: unknown[];
+  details: ErrorDetail[];
 }

@@ -1,6 +1,6 @@
 import { ROLES } from '@/api/types';
 
-import type { ActivityOwner, Role, User } from '@/api/types';
+import type { UserSummary, Role, User } from '@/api/types';
 
 /**
  * Permission matrix from docs/ARQUITECTURA.md §11.
@@ -22,7 +22,7 @@ export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 /** Anything that carries an owner: a full Activity or a report row with `input.ownerId`. */
 export interface OwnedResource {
-  owner: Pick<ActivityOwner, 'id'>;
+  owner: Pick<UserSummary, 'id'>;
 }
 
 type PermissionRule = (user: User, subject?: OwnedResource) => boolean;

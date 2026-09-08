@@ -16,6 +16,8 @@ import type { LoginResponse } from '@/api/types';
 import type { RouteObject } from 'react-router-dom';
 
 const HOME_TEXT = 'Inicio autenticado';
+/** docs/api/fixtures/login-response.json */
+const EXPIRES_IN_SECONDS = 28800;
 const EMAIL_LABEL = /correo electrónico/i;
 const PASSWORD_LABEL = /contraseña/i;
 const SUBMIT_LABEL = /entrar/i;
@@ -26,7 +28,12 @@ const routes: RouteObject[] = [
 ];
 
 function successfulLogin(): LoginResponse {
-  return { accessToken: TEST_TOKEN, tokenType: 'bearer', user: TEST_USERS[ROLES.REVIEWER] };
+  return {
+    accessToken: TEST_TOKEN,
+    tokenType: 'bearer',
+    expiresIn: EXPIRES_IN_SECONDS,
+    user: TEST_USERS[ROLES.REVIEWER],
+  };
 }
 
 describe('LoginPage', () => {

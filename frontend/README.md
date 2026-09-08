@@ -7,6 +7,10 @@ Este paquete es el andamiaje del módulo **M7** (`docs/ARQUITECTURA.md` §6): si
 shell de la aplicación, autenticación por roles, cliente API tipado y mocks. Los módulos M8–M11
 rellenan los espacios (`*Placeholder`) del dashboard.
 
+La fuente de verdad del API es `docs/api/openapi.yaml` (módulo M1). `src/api/types.ts` es su
+espejo escrito a mano en un único módulo, pensado para sustituirse por tipos generados sin tocar
+el código de las features.
+
 ## Requisitos
 
 - Node ≥ 24 y npm ≥ 11 (versiones exactas de dependencias fijadas en `package.json`).
@@ -41,7 +45,7 @@ Archivos:
 ## Mocks (modo demo)
 
 Con `VITE_USE_MOCKS=true` la aplicación registra `public/mockServiceWorker.js` y todos los
-endpoints de `docs/ARQUITECTURA.md` §5 se sirven desde `src/mocks/handlers.ts` con estado en
+endpoints de `docs/api/openapi.yaml` se sirven desde `src/mocks/handlers.ts` con estado en
 memoria (se reinicia al recargar). Las reglas de rol se aplican igual que en el backend:
 `401` sin token, `403` para un REGISTRAR que crea proyectos o edita actividades ajenas, `400` en
 validaciones, `404` en recursos inexistentes.
@@ -54,11 +58,17 @@ Datos semilla (`src/mocks/seed.ts`):
 | `registrador@striker.local`  | REGISTRAR | Carlos Registrador | `Striker2026!` |
 | `registrador2@striker.local` | REGISTRAR | Ana Registradora   | `Striker2026!` |
 
-Proyecto "Portal de clientes" con las actividades Diseño / Desarrollo / Pruebas de
-`docs/EVM_GUIA.md` §6. `GET /projects/{id}/evm` devuelve **la fixture literal** de §6.5 y §6.6
-(`src/mocks/fixtures/portal-de-clientes-report.ts`: CPI 0.9206, SPI 0.9063, EAC 65 172.41,
-VAC −5 172.41). El frontend no calcula EVM: para proyectos creados en modo mock el reporte llega
-con indicadores `NOT_APPLICABLE` y una nota explicándolo.
+Proyecto "Portal de clientes" con las actividades Diseño (Carlos), Desarrollo (Ana) y Pruebas
+(Carlos), con los **UUID fijos** de `docs/api/README.md`, los mismos que usa el `init.sql` del
+backend.
+
+Los archivos de `src/mocks/fixtures/*.json` son **copias literales** de `docs/api/fixtures/`
+(`users`, `project`, `activities`, `evm-report`, `evm-report-empty-project`); se copian en vez de
+importarse desde `docs/` para que el paquete se construya solo, y `fixtures-sync.test.ts` falla si
+alguna copia se desincroniza de su origen. `GET /projects/{id}/evm` devuelve `evm-report.json` tal
+cual (CPI 0.9206, SPI 0.9063, EAC 65 172.41, VAC −5 172.41). El frontend no calcula EVM: los
+proyectos creados en modo mock reciben los indicadores de `evm-report-empty-project.json`
+(`NOT_APPLICABLE`) con una nota que lo explica.
 
 ## Estructura
 
@@ -66,8 +76,10 @@ con indicadores `NOT_APPLICABLE` y una nota explicándolo.
 frontend/
 ├── public/mockServiceWorker.js   # generado por `msw init`, no editar
 ├── src/
-│   ├── api/            # types.ts (contrato §5, reemplazable por tipos generados), client.ts,
-│   │                   # endpoints.ts (una función por endpoint), errors.ts, useApiQuery.ts
+│   ├── api/            # types.ts (espejo de docs/api/openapi.yaml, reemplazable por tipos
+│   │                   # generados), client.ts, endpoints.ts (una función por endpoint),
+│   │                   # errors.ts, useApiQuery.ts
+│   ├── lib/            # format (locale), initials
 │   ├── app/            # router.tsx, RootRedirect (home por rol), NotFoundPage
 │   ├── components/ui/  # Card, Button, TextField, Skeleton, PageHeader, RoleBadge, StatusPill,
 │   │                   # AnimatedNumber, ThemeToggle, PlaceholderCard, ErrorState, BrandMark
@@ -82,7 +94,8 @@ frontend/
 │   │   ├── summary/    # SummaryPlaceholder → M9
 │   │   ├── chart/      # ChartPlaceholder, GaugePlaceholder → M10
 │   │   └── activities/ # ActivitiesTablePlaceholder, MyActivitiesPage → M8
-│   ├── mocks/          # MSW: handlers, db (estado), seed, fixtures, browser, server (tests)
+│   ├── mocks/          # MSW: handlers, db (estado), seed, fixtures/*.json (copias de
+│   │                   # docs/api/fixtures), browser, server (tests)
 │   ├── motion/         # GSAP: constants, reduced-motion, usePageTransition, useStaggerReveal,
 │   │                   # useCountUp, useStatusColorTween
 │   ├── session/        # session-store (token + usuario en memoria y sessionStorage)

@@ -7,7 +7,7 @@ import { HTTP_STATUS } from '@/constants/http';
 import { setSession } from '@/session/session-store';
 
 import { resetMockDatabase } from './db';
-import { PORTAL_DE_CLIENTES_REPORT } from './fixtures/portal-de-clientes-report';
+import { evmReportFixture } from './fixtures';
 import { SEED_IDS, SEED_PASSWORD, SEED_USERS } from './seed';
 import { mockServer } from './server';
 
@@ -18,6 +18,8 @@ const api = createApi(createApiClient(BASE_URL));
 
 const reviewerEmail = 'revisor@striker.local';
 const registrarEmail = 'registrador@striker.local';
+/** docs/api/fixtures/login-response.json */
+const EXPECTED_EXPIRES_IN = 28800;
 
 async function signIn(email: string): Promise<LoginResponse> {
   const response = await api.login({ email, password: SEED_PASSWORD });
@@ -42,6 +44,7 @@ describe('MSW handlers', () => {
       const response = await api.login({ email: seedUser.email, password: SEED_PASSWORD });
       expect(response.user).toEqual(seedUser);
       expect(response.tokenType).toBe('bearer');
+      expect(response.expiresIn).toBe(EXPECTED_EXPIRES_IN);
     }
   });
 
@@ -65,14 +68,26 @@ describe('MSW handlers', () => {
       id: SEED_IDS.PROJECT,
       name: 'Portal de clientes',
       activityCount: 3,
+      createdBy: { id: SEED_IDS.REVIEWER, fullName: 'Laura Revisora' },
     });
+  });
+
+  it('embeds owners as UserSummary without an email', async () => {
+    await signIn(reviewerEmail);
+    const activities = await api.listActivities(SEED_IDS.PROJECT);
+
+    expect(activities.map((activity) => activity.owner)).toEqual([
+      { id: SEED_IDS.REGISTRAR, fullName: 'Carlos Registrador' },
+      { id: SEED_IDS.REGISTRAR_2, fullName: 'Ana Registradora' },
+      { id: SEED_IDS.REGISTRAR, fullName: 'Carlos Registrador' },
+    ]);
   });
 
   it('serves the exact EVM report from EVM_GUIA §6.5 and §6.6 for the seeded project', async () => {
     await signIn(registrarEmail);
     const report = await api.getEvmReport(SEED_IDS.PROJECT);
 
-    expect(report).toEqual(PORTAL_DE_CLIENTES_REPORT);
+    expect(report).toEqual(evmReportFixture);
     expect(report.project.indicators.costPerformanceIndex).toBe(0.9206);
     expect(report.project.indicators.schedulePerformanceIndex).toBe(0.9063);
     expect(report.project.indicators.estimateAtCompletion).toBe(65172.41);
@@ -82,6 +97,26 @@ describe('MSW handlers', () => {
       'Desarrollo',
       'Pruebas',
     ]);
+    expect(report.generatedAt).toBe('2026-09-08T12:00:00Z');
+    // EvmActivityReport.input carries only the four ActivityMeasures fields.
+    expect(Object.keys(report.activities[0]?.input ?? {})).toEqual([
+      'budgetAtCompletion',
+      'plannedProgressPercent',
+      'actualProgressPercent',
+      'actualCost',
+    ]);
+  });
+
+  it('reports a project created in mock mode with the empty-project indicators', async () => {
+    await signIn(reviewerEmail);
+    const created = await api.createProject({ name: 'Intranet' });
+
+    const report = await api.getEvmReport(created.id);
+
+    expect(report.project.id).toBe(created.id);
+    expect(report.activities).toEqual([]);
+    expect(report.project.indicators.costStatus).toBe('NOT_APPLICABLE');
+    expect(report.generatedAt).toEqual(expect.any(String));
   });
 
   it('forbids REGISTRAR from creating projects and listing users', async () => {
@@ -121,21 +156,22 @@ describe('MSW handlers', () => {
   });
 
   it('forbids REGISTRAR from editing or deleting activities owned by someone else', async () => {
+    // Carlos owns Diseño and Pruebas; Desarrollo belongs to Ana (see fixtures/activities.json).
     await signIn(registrarEmail);
     const input = {
-      name: 'Pruebas',
-      budgetAtCompletion: 10000,
-      plannedProgressPercent: 20,
-      actualProgressPercent: 30,
-      actualCost: 2500,
+      name: 'Desarrollo',
+      budgetAtCompletion: 40000,
+      plannedProgressPercent: 50,
+      actualProgressPercent: 40,
+      actualCost: 20000,
     };
 
     await expectStatus(
-      api.updateActivity(SEED_IDS.PROJECT, SEED_IDS.ACTIVITY_TESTING, input),
+      api.updateActivity(SEED_IDS.PROJECT, SEED_IDS.ACTIVITY_DEVELOPMENT, input),
       HTTP_STATUS.FORBIDDEN,
     );
     await expectStatus(
-      api.deleteActivity(SEED_IDS.PROJECT, SEED_IDS.ACTIVITY_TESTING),
+      api.deleteActivity(SEED_IDS.PROJECT, SEED_IDS.ACTIVITY_DEVELOPMENT),
       HTTP_STATUS.FORBIDDEN,
     );
     const own = await api.updateActivity(SEED_IDS.PROJECT, SEED_IDS.ACTIVITY_DESIGN, {

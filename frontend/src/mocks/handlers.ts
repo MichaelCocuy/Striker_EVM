@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { API_PATHS } from '@/api/endpoints';
-import { COST_STATUS, ROLES, SCHEDULE_STATUS } from '@/api/types';
+import { ERROR_CODE, HEALTH_OK, ROLES, TOKEN_TYPE_BEARER } from '@/api/types';
 import { env } from '@/config/env';
 import { HTTP_STATUS } from '@/constants/http';
 
@@ -18,30 +18,25 @@ import {
   toPublicUser,
   withActivityCount,
 } from './db';
-import { PORTAL_DE_CLIENTES_REPORT } from './fixtures/portal-de-clientes-report';
+import { emptyEvmReportFixture, evmReportFixture } from './fixtures';
 import { SEED_IDS } from './seed';
 
 import type { MockDatabase, MockUser } from './db';
 import type {
   Activity,
   ActivityInput,
-  ActivityOwner,
   ApiErrorBody,
-  EvmIndicators,
+  ErrorCode,
+  ErrorDetail,
   EvmReport,
+  HealthResponse,
   LoginRequest,
   LoginResponse,
   Project,
   ProjectInput,
+  UserSummary,
 } from '@/api/types';
 import type { HttpHandler } from 'msw';
-
-export const MOCK_ERROR_CODE = {
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  UNAUTHORIZED: 'UNAUTHORIZED',
-  FORBIDDEN: 'FORBIDDEN',
-  NOT_FOUND: 'NOT_FOUND',
-} as const;
 
 const MESSAGES = {
   INVALID_CREDENTIALS: 'Invalid email or password',
@@ -60,6 +55,9 @@ const MESSAGES = {
     'Mock mode only serves the fixture report for the seeded project; the backend computes real indicators',
 } as const;
 
+/** Matches `expiresIn` in docs/api/fixtures/login-response.json (8 hours). */
+const TOKEN_EXPIRES_IN_SECONDS = 28800;
+const MOCK_VERSION = 'mock';
 const PERCENT_MIN = 0;
 const PERCENT_MAX = 100;
 
@@ -81,22 +79,30 @@ function pattern(path: string): string {
   return `*${env.apiBaseUrl}${path}`;
 }
 
-function errorResponse(status: number, code: string, message: string, details: unknown[] = []) {
+function errorResponse(
+  status: number,
+  code: ErrorCode,
+  message: string,
+  details: ErrorDetail[] = [],
+) {
   const body: ApiErrorBody = { code, message, details };
   return HttpResponse.json(body, { status });
 }
 
 const unauthorized = () =>
-  errorResponse(HTTP_STATUS.UNAUTHORIZED, MOCK_ERROR_CODE.UNAUTHORIZED, MESSAGES.MISSING_TOKEN);
+  errorResponse(HTTP_STATUS.UNAUTHORIZED, ERROR_CODE.UNAUTHORIZED, MESSAGES.MISSING_TOKEN);
 
 const forbidden = (message: string) =>
-  errorResponse(HTTP_STATUS.FORBIDDEN, MOCK_ERROR_CODE.FORBIDDEN, message);
+  errorResponse(HTTP_STATUS.FORBIDDEN, ERROR_CODE.FORBIDDEN, message);
 
 const notFound = (message: string) =>
-  errorResponse(HTTP_STATUS.NOT_FOUND, MOCK_ERROR_CODE.NOT_FOUND, message);
+  errorResponse(HTTP_STATUS.NOT_FOUND, ERROR_CODE.NOT_FOUND, message);
 
-const validationError = (message: string) =>
-  errorResponse(HTTP_STATUS.BAD_REQUEST, MOCK_ERROR_CODE.VALIDATION_ERROR, message);
+/** VALIDATION_ERROR carries one detail per invalid field, as in fixtures/error-validation.json. */
+const validationError = (message: string, field: string | null = null) =>
+  errorResponse(HTTP_STATUS.BAD_REQUEST, ERROR_CODE.VALIDATION_ERROR, message, [
+    { field, message },
+  ]);
 
 function readParam(params: Record<string, string | readonly string[] | undefined>, key: string) {
   const value = params[key];
@@ -134,58 +140,61 @@ function validateActivityInput(input: Partial<ActivityInput>): string | null {
   return null;
 }
 
+const OWNER_ID_FIELD = 'ownerId';
+
 interface OwnerResolution {
-  owner?: ActivityOwner;
+  owner?: UserSummary;
   error?: ReturnType<typeof validationError>;
 }
 
 function resolveOwner(db: MockDatabase, user: MockUser, input: ActivityInput): OwnerResolution {
   if (!isReviewer(user)) {
-    return { owner: { id: user.id, fullName: user.fullName, email: user.email } };
+    return { owner: { id: user.id, fullName: user.fullName } };
   }
-  if (input.ownerId === undefined || input.ownerId === '') {
-    return { error: validationError(MESSAGES.OWNER_REQUIRED) };
+  if (input.ownerId === undefined || input.ownerId === null || input.ownerId === '') {
+    return { error: validationError(MESSAGES.OWNER_REQUIRED, OWNER_ID_FIELD) };
   }
   const ownerUser = findUserById(db, input.ownerId);
   if (ownerUser === undefined) {
-    return { error: validationError(MESSAGES.OWNER_NOT_FOUND) };
+    return { error: validationError(MESSAGES.OWNER_NOT_FOUND, OWNER_ID_FIELD) };
   }
-  return { owner: { id: ownerUser.id, fullName: ownerUser.fullName, email: ownerUser.email } };
+  return { owner: { id: ownerUser.id, fullName: ownerUser.fullName } };
 }
 
 function canModifyActivity(user: MockUser, activity: Activity): boolean {
   return isReviewer(user) || activity.owner.id === user.id;
 }
 
-function emptyReportFor(project: Project): EvmReport {
-  const zeroIndicators: EvmIndicators = {
-    budgetAtCompletion: 0,
-    plannedValue: 0,
-    earnedValue: 0,
-    actualCost: 0,
-    costVariance: 0,
-    scheduleVariance: 0,
-    costPerformanceIndex: null,
-    schedulePerformanceIndex: null,
-    estimateAtCompletion: null,
-    varianceAtCompletion: null,
-    costStatus: COST_STATUS.NOT_APPLICABLE,
-    scheduleStatus: SCHEDULE_STATUS.NOT_APPLICABLE,
-    notes: [MESSAGES.MOCK_REPORT_UNAVAILABLE],
-  };
+/**
+ * The seeded project returns the shared fixture verbatim (EVM_GUIA §6); the frontend never
+ * computes EVM. Projects created in mock mode reuse the empty-project fixture's indicators
+ * with their own identity, noting that only the backend produces real numbers.
+ */
+function reportFor(db: MockDatabase, project: Project): EvmReport {
+  if (project.id === SEED_IDS.PROJECT) {
+    return evmReportFixture;
+  }
+  const emptyIndicators = emptyEvmReportFixture.project.indicators;
+  const notes =
+    countActivities(db, project.id) === 0
+      ? emptyIndicators.notes
+      : [MESSAGES.MOCK_REPORT_UNAVAILABLE];
   return {
-    project: { id: project.id, name: project.name, indicators: zeroIndicators },
+    project: { id: project.id, name: project.name, indicators: { ...emptyIndicators, notes } },
     activities: [],
+    generatedAt: nowIso(),
   };
+}
+
+function healthResponse(): HealthResponse {
+  return { status: HEALTH_OK, database: HEALTH_OK, version: MOCK_VERSION };
 }
 
 export function createHandlers(db: MockDatabase = mockDb): HttpHandler[] {
   const requireUser = (request: Request) => authenticateRequest(request, db);
 
   return [
-    http.get(pattern(API_PATHS.HEALTH), () =>
-      HttpResponse.json({ status: 'ok', database: 'mock' }),
-    ),
+    http.get(pattern(API_PATHS.HEALTH), () => HttpResponse.json(healthResponse())),
 
     http.post(pattern(API_PATHS.LOGIN), async ({ request }) => {
       const credentials = (await request.json()) as Partial<LoginRequest>;
@@ -196,13 +205,14 @@ export function createHandlers(db: MockDatabase = mockDb): HttpHandler[] {
       if (user === undefined || user.password !== credentials.password) {
         return errorResponse(
           HTTP_STATUS.UNAUTHORIZED,
-          MOCK_ERROR_CODE.UNAUTHORIZED,
+          ERROR_CODE.UNAUTHORIZED,
           MESSAGES.INVALID_CREDENTIALS,
         );
       }
       const body: LoginResponse = {
         accessToken: issueMockToken(user.id),
-        tokenType: 'bearer',
+        tokenType: TOKEN_TYPE_BEARER,
+        expiresIn: TOKEN_EXPIRES_IN_SECONDS,
         user: toPublicUser(user),
       };
       return HttpResponse.json(body);
@@ -250,7 +260,7 @@ export function createHandlers(db: MockDatabase = mockDb): HttpHandler[] {
         id: newId(),
         name: input.name.trim(),
         description: input.description ?? null,
-        createdBy: user.id,
+        createdBy: { id: user.id, fullName: user.fullName },
         activityCount: 0,
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -428,9 +438,7 @@ export function createHandlers(db: MockDatabase = mockDb): HttpHandler[] {
       if (project === undefined) {
         return notFound(MESSAGES.PROJECT_NOT_FOUND);
       }
-      const report =
-        project.id === SEED_IDS.PROJECT ? PORTAL_DE_CLIENTES_REPORT : emptyReportFor(project);
-      return HttpResponse.json(report);
+      return HttpResponse.json(reportFor(db, project));
     }),
   ];
 }

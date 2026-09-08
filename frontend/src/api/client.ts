@@ -2,7 +2,7 @@ import { env } from '@/config/env';
 import { BEARER_PREFIX, HTTP_HEADER, HTTP_METHOD, HTTP_STATUS, MEDIA_TYPE } from '@/constants/http';
 import { clearSession, getAccessToken } from '@/session/session-store';
 
-import { API_ERROR_CODE, ApiError, normalizeErrorBody } from './errors';
+import { ERROR_CODE, ApiError, normalizeErrorBody } from './errors';
 
 import type { HttpMethod } from '@/constants/http';
 
@@ -46,7 +46,7 @@ async function readJsonBody(response: Response): Promise<unknown> {
     return JSON.parse(text) as unknown;
   } catch {
     throw new ApiError(response.status, {
-      code: API_ERROR_CODE.INVALID_RESPONSE,
+      code: ERROR_CODE.INVALID_RESPONSE,
       message: INVALID_RESPONSE_MESSAGE,
       details: [],
     });
@@ -92,7 +92,7 @@ export function createApiClient(
         });
       } catch (error) {
         throw new ApiError(0, {
-          code: API_ERROR_CODE.NETWORK_ERROR,
+          code: ERROR_CODE.NETWORK_ERROR,
           message: error instanceof Error ? error.message : NETWORK_ERROR_MESSAGE,
           details: [],
         });
