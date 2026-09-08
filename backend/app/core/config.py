@@ -17,6 +17,9 @@ APP_DESCRIPTION = (
 DEFAULT_DATABASE_URL = "postgresql+psycopg://striker:striker@localhost:5432/striker"
 DEFAULT_FRONTEND_ORIGIN = "http://localhost:5173"
 ORIGINS_SEPARATOR = ","
+DEFAULT_BCRYPT_ROUNDS = 12
+# HS256 keys shorter than 32 bytes are rejected as insecure by RFC 7518; override outside local.
+DEFAULT_JWT_SECRET = "change-me-in-production-at-least-32-bytes"
 
 
 class Settings(BaseSettings):
@@ -34,9 +37,10 @@ class Settings(BaseSettings):
     docs_url: str = "/api-docs"
     openapi_url: str = "/api-docs/openapi.json"
 
-    jwt_secret: str = "change-me-in-production"
+    jwt_secret: str = DEFAULT_JWT_SECRET
     jwt_algorithm: str = "HS256"
     jwt_expires_minutes: int = 480
+    bcrypt_rounds: int = DEFAULT_BCRYPT_ROUNDS
 
     @field_validator("cors_origins", mode="before")
     @classmethod

@@ -15,7 +15,7 @@ from app.infrastructure.db.repositories import (
     SqlAlchemyProjectRepository,
     SqlAlchemyUserRepository,
 )
-from tests.conftest import REGISTRAR_ID, REVIEWER_ID, SECOND_REGISTRAR_ID
+from tests.seed import REGISTRAR_ID, REVIEWER_ID, SECOND_REGISTRAR_ID
 
 DESIGN = ActivityData(
     owner_id=REGISTRAR_ID,
