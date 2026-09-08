@@ -1,7 +1,9 @@
 """`EvmReport` schemas of the contract (`GET /projects/{projectId}/evm`).
 
-Monetary values and indices are `Decimal` in Python (already rounded by the domain) and plain
-JSON numbers on the wire, as the contract's `Money` and `PerformanceIndex` types require.
+Monetary values and indices are `Decimal` in Python (already rounded by the domain to 2 and 4
+decimals) and plain JSON numbers on the wire, as the contract's `Money` and `PerformanceIndex`
+types require. A JSON number carries no scale, so trailing zeros are not part of the payload
+(`0.8000` travels as `0.8`); the value is the rounded one and clients format it for display.
 """
 
 from datetime import datetime
