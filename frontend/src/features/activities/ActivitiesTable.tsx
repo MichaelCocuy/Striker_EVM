@@ -1,13 +1,18 @@
+import { useRef, useState } from 'react';
+
+import { Button } from '@/components/ui/Button';
+import { BUTTON_VARIANT } from '@/components/ui/button-variants';
 import { Card } from '@/components/ui/Card';
 import { SkeletonLines } from '@/components/ui/Skeleton';
-import { StatusPill } from '@/components/ui/StatusPill';
-import {
-  COST_STATUS_LABEL,
-  SCHEDULE_STATUS_LABEL,
-  costStatusTone,
-  scheduleStatusTone,
-} from '@/evm/tone';
-import { formatIndex, formatMoney, formatPercent } from '@/lib/format';
+import { PERMISSIONS } from '@/features/auth/permissions';
+import { useCan } from '@/features/auth/useCan';
+import { useStaggerReveal } from '@/motion/useStaggerReveal';
+
+import { ACTIVITY_COLUMN_LABELS, ACTIVITIES_REVEAL_SELECTOR, TABLE_CLASS } from './activity-table';
+import { ActivityDeleteDialog } from './ActivityDeleteDialog';
+import { ActivityFormDialog } from './ActivityFormDialog';
+import { ActivityRow } from './ActivityRow';
+import { ActivityTableHead } from './ActivityTableHead';
 
 import type { EvmActivityReport } from '@/api/types';
 import type { HTMLAttributes } from 'react';
@@ -30,26 +35,28 @@ const COPY = {
   EYEBROW: 'Detalle',
   TITLE: 'Actividades',
   DESCRIPTION: 'Avance planificado y real, costo registrado e indicadores por actividad.',
+  CAPTION:
+    'Actividades del proyecto con su avance, su costo y los indicadores EVM que devuelve el reporte.',
   EMPTY: 'Este proyecto todavía no tiene actividades.',
-  COLUMNS: {
-    NAME: 'Actividad',
-    OWNER: 'Responsable',
-    PLANNED_PROGRESS: '% plan',
-    ACTUAL_PROGRESS: '% real',
-    BUDGET: 'BAC',
-    PLANNED_VALUE: 'PV',
-    EARNED_VALUE: 'EV',
-    ACTUAL_COST: 'AC',
-    CPI: 'CPI',
-    SPI: 'SPI',
-    STATUS: 'Estado',
-  },
+  CREATE: 'Nueva actividad',
+  CREATE_FIRST: 'Crear la primera actividad',
 } as const;
 
 const SKELETON_LINES = 6;
 
+const DIALOG_KIND = {
+  CREATE: 'create',
+  EDIT: 'edit',
+  DELETE: 'delete',
+} as const;
+
+type OpenDialog =
+  | { kind: typeof DIALOG_KIND.CREATE }
+  | { kind: typeof DIALOG_KIND.EDIT; activity: EvmActivityReport }
+  | { kind: typeof DIALOG_KIND.DELETE; activity: EvmActivityReport };
+
 /**
- * Activities table and, in module M8, the create/edit/delete forms.
+ * Activities table with the create, edit and delete flows (module M8).
  *
  * Contract: `onDataChanged` is the only way this component affects the rest of the dashboard.
  */
@@ -61,106 +68,86 @@ export function ActivitiesTable({
   className = '',
   ...rest
 }: ActivitiesTableProps) {
+  const can = useCan();
+  const [dialog, setDialog] = useState<OpenDialog | null>(null);
+  const bodyRef = useRef<HTMLTableSectionElement>(null);
+  useStaggerReveal(bodyRef, {
+    selector: ACTIVITIES_REVEAL_SELECTOR,
+    revealKey: activities.map((activity) => activity.id).join(),
+  });
+
+  const canCreate = can(PERMISSIONS.ACTIVITY_CREATE);
+
+  function openCreateDialog() {
+    setDialog({ kind: DIALOG_KIND.CREATE });
+  }
+
+  function closeDialog() {
+    setDialog(null);
+  }
+
+  function handleSaved() {
+    setDialog(null);
+    onDataChanged();
+  }
+
   return (
     <Card
       eyebrow={COPY.EYEBROW}
       title={COPY.TITLE}
       description={COPY.DESCRIPTION}
       className={className}
+      {...(canCreate ? { action: <Button onClick={openCreateDialog}>{COPY.CREATE}</Button> } : {})}
       {...rest}
     >
       {isLoading ? (
         <SkeletonLines count={SKELETON_LINES} />
       ) : activities.length === 0 ? (
-        <p className="text-sm text-ink-muted">{COPY.EMPTY}</p>
+        <div className="flex flex-col items-start gap-3">
+          <p className="text-sm text-ink-muted">{COPY.EMPTY}</p>
+          {canCreate && (
+            <Button variant={BUTTON_VARIANT.SECONDARY} onClick={openCreateDialog}>
+              {COPY.CREATE_FIRST}
+            </Button>
+          )}
+        </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
-                <th scope="col" className="py-2 pr-4">
-                  {COPY.COLUMNS.NAME}
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  {COPY.COLUMNS.OWNER}
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  {COPY.COLUMNS.PLANNED_PROGRESS}
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  {COPY.COLUMNS.ACTUAL_PROGRESS}
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  {COPY.COLUMNS.BUDGET}
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  {COPY.COLUMNS.PLANNED_VALUE}
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  {COPY.COLUMNS.EARNED_VALUE}
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  {COPY.COLUMNS.ACTUAL_COST}
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  {COPY.COLUMNS.CPI}
-                </th>
-                <th scope="col" className="py-2 pr-4">
-                  {COPY.COLUMNS.SPI}
-                </th>
-                <th scope="col" className="py-2">
-                  {COPY.COLUMNS.STATUS}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className={TABLE_CLASS.SCROLL_CONTAINER}>
+          <table className={TABLE_CLASS.TABLE}>
+            <caption className={TABLE_CLASS.CAPTION}>{COPY.CAPTION}</caption>
+            <ActivityTableHead contextColumnLabel={ACTIVITY_COLUMN_LABELS.OWNER} />
+            <tbody ref={bodyRef}>
               {activities.map((activity) => (
-                <tr key={activity.id} className="border-t border-line">
-                  <th scope="row" className="py-3 pr-4 text-left font-medium text-ink">
-                    {activity.name}
-                  </th>
-                  <td className="py-3 pr-4 text-ink-muted">{activity.owner.fullName}</td>
-                  <td className="numeric py-3 pr-4">
-                    {formatPercent(activity.input.plannedProgressPercent)}
-                  </td>
-                  <td className="numeric py-3 pr-4">
-                    {formatPercent(activity.input.actualProgressPercent)}
-                  </td>
-                  <td className="numeric py-3 pr-4">
-                    {formatMoney(activity.indicators.budgetAtCompletion)}
-                  </td>
-                  <td className="numeric py-3 pr-4">
-                    {formatMoney(activity.indicators.plannedValue)}
-                  </td>
-                  <td className="numeric py-3 pr-4">
-                    {formatMoney(activity.indicators.earnedValue)}
-                  </td>
-                  <td className="numeric py-3 pr-4">
-                    {formatMoney(activity.indicators.actualCost)}
-                  </td>
-                  <td className="numeric py-3 pr-4">
-                    {formatIndex(activity.indicators.costPerformanceIndex)}
-                  </td>
-                  <td className="numeric py-3 pr-4">
-                    {formatIndex(activity.indicators.schedulePerformanceIndex)}
-                  </td>
-                  <td className="py-3">
-                    <div className="flex flex-wrap gap-2">
-                      <StatusPill
-                        tone={costStatusTone(activity.indicators.costStatus)}
-                        label={COST_STATUS_LABEL[activity.indicators.costStatus]}
-                      />
-                      <StatusPill
-                        tone={scheduleStatusTone(activity.indicators.scheduleStatus)}
-                        label={SCHEDULE_STATUS_LABEL[activity.indicators.scheduleStatus]}
-                      />
-                    </div>
-                  </td>
-                </tr>
+                <ActivityRow
+                  key={activity.id}
+                  activity={activity}
+                  onEdit={(target) => setDialog({ kind: DIALOG_KIND.EDIT, activity: target })}
+                  onDelete={(target) => setDialog({ kind: DIALOG_KIND.DELETE, activity: target })}
+                />
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {dialog?.kind === DIALOG_KIND.CREATE && (
+        <ActivityFormDialog projectId={projectId} onClose={closeDialog} onSaved={handleSaved} />
+      )}
+      {dialog?.kind === DIALOG_KIND.EDIT && (
+        <ActivityFormDialog
+          projectId={projectId}
+          activity={dialog.activity}
+          onClose={closeDialog}
+          onSaved={handleSaved}
+        />
+      )}
+      {dialog?.kind === DIALOG_KIND.DELETE && (
+        <ActivityDeleteDialog
+          projectId={projectId}
+          activity={dialog.activity}
+          onClose={closeDialog}
+          onDeleted={handleSaved}
+        />
       )}
     </Card>
   );
