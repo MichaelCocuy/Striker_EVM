@@ -19,8 +19,10 @@ from app.domain.auth.roles import UserRole
 
 SECURITY_SCHEME_NAME = "bearerAuth"
 BEARER_FORMAT = "JWT"
+# User-facing text: it is what the Authorize dialog of Swagger UI shows.
 SECURITY_SCHEME_DESCRIPTION = (
-    "JWT obtained from `POST /auth/login`, sent as `Authorization: Bearer <token>`."
+    "JWT obtenido en `POST /auth/login`. Se envía como `Authorization: Bearer <token>` y "
+    "lleva los claims `sub` (id del usuario), `role` (`REGISTRAR` o `REVIEWER`) y `exp` (8 h)."
 )
 MESSAGE_MISSING_TOKEN = "Missing bearer token"
 MESSAGE_ROLE_REQUIRED = "This action requires one of the roles: {roles}"
