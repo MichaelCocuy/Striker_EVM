@@ -19,9 +19,15 @@ Secciones exigidas por el enunciado:
 
 | Herramienta | Uso | Por qué |
 |---|---|---|
-| **Claude Code** (CLI, modelo Claude Fable 5.1) | Asistente principal: lectura del enunciado, aprendizaje de EVM, propuesta de arquitectura, configuración del repositorio, generación y revisión de código. | Trabaja directamente sobre el sistema de archivos y la terminal, lo que permite que cada prompt se traduzca en archivos y commits verificables. Permite registrar el proceso tal como ocurrió. |
+| **Claude Code** (CLI; modelos Claude Fable 5.1 y Claude Opus 5) | Asistente principal: lectura del enunciado, aprendizaje de EVM, propuesta de arquitectura, configuración del repositorio, generación y revisión de código, verificación del stack. | Trabaja directamente sobre el sistema de archivos y la terminal, así que cada prompt se traduce en archivos y commits verificables, y el proceso queda registrado tal como ocurrió en vez de reconstruido. |
+| **Subagentes de Claude Code**, uno por módulo | Construcción en paralelo: cada módulo se desarrolló en su propia rama `feature/*` dentro de un *git worktree* independiente, con instrucciones que fijaban su alcance de archivos, su contrato de interfaz y sus criterios de verificación. | Es lo que permitió que el plan de olas de `docs/ARQUITECTURA.md §8` fuera real: hasta cinco módulos avanzando a la vez. Yo actué como integrador: revisar el código, mergear los PR, resolver los cruces entre módulos y decidir qué aceptar. |
 
-_(Se agregarán otras herramientas si se usan.)_
+**Cómo se repartió el trabajo.** Los subagentes escribieron el volumen de código; las decisiones
+de diseño, la definición de los contratos entre módulos, la revisión y la integración fueron
+mías. Tres cosas las hice directamente porque eran puntos de coordinación y no podían delegarse
+a un módulo aislado: fijar las props del dashboard antes de lanzar los tres módulos de UI (si no,
+los tres editaban el mismo archivo), consolidar la duplicación que quedó entre carpetas, y las
+correcciones que cruzaban módulos.
 
 ---
 
@@ -123,6 +129,18 @@ continua y restablece los subagentes
 **Qué hizo la IA:** los tres subagentes en curso (M4 CRUD, M5 reporte EVM, M7 frontend) se
 habían cortado por límite de sesión dejando trabajo sin commitear en sus worktrees. Verificó
 el estado de cada rama y reanudó los tres con su contexto intacto, sin repetir trabajo.
+
+### Prompt 6 — 2026-09-08 — Claude Code
+
+```text
+Al finalizar entregame un reporte de lo construido y un estatus
+```
+
+**Qué hizo la IA:** integró los módulos restantes (M4, M6, M8, M9, M10, M11), hizo una pasada
+de consolidación del código duplicado entre módulos, corrigió dos bugs encontrados durante la
+integración (el semáforo conservaba los colores del tema anterior y una prueba caducaba con el
+reloj), levantó el stack completo en Docker para verificarlo de punta a punta, cerró la versión
+en `release/1.0.0` y entregó el reporte.
 
 ---
 
@@ -248,4 +266,45 @@ _El autor ampliará esta sección con sus propias palabras al cerrar el módulo.
 
 ## 7. Reflexión: qué haría diferente
 
-_Pendiente. Se escribe al final del ejercicio._
+_El autor reescribe esta sección con sus palabras. Estos son los hechos de la sesión que
+sirven de base, anotados sin adornos:_
+
+**Lo que funcionó.** Escribir la guía de EVM y resolver el ejemplo a mano **antes** de tocar
+código. Ese documento fue el oráculo de los tests y el guion del video; si se hubiera escrito
+después, habría sido una descripción de lo implementado en lugar de una verificación
+independiente. También funcionó congelar el contrato del API antes de abrir las ramas: es lo
+que hizo posible que backend y frontend avanzaran a la vez sin rehacer nada al integrar.
+
+**Lo que haría diferente.**
+
+1. **Fijar los contratos entre módulos antes de lanzarlos, no después.** El andamiaje del
+   frontend se construyó sin el contrato OpenAPI disponible (iban en paralelo), así que sus
+   tipos se escribieron a mano y hubo que reconciliarlos: `Project.createdBy` era un string y
+   el contrato decía objeto, faltaba `expiresIn`, `EvmReport` no tenía `generatedAt`. Media
+   hora de trabajo evitable. La lección se aplicó después con las props del dashboard: ahí sí
+   se fijó el contrato primero y los tres módulos de UI no se pisaron.
+2. **Definir dónde vive el texto de negocio desde el principio.** Las notas de los indicadores
+   no calculables se escribieron dos veces con redacciones distintas (dominio y contrato), y
+   hubo que alinearlas. Con una regla explícita desde el inicio — "el dominio es dueño de los
+   textos que ve el usuario" — no habría pasado.
+3. **Poner las piezas compartidas de UI antes de repartir los módulos.** Tres módulos
+   escribieron su propio diálogo modal, su propio campo de formulario y su propio helper de
+   sesión para tests. Salió una pasada de consolidación completa que se habría evitado
+   entregando `components/ui` más completo en el andamiaje.
+4. **Ejecutar la aplicación de verdad antes, no al final.** Dos bugs solo aparecieron al mirar
+   el resultado: el atributo `data-reveal` que `PlaceholderCard` descartaba (la animación
+   escalonada no se aplicaba nunca) y los semáforos conservando los colores del tema anterior.
+   Ninguno de los dos lo atrapó un test unitario, y ambos eran visibles en cinco segundos de
+   uso real.
+5. **No usar fechas fijas en pruebas que validan expiración.** Una prueba congelaba el reloj a
+   las 12:00 UTC y decodificaba el token verificando la expiración: pasó toda la mañana y
+   empezó a fallar por la tarde, cuando la hora real cruzó las 20:00 UTC. Verde no es lo mismo
+   que correcto.
+
+**Sobre el uso de IA.** Lo más útil no fue que escribiera código, sino que obligara a escribir
+el razonamiento primero: la guía de EVM, el contrato, el grafo de dependencias. Lo que más
+atención exigió fue revisar: los subagentes proponen cosas razonables que están mal en el
+contexto — el `EmailStr` que habría roto el login con el TLD `.local`, las notas verbosas que
+rompían la comparación del test de integración, dos métodos idénticos con nombres distintos en
+el mismo puerto. Aceptar todo eso habría dado un repositorio que compila y una arquitectura
+peor.

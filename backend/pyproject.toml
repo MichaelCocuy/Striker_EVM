@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "striker-evm-backend"
-version = "0.1.0"
+version = "1.0.0"
 description = "Striker EVM backend: Earned Value Management for projects and activities"
 readme = "README.md"
 requires-python = ">=3.12"
