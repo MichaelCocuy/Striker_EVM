@@ -1,6 +1,7 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { usePrefersReducedMotion } from '@/motion/reduced-motion';
+import { useTokenColors } from '@/theme/useTokenColors';
 
 import { ActivityTooltip } from './ActivityTooltip';
 import { ActivityValuesTable } from './ActivityValuesTable';
@@ -15,7 +16,6 @@ import {
 } from './chart-config';
 import { formatCompactMoney } from './chart-format';
 import { SeriesLegend } from './SeriesLegend';
-import { useTokenColors } from './useTokenColors';
 
 import type { ChartRow } from './chart-rows';
 

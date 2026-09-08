@@ -3,12 +3,12 @@
  * adds the two things an axis needs and nothing else.
  */
 
-/** Same locale as `lib/format.ts`, which does not export it. */
-const CHART_LOCALE = 'es-CO';
+import { LOCALE } from '@/lib/format';
+
 const COMPACT_MAX_FRACTION_DIGITS = 1;
 const ELLIPSIS = '…';
 
-const compactMoneyFormatter = new Intl.NumberFormat(CHART_LOCALE, {
+const compactMoneyFormatter = new Intl.NumberFormat(LOCALE, {
   notation: 'compact',
   /** Spanish words ("40 mil") read better on an axis than the abbreviations ("40 k"). */
   compactDisplay: 'long',

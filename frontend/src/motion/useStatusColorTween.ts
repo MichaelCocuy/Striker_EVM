@@ -1,6 +1,8 @@
 import gsap from 'gsap';
 import { useLayoutEffect } from 'react';
 
+import { useTokenColors } from '@/theme/useTokenColors';
+
 import { MOTION_DURATION_SECONDS, MOTION_EASE } from './constants';
 import { prefersReducedMotion } from './reduced-motion';
 
@@ -16,26 +18,30 @@ export interface StatusColors {
   softColorToken: string;
 }
 
-function resolveToken(token: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(token).trim();
-}
-
 /**
  * Tweens the element's status colors (a custom property pair) towards the given tokens
  * so traffic-light changes cross-fade instead of blinking. Reduced motion applies instantly.
+ *
+ * The tween writes resolved colors into an inline style, so the tokens are re-resolved when
+ * the theme changes; otherwise the element would keep the previous theme's colors until its
+ * tone happened to change.
  */
 export function useStatusColorTween<TElement extends HTMLElement>(
   elementRef: RefObject<TElement | null>,
   { colorToken, softColorToken }: StatusColors,
 ): void {
+  const colors = useTokenColors([colorToken, softColorToken]);
+  const color = colors[colorToken];
+  const softColor = colors[softColorToken];
+
   useLayoutEffect(() => {
     const element = elementRef.current;
-    if (element === null) {
+    if (element === null || color === undefined || softColor === undefined) {
       return;
     }
     const target = {
-      [STATUS_COLOR_VARIABLE]: resolveToken(colorToken),
-      [STATUS_SOFT_COLOR_VARIABLE]: resolveToken(softColorToken),
+      [STATUS_COLOR_VARIABLE]: color,
+      [STATUS_SOFT_COLOR_VARIABLE]: softColor,
     };
     if (prefersReducedMotion() || element.style.getPropertyValue(STATUS_COLOR_VARIABLE) === '') {
       gsap.set(element, target);
@@ -49,5 +55,5 @@ export function useStatusColorTween<TElement extends HTMLElement>(
     return () => {
       tween.kill();
     };
-  }, [elementRef, colorToken, softColorToken]);
+  }, [elementRef, color, softColor]);
 }
