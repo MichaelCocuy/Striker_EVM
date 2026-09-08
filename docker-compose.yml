@@ -1,5 +1,5 @@
-# Local stack: PostgreSQL (initialized with backend/db/init.sql) and the FastAPI backend.
-# The frontend service is added by the integration module (M12).
+# Local stack: PostgreSQL (initialized with backend/db/init.sql), the FastAPI backend and the
+# frontend served by nginx, which proxies /api to the backend so everything shares one origin.
 services:
   db:
     image: postgres:16-alpine
@@ -30,6 +30,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      - backend
 
 volumes:
   db_data:

@@ -59,8 +59,13 @@ def test_token_round_trips_subject_and_role(service: JwtTokenService) -> None:
 def test_token_carries_issued_at_and_expiry_from_the_clock() -> None:
     frozen = JwtTokenService(SECRET, ALGORITHM, EXPIRES_MINUTES, clock=lambda: ISSUED_AT)
 
+    # The claims are what is under test, so expiry is not verified here: the frozen instant is a
+    # fixed date and the token would look expired once the wall clock passes it.
     payload = jwt.decode(
-        frozen.create_token(USER_ID, UserRole.REVIEWER), SECRET, algorithms=[ALGORITHM]
+        frozen.create_token(USER_ID, UserRole.REVIEWER),
+        SECRET,
+        algorithms=[ALGORITHM],
+        options={"verify_exp": False},
     )
 
     assert payload[CLAIM_ISSUED_AT] == int(ISSUED_AT.timestamp())
