@@ -1,5 +1,6 @@
 """Repository adapters against SQLite in-memory: CRUD, listing and cascade delete."""
 
+from datetime import timedelta
 from decimal import Decimal
 from uuid import uuid4
 
@@ -127,6 +128,32 @@ class TestProjectRepository:
         counts = {item.project.id: item.activity_count for item in listed}
         assert counts == {portal.id: 2, empty.id: 0}
 
+    def test_list_orders_newest_first(
+        self, session: Session, projects: SqlAlchemyProjectRepository, portal: ProjectModel
+    ) -> None:
+        newer = projects.add(ProjectData(name="Más nuevo"), created_by=REVIEWER_ID)
+        newer.created_at = portal.created_at + timedelta(days=1)
+        session.flush()
+
+        listed = projects.list_with_activity_count()
+
+        assert [item.project.id for item in listed] == [newer.id, portal.id]
+
+    def test_get_with_activity_count(
+        self,
+        projects: SqlAlchemyProjectRepository,
+        activities: SqlAlchemyActivityRepository,
+        portal: ProjectModel,
+    ) -> None:
+        activities.add(portal.id, DESIGN)
+
+        counted = projects.get_with_activity_count(portal.id)
+
+        assert counted is not None
+        assert counted.project is portal
+        assert counted.activity_count == 1
+        assert projects.get_with_activity_count(uuid4()) is None
+
     def test_delete_cascades_to_activities(
         self,
         session: Session,
@@ -155,6 +182,19 @@ class TestActivityRepository:
         assert fetched.project_id == portal.id
         assert fetched.budget_at_completion == Decimal("10000.00")
         assert activities.get(uuid4()) is None
+
+    def test_get_in_project_requires_matching_project(
+        self,
+        projects: SqlAlchemyProjectRepository,
+        activities: SqlAlchemyActivityRepository,
+        portal: ProjectModel,
+    ) -> None:
+        other = projects.add(ProjectData(name="Otro"), created_by=REVIEWER_ID)
+        design = activities.add(portal.id, DESIGN)
+
+        assert activities.get_in_project(portal.id, design.id) is design
+        assert activities.get_in_project(other.id, design.id) is None
+        assert activities.get_in_project(portal.id, uuid4()) is None
 
     def test_list_by_project_only_returns_its_activities(
         self,

@@ -25,6 +25,17 @@ class AppError(Exception):
         super().__init__(message)
 
 
+class ValidationError(AppError):
+    """The request is well-formed but breaks a domain or contract rule."""
+
+    code = ErrorCode.VALIDATION_ERROR
+
+
+def field_detail(field: str, message: str) -> dict[str, str]:
+    """One `Error.details` entry naming the offending field, spelled as the contract does."""
+    return {"field": field, "message": message}
+
+
 class NotFoundError(AppError):
     """The requested resource does not exist."""
 
