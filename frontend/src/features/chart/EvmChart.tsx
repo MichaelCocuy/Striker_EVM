@@ -27,6 +27,12 @@ export interface EvmChartProps extends Omit<HTMLAttributes<HTMLElement>, 'title'
   className?: string;
 }
 
+/**
+ * The dashboard gives this card one grid cell whose height is set by its taller neighbour,
+ * so the card sizes itself to its content instead of stretching into an empty box.
+ */
+const DEFAULT_CLASS_NAME = 'self-start';
+
 const COPY = {
   EYEBROW: 'Comparación',
   TITLE: 'PV, EV y AC por actividad',
@@ -52,7 +58,7 @@ export function EvmChart({
   activities,
   indicators,
   isLoading,
-  className = '',
+  className = DEFAULT_CLASS_NAME,
   ...rest
 }: EvmChartProps) {
   /** Memoized so a re-render with the same report does not restart the bar animation. */

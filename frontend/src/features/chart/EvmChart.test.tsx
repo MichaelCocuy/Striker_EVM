@@ -41,7 +41,9 @@ function gaugeOf(name: string): HTMLElement {
 
 function cellsOfRow(activityName: string): (string | null)[] {
   const row = screen.getByRole('row', { name: new RegExp(activityName) });
-  return within(row).getAllByRole('cell').map((cell) => cell.textContent);
+  return within(row)
+    .getAllByRole('cell')
+    .map((cell) => cell.textContent);
 }
 
 describe('EvmChart with the shared EVM report fixture', () => {

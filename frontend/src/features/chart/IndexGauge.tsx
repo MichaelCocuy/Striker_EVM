@@ -20,6 +20,8 @@ import { useArcSweep } from './useArcSweep';
 import type { EvmTone } from '@/evm/tone';
 
 const EMPTY_ARC = 0;
+/** The track stays neutral so only the swept arc carries the traffic-light tone. */
+const TRACK_TOKEN = '--line-strong';
 const COLOR_TRANSITION_MS = MOTION_DURATION_SECONDS.BASE * MILLISECONDS_PER_SECOND;
 
 const VIEWBOX = `0 0 ${String(GAUGE_VIEWBOX.WIDTH)} ${String(GAUGE_VIEWBOX.HEIGHT)}`;
@@ -55,7 +57,7 @@ export function IndexGauge({ name, description, value, tone, statusLabel }: Inde
   const gaugeLabel = isComputable ? statusLabel : EVM_TONE_LABEL[EVM_TONE.NA];
   const sweptFraction = useArcSweep(isComputable ? toArcFraction(value) : EMPTY_ARC);
   const displayValue = useCountUp(value, { decimals: INDEX_DECIMALS });
-  const { colorToken, softColorToken } = EVM_TONE_TOKENS[gaugeTone];
+  const { colorToken } = EVM_TONE_TOKENS[gaugeTone];
   const transition = { transitionDuration: `${String(COLOR_TRANSITION_MS)}ms` };
 
   return (
@@ -69,7 +71,7 @@ export function IndexGauge({ name, description, value, tone, statusLabel }: Inde
             strokeWidth={GAUGE_ARC.TRACK_WIDTH}
             strokeLinecap="round"
             className="transition-colors"
-            style={{ stroke: `var(${softColorToken})`, ...transition }}
+            style={{ stroke: `var(${TRACK_TOKEN})` }}
           />
           {sweptFraction > EMPTY_ARC && (
             <path
