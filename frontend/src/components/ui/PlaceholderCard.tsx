@@ -1,9 +1,9 @@
 import { Card } from './Card';
 import { SkeletonLines } from './Skeleton';
 
-import type { ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 
-interface PlaceholderCardProps {
+interface PlaceholderCardProps extends HTMLAttributes<HTMLElement> {
   eyebrow: string;
   title: string;
   description: string;
@@ -24,9 +24,10 @@ export function PlaceholderCard({
   description,
   children,
   className = '',
+  ...rest
 }: PlaceholderCardProps) {
   return (
-    <Card eyebrow={eyebrow} title={title} description={description} className={className}>
+    <Card eyebrow={eyebrow} title={title} description={description} className={className} {...rest}>
       {children ?? <SkeletonLines count={DEFAULT_SKELETON_LINES} />}
     </Card>
   );

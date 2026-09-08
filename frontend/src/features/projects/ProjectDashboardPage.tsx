@@ -9,10 +9,11 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { ROUTE_PARAMS } from '@/constants/routes';
 import { EVM_TONE, EVM_TONE_LABEL } from '@/evm/tone';
-import { ActivitiesTablePlaceholder } from '@/features/activities/ActivitiesTablePlaceholder';
-import { ChartPlaceholder } from '@/features/chart/ChartPlaceholder';
-import { GaugePlaceholder } from '@/features/chart/GaugePlaceholder';
-import { SummaryPlaceholder } from '@/features/summary/SummaryPlaceholder';
+import { ActivitiesTable } from '@/features/activities/ActivitiesTable';
+import { EvmChart } from '@/features/chart/EvmChart';
+import { useEvmReport } from '@/features/evm-report/useEvmReport';
+import { ProjectSummary } from '@/features/summary/ProjectSummary';
+import { REVEAL_ATTRIBUTE } from '@/motion/constants';
 import { useStaggerReveal } from '@/motion/useStaggerReveal';
 
 import type { EvmTone } from '@/evm/tone';
@@ -31,17 +32,28 @@ const LEGEND_TONES: readonly EvmTone[] = [
 ];
 
 /**
- * Project dashboard shell. Loads the project header and exposes three slots that
- * modules M9 (summary), M10 (chart) and M8 (activities table) fill in.
+ * Project dashboard. It owns the single EVM report request and hands the same data to the
+ * summary (M9), the chart (M10) and the activities table (M8); every mutation reports back
+ * through `onDataChanged` so the report is refetched and all three update at once.
  */
 export function ProjectDashboardPage() {
   const params = useParams();
   const projectId = params[ROUTE_PARAMS.PROJECT_ID] ?? '';
   const fetchProject = useCallback(() => api.getProject(projectId), [projectId]);
   const project = useApiQuery(fetchProject);
+  const report = useEvmReport(projectId);
 
   const slotsRef = useRef<HTMLDivElement>(null);
   useStaggerReveal(slotsRef, { revealKey: projectId });
+
+  const handleDataChanged = useCallback(() => {
+    report.refetch();
+    project.refetch();
+  }, [project, report]);
+
+  const isReportLoading = report.status === 'loading';
+  const activities = report.data?.activities ?? [];
+  const projectIndicators = report.data?.project.indicators ?? null;
 
   return (
     <>
@@ -75,12 +87,30 @@ export function ProjectDashboardPage() {
       {project.status === 'error' && project.error && (
         <ErrorState message={project.error.message} onRetry={project.refetch} />
       )}
+      {report.status === 'error' && report.error && (
+        <ErrorState message={report.error.message} onRetry={report.refetch} />
+      )}
 
       <div ref={slotsRef} className="grid gap-6 lg:grid-cols-3">
-        <SummaryPlaceholder />
-        <ChartPlaceholder />
-        <GaugePlaceholder />
-        <ActivitiesTablePlaceholder />
+        <ProjectSummary
+          {...{ [REVEAL_ATTRIBUTE]: true }}
+          indicators={projectIndicators}
+          className="lg:col-span-2"
+        />
+        <EvmChart
+          {...{ [REVEAL_ATTRIBUTE]: true }}
+          activities={activities}
+          indicators={projectIndicators}
+          isLoading={isReportLoading}
+        />
+        <ActivitiesTable
+          {...{ [REVEAL_ATTRIBUTE]: true }}
+          projectId={projectId}
+          activities={activities}
+          isLoading={isReportLoading}
+          onDataChanged={handleDataChanged}
+          className="lg:col-span-3"
+        />
       </div>
     </>
   );
