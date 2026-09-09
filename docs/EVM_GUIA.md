@@ -441,3 +441,50 @@ VAC es la diferencia con lo presupuestado.
 Cierre: "El proyecto consolida sumando plata, no promediando índices, porque una actividad
 grande pesa más que una pequeña. Y cuando algo no se puede dividir, el sistema lo dice en
 vez de inventar un número."
+
+---
+
+## 9. Los proyectos de demostración: un caso por proyecto
+
+El script de inicialización de la base de datos (`backend/db/init.sql`) carga ocho proyectos
+elegidos para que cada uno muestre una situación distinta. Al levantar la aplicación se pueden
+abrir uno por uno y comprobar la teoría contra la pantalla, sin teclear datos.
+
+| Proyecto | Caso que ilustra | CPI | SPI | Lectura |
+|---|---|---|---|---|
+| Portal de clientes | El ejemplo de §6, resuelto a mano en este documento | 0.9206 | 0.9063 | Sobre presupuesto y atrasado |
+| Migración a la nube | Los dos indicadores por encima de 1 | 1.1636 | 1.1130 | Bajo presupuesto y adelantado |
+| Integración de pagos | CPI < 1 con SPI > 1 | 0.7712 | 1.3000 | Adelantado pero caro |
+| Rediseño del intranet | CPI > 1 con SPI < 1 | 1.2136 | 0.7353 | Barato pero atrasado |
+| Cumplimiento normativo | Índices exactamente en 1 (§5.8) | 1.0000 | 1.0000 | En presupuesto y en cronograma |
+| App móvil de campo | Los casos borde de §5.1 a §5.4 en sus cuatro actividades | 1.8125 | 0.3452 | Ver la advertencia de abajo |
+| Certificación ISO 27001 | Actividad terminada con sobrecosto (§5.7) | 0.8929 | 1.0000 | Terminado a tiempo, EAC = AC = 56 000 |
+| Tablero de indicadores | Proyecto sin actividades (§5.5) | no calculable | no calculable | Sin datos que evaluar |
+
+### Los dos que enseñan más
+
+**Rediseño del intranet** es la razón de ser de EVM. Gastó 10 300 de un presupuesto de 30 000 y
+su CPI es 1.21: por el gasto solo, parece un proyecto ejemplar. Pero debía llevar 17 000 de
+trabajo hecho y solo lleva 12 500, así que su SPI es 0.74. **El ahorro no viene de eficiencia,
+viene de no haber hecho el trabajo.** Es exactamente el error que EVM evita: mirar el dinero
+gastado sin compararlo con lo producido.
+
+**App móvil de campo** enseña lo contrario: cómo un indicador puede engañar incluso siendo
+correcto. Su CPI consolidado es 1.81, el mejor de los ocho, y no significa nada bueno: el
+proyecto apenas arrancó y casi no tiene costos cargados (AC total de 1 600 sobre un presupuesto
+de 43 000). Sus cuatro actividades muestran los casos borde uno al lado del otro:
+
+| Actividad | Situación | CPI | SPI | EAC |
+|---|---|---|---|---|
+| Diseño de pantallas | Hay avance pero aún no hay facturas (§5.1) | no calculable | 0.4000 | no calculable |
+| Backend de sincronización | No iniciada (§5.2) | no calculable | no calculable | no calculable |
+| Pruebas en campo | Se gastó sin producir nada (§5.3) | 0.0000 | 0.0000 | no calculable |
+| Publicación en tiendas | Trabajo adelantado a lo programado (§5.4) | 1.2500 | no calculable | 4 000.00 |
+
+Y muestra la decisión de diseño: donde el indicador no es calculable, el API devuelve `null` con
+el motivo en `notes` ("No aplica: sin costo registrado", "No aplica: actividad no iniciada"…) en
+lugar de un cero que se leería como un dato real.
+
+**Para el video:** abrir *Rediseño del intranet* después de *Portal de clientes* es la forma más
+rápida de explicar por qué no basta con mirar el gasto, y *App móvil de campo* es la forma más
+rápida de explicar por qué el sistema dice "no aplica" en vez de inventar un número.

@@ -95,8 +95,22 @@ All seed users share the password `Striker2026!`.
 | `registrador@striker.local` | REGISTRAR | Carlos Registrador |
 | `registrador2@striker.local` | REGISTRAR | Ana Registradora |
 
-The seed project "Portal de clientes" has the three activities of the EVM guide (Diseño,
-Desarrollo, Pruebas).
+`db/init.sql` also loads eight demo projects, one per EVM situation, so the API answers with
+meaningful data straight after `docker compose up`:
+
+| Project | What it shows | CPI | SPI |
+|---|---|---|---|
+| Portal de clientes | The worked example of `docs/EVM_GUIA.md` section 6 | 0.9206 | 0.9063 |
+| Migración a la nube | Under budget and ahead of schedule | 1.1636 | 1.1130 |
+| Integración de pagos | Ahead but expensive (CPI < 1 with SPI > 1) | 0.7712 | 1.3000 |
+| Rediseño del intranet | Cheap but late (CPI > 1 with SPI < 1) | 1.2136 | 0.7353 |
+| Cumplimiento normativo | Exactly on target: both indices at 1, variances at zero | 1.0000 | 1.0000 |
+| App móvil de campo | The four edge cases of section 5: `null` indices, `NOT_APPLICABLE` statuses and their notes | 1.8125 | 0.3452 |
+| Certificación ISO 27001 | Finished on time with an overrun, so `EAC` equals `AC` | 0.8929 | 1.0000 |
+| Tablero de indicadores | No activities: zeroed money, every index `null` | — | — |
+
+Every consolidated value is written in a comment above its inserts in `db/init.sql`, computed
+with the same rules as the domain, so `GET /projects/{id}/evm` can be checked against it.
 
 ## Authentication and roles
 
