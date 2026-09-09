@@ -171,6 +171,23 @@ esperados anotados en comentarios, recreó la base desde cero en Docker y verifi
 contra el API, comprobó la idempotencia del script y documentó el conjunto en el README y en
 `docs/EVM_GUIA.md §9`.
 
+### Prompt 9 — 2026-09-09 — Claude Code
+
+```text
+Entregame el acceso login de cada uno de los usuarios diseñados para la plataforma, en paralelo debemo hacer que el dashboard del revisor tenga una mejor experiencia de uduario, esto con el objetivo de que a primera vista entienda como va el proyecto bien o mal, es el objetivo del ejercicio [Image #1] enesta imagen te presento una idea de lo que diseñe para entender de manera rapida, en cuanto a graficas y de mas presentame una propuesta util que ayude a entender de manera sencilla estos calculos y mejoremos la distyribucion del dashboard
+```
+
+_(El prompt venía acompañado de una imagen: un diseño de la tabla de actividades con columnas
+Actividad, Tendencia, Avance, EV, AC, CPI, SPI y EAC, con barra de progreso y los índices en
+pastillas de color.)_
+
+**Qué hizo la IA:** verificó los tres accesos contra el stack y los entregó; propuso y
+construyó una nueva distribución del dashboard en cuatro bandas (veredicto → la foto →
+dónde está el problema → detalle) para que el estado del proyecto se entienda de un vistazo.
+Señaló que la columna "Tendencia" del diseño implica una serie de tiempo que el modelo de
+datos no tiene (una sola fecha de corte), así que la implementó como desviación plan→real en
+lugar de inventar un histórico.
+
 ---
 
 ## 3. Cómo aprendí EVM y cómo validé las fórmulas

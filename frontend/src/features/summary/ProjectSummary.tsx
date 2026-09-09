@@ -38,6 +38,12 @@ import type { HTMLAttributes } from 'react';
 export interface ProjectSummaryProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
   /** Consolidated indicators of the project; `null` while the report is loading. */
   indicators: EvmIndicators | null;
+  /**
+   * Whether to repeat the headline CPI/SPI reading. The dashboard turns it off because its
+   * verdict band already answers with those two indices, and repeating them there would make
+   * the reader compare the same number with itself.
+   */
+  showHeadline?: boolean;
   className?: string;
 }
 
@@ -59,7 +65,12 @@ const GRID = {
  * Contract: it only renders and interprets what the report brings; it never derives an
  * indicator. Consolidation happens in the API by summing money (docs/EVM_GUIA.md §4).
  */
-export function ProjectSummary({ indicators, className = '', ...rest }: ProjectSummaryProps) {
+export function ProjectSummary({
+  indicators,
+  showHeadline = true,
+  className = '',
+  ...rest
+}: ProjectSummaryProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   useStaggerReveal(contentRef, {
     selector: SUMMARY_REVEAL_SELECTOR,
@@ -75,7 +86,11 @@ export function ProjectSummary({ indicators, className = '', ...rest }: ProjectS
       {...rest}
     >
       <div ref={contentRef} className="flex flex-col gap-6">
-        {indicators === null ? <LoadingReading /> : <IndicatorsReading indicators={indicators} />}
+        {indicators === null ? (
+          <LoadingReading />
+        ) : (
+          <IndicatorsReading indicators={indicators} showHeadline={showHeadline} />
+        )}
       </div>
     </Card>
   );
@@ -99,13 +114,17 @@ interface ReadingProps {
   indicators: EvmIndicators;
 }
 
-function IndicatorsReading({ indicators }: ReadingProps) {
+interface IndicatorsReadingProps extends ReadingProps {
+  showHeadline: boolean;
+}
+
+function IndicatorsReading({ indicators, showHeadline }: IndicatorsReadingProps) {
   const nothingToEvaluate = isNothingToEvaluate(indicators);
 
   return (
     <>
       {nothingToEvaluate && <EmptyReading />}
-      <HeadlineIndices indicators={indicators} />
+      {showHeadline && <HeadlineIndices indicators={indicators} />}
       {!nothingToEvaluate && (
         <>
           <BaseValues indicators={indicators} />
