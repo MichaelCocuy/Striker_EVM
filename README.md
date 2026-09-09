@@ -106,8 +106,35 @@ registrada la migración inicial para que ambos caminos queden coherentes.
 | `registrador@striker.local` | `Striker2026!` | REGISTRAR | Registrar avance y costo de **sus** actividades |
 | `registrador2@striker.local` | `Striker2026!` | REGISTRAR | Igual, sobre otras actividades |
 
-El proyecto de ejemplo **"Portal de clientes"** trae las tres actividades del caso resuelto en
-la guía, así que el dashboard abre con datos que se pueden verificar a mano.
+### Datos de demostración
+
+El script de inicialización carga **ocho proyectos**, uno por cada situación que sabe manejar el
+cálculo, así que la aplicación abre con datos que se pueden verificar a mano y sin tener que
+teclear nada. Aparecen en el portafolio en este orden:
+
+| # | Proyecto | Qué muestra | CPI | SPI |
+|---|---|---|---|---|
+| 1 | **Portal de clientes** | El caso resuelto paso a paso en [`docs/EVM_GUIA.md §6`](docs/EVM_GUIA.md). Gasta más de lo que avanza. | 0.9206 | 0.9063 |
+| 2 | **Migración a la nube** | Proyecto sano: los dos semáforos en verde. | 1.1636 | 1.1130 |
+| 3 | **Integración de pagos** | Adelantado pero caro. Avanzar rápido no es avanzar bien. | 0.7712 | 1.3000 |
+| 4 | **Rediseño del intranet** | Barato pero atrasado: el ahorro viene de no haber hecho el trabajo. Es el caso que mirar solo el gasto esconde. | 1.2136 | 0.7353 |
+| 5 | **Cumplimiento normativo** | Exactamente en meta. El único caso donde los índices valen 1 y las varianzas son cero. | 1.0000 | 1.0000 |
+| 6 | **App móvil de campo** | Los cuatro casos borde de [`docs/EVM_GUIA.md §5`](docs/EVM_GUIA.md): sin costo registrado, actividad no iniciada, gasto sin avance y actividad no programada. | 1.8125 | 0.3452 |
+| 7 | **Certificación ISO 27001** | Terminado a tiempo pero con sobrecosto. Comprobación de cordura: si ya terminó, **EAC = AC**. | 0.8929 | 1.0000 |
+| 8 | **Tablero de indicadores** | Proyecto sin actividades: el sistema dice que no hay nada que evaluar en lugar de inventar ceros. | — | — |
+
+Dos de ellos merecen mirarse con detalle:
+
+- **Rediseño del intranet** tiene CPI 1.21 y SPI 0.74. Un tablero que solo mostrara el gasto
+  diría que va bien; EVM muestra que el ahorro es consecuencia del atraso.
+- **App móvil de campo** tiene un CPI consolidado de 1.81 que **parece excelente y no lo es**:
+  sale alto porque casi no hay costos cargados todavía. Es el mejor recordatorio de por qué un
+  indicador hay que leerlo junto con los demás, y por qué el sistema marca como *no aplica* lo
+  que no puede calcular en vez de rellenarlo con ceros.
+
+Los valores consolidados esperados de cada proyecto están anotados en comentarios dentro de
+[`backend/db/init.sql`](backend/db/init.sql), calculados con las mismas reglas del dominio, para
+que cualquiera pueda contrastarlos contra lo que devuelve el API.
 
 ## Pruebas
 

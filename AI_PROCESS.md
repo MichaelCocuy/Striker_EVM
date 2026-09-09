@@ -142,6 +142,35 @@ integración (el semáforo conservaba los colores del tema anterior y una prueba
 reloj), levantó el stack completo en Docker para verificarlo de punta a punta, cerró la versión
 en `release/1.0.0` y entregó el reporte.
 
+### Prompt 7 — 2026-09-08 — Claude Code
+
+```text
+esta app no me abre en localhost, identifiquemos que esta pasando
+```
+
+**Qué hizo la IA:** revisó el stack y comprobó que los tres contenedores estaban arriba, que
+`db` estaba *healthy* y que los puertos se publicaban en IPv4 e IPv6. `curl` obtenía **200** en
+`http://localhost:5173/`, en `http://127.0.0.1:5173/` y en `http://[::1]:5173/`, y el proxy de
+nginx respondía el `health` del backend. Es decir, la aplicación se estaba sirviendo bien; lo
+que falla en esta máquina es el acceso desde un **navegador headless**, que recibe
+`ERR_EMPTY_RESPONSE` en puertos locales aunque `curl` responda 200 (le ocurrió también al agente
+que construyó las gráficas, y por eso no se pudo capturar la pantalla en modo claro). Desde un
+navegador normal la aplicación abre.
+
+### Prompt 8 — 2026-09-08 — Claude Code
+
+```text
+generemos data con varios proyectos que nos muestren varios ejemplos de como funcionan los calculos, esta data es importante que este en el initDB para cuando mis revisores levanten la app
+```
+
+**Qué hizo la IA:** diseñó ocho proyectos, uno por situación de EVM (los cuatro cuadrantes de
+CPI y SPI, el caso exactamente en meta, los cuatro casos borde, un proyecto terminado con
+sobrecosto y un proyecto sin actividades), calculó los indicadores esperados de cada uno con un
+script en `Decimal` antes de escribir el SQL, los cargó en `backend/db/init.sql` con los valores
+esperados anotados en comentarios, recreó la base desde cero en Docker y verificó los 8 reportes
+contra el API, comprobó la idempotencia del script y documentó el conjunto en el README y en
+`docs/EVM_GUIA.md §9`.
+
 ---
 
 ## 3. Cómo aprendí EVM y cómo validé las fórmulas
