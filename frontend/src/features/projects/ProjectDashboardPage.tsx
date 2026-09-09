@@ -10,9 +10,12 @@ import { StatusPill } from '@/components/ui/StatusPill';
 import { ROUTE_PARAMS } from '@/constants/routes';
 import { EVM_TONE, EVM_TONE_LABEL } from '@/evm/tone';
 import { ActivitiesTable } from '@/features/activities/ActivitiesTable';
+import { ActivityImpactRanking } from '@/features/chart/ActivityImpactRanking';
 import { EvmChart } from '@/features/chart/EvmChart';
+import { EvmComparisonBars } from '@/features/chart/EvmComparisonBars';
 import { useEvmReport } from '@/features/evm-report/useEvmReport';
 import { ProjectSummary } from '@/features/summary/ProjectSummary';
+import { ProjectVerdict } from '@/features/summary/ProjectVerdict';
 import { REVEAL_ATTRIBUTE } from '@/motion/constants';
 import { useStaggerReveal } from '@/motion/useStaggerReveal';
 
@@ -32,9 +35,16 @@ const LEGEND_TONES: readonly EvmTone[] = [
 ];
 
 /**
- * Project dashboard. It owns the single EVM report request and hands the same data to the
- * summary (M9), the chart (M10) and the activities table (M8); every mutation reports back
- * through `onDataChanged` so the report is refetched and all three update at once.
+ * Project dashboard, read as four bands so the state of the project lands at a glance:
+ *
+ * 1. the verdict, in plain Spanish, answering cost, schedule and forecast;
+ * 2. the picture the verdict comes from (PV / EV / AC on one scale) next to where the
+ *    deviation is concentrated;
+ * 3. the per-activity comparison and the gauges;
+ * 4. the detail: the activities table and, last, every consolidated indicator.
+ *
+ * It owns the single EVM report request and hands the same data to every band; a mutation
+ * reports back through `onDataChanged`, the report is refetched and all of them update.
  */
 export function ProjectDashboardPage() {
   const params = useParams();
@@ -91,17 +101,28 @@ export function ProjectDashboardPage() {
         <ErrorState message={report.error.message} onRetry={report.refetch} />
       )}
 
-      <div ref={slotsRef} className="grid gap-6 lg:grid-cols-3">
-        <ProjectSummary
+      <div ref={slotsRef} className="grid gap-6 lg:grid-cols-2">
+        <ProjectVerdict
           {...{ [REVEAL_ATTRIBUTE]: true }}
           indicators={projectIndicators}
           className="lg:col-span-2"
+        />
+        <EvmComparisonBars
+          {...{ [REVEAL_ATTRIBUTE]: true }}
+          indicators={projectIndicators}
+          isLoading={isReportLoading}
+        />
+        <ActivityImpactRanking
+          {...{ [REVEAL_ATTRIBUTE]: true }}
+          activities={activities}
+          isLoading={isReportLoading}
         />
         <EvmChart
           {...{ [REVEAL_ATTRIBUTE]: true }}
           activities={activities}
           indicators={projectIndicators}
           isLoading={isReportLoading}
+          className="lg:col-span-2"
         />
         <ActivitiesTable
           {...{ [REVEAL_ATTRIBUTE]: true }}
@@ -109,7 +130,13 @@ export function ProjectDashboardPage() {
           activities={activities}
           isLoading={isReportLoading}
           onDataChanged={handleDataChanged}
-          className="lg:col-span-3"
+          className="lg:col-span-2"
+        />
+        <ProjectSummary
+          {...{ [REVEAL_ATTRIBUTE]: true }}
+          indicators={projectIndicators}
+          showHeadline={false}
+          className="lg:col-span-2"
         />
       </div>
     </>
