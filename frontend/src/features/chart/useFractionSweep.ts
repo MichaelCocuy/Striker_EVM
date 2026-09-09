@@ -4,20 +4,23 @@ import { useEffect, useRef, useState } from 'react';
 import { MOTION_DURATION_SECONDS, MOTION_EASE } from '@/motion/constants';
 import { usePrefersReducedMotion } from '@/motion/reduced-motion';
 
-const EMPTY_ARC = 0;
+import { EMPTY_FRACTION } from './bar-scale';
 
 /**
- * Fraction of the gauge arc that is painted. It sweeps from empty on first render and from
- * the previous value when the report is recalculated; under reduced motion the final state is
- * returned straight away. Recharts cannot animate a hand-rolled SVG arc, hence GSAP here.
+ * Fraction of a shape that is drawn, tweened towards `fraction`: it sweeps from empty on
+ * first render and from the previous value when the report is recalculated, and under reduced
+ * motion the final state is returned straight away.
+ *
+ * Shared by the gauge arc and by the bars of the two explanatory cards; Recharts cannot
+ * animate a hand-rolled SVG arc or an HTML box, hence GSAP here.
  */
-export function useArcSweep(
+export function useFractionSweep(
   fraction: number,
   durationSeconds: number = MOTION_DURATION_SECONDS.SLOW,
 ): number {
   const isReducedMotion = usePrefersReducedMotion();
-  const [sweptFraction, setSweptFraction] = useState(EMPTY_ARC);
-  const previousFractionRef = useRef(EMPTY_ARC);
+  const [sweptFraction, setSweptFraction] = useState(EMPTY_FRACTION);
+  const previousFractionRef = useRef(EMPTY_FRACTION);
 
   useEffect(() => {
     const from = previousFractionRef.current;
