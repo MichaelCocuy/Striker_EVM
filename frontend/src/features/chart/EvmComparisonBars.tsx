@@ -1,6 +1,10 @@
+import { useMemo } from 'react';
+
 import { Card } from '@/components/ui/Card';
 import { SkeletonLines } from '@/components/ui/Skeleton';
-import { formatMoney } from '@/lib/format';
+
+import { comparisonScale, toComparisonRows } from './comparison-rows';
+import { ComparisonBar } from './ComparisonBar';
 
 import type { EvmIndicators } from '@/api/types';
 import type { HTMLAttributes } from 'react';
@@ -18,19 +22,26 @@ const COPY = {
   TITLE: 'Debía llevar, llevo, pagué',
   DESCRIPTION:
     'Los tres valores del proyecto en la misma escala de dinero. Es la comparación de la que sale todo lo demás.',
-  PLANNED: 'Debía llevar hecho',
-  EARNED: 'Llevo hecho',
-  ACTUAL: 'He pagado',
-  EMPTY: 'Agrega una actividad para ver la comparación.',
+  LIST_LABEL: 'Comparación de PV, EV y AC del proyecto',
+  EMPTY: 'Agrega una actividad para ver los tres valores.',
 } as const;
 
-const SKELETON_LINES = 3;
+/** One placeholder line per bar plus one for its reading. */
+const SKELETON_LINES = 6;
+
+/** A project without activities reports the three values as zero, so the scale is zero too. */
+const EMPTY_SCALE = 0;
 
 /**
  * Project-level PV / EV / AC comparison as three horizontal bars on one money scale
- * (docs/EVM_GUIA.md §2): EV below PV reads as late, AC above EV reads as expensive.
+ * (docs/EVM_GUIA.md §2): EV below PV reads as late, AC above EV reads as expensive. Each of
+ * those two comparisons is drawn as a toned band between the bar and its reference, so the
+ * deviation is a visible distance and not something the reviewer has to work out.
  *
- * Contract: it plots what the report brings and never derives an EVM value.
+ * It is a description list of real text, so a screen reader gets the same three numbers and
+ * the same two readings; only the tracks are hidden from assistive technology.
+ *
+ * Contract: it renders what the report brings and never derives an EVM value.
  */
 export function EvmComparisonBars({
   indicators,
@@ -38,7 +49,12 @@ export function EvmComparisonBars({
   className = '',
   ...rest
 }: EvmComparisonBarsProps) {
-  const scale = indicators === null ? 0 : maxOf(indicators);
+  /** Memoized so a re-render with the same report does not restart the bar sweep. */
+  const rows = useMemo(
+    () => (indicators === null ? [] : toComparisonRows(indicators)),
+    [indicators],
+  );
+  const scale = rows.length === 0 ? EMPTY_SCALE : comparisonScale(rows);
 
   return (
     <Card
@@ -50,43 +66,15 @@ export function EvmComparisonBars({
     >
       {isLoading || indicators === null ? (
         <SkeletonLines count={SKELETON_LINES} />
-      ) : scale === 0 ? (
+      ) : scale === EMPTY_SCALE ? (
         <p className="text-sm text-ink-muted">{COPY.EMPTY}</p>
       ) : (
-        <dl className="flex flex-col gap-4">
-          <ComparisonBar label={COPY.PLANNED} value={indicators.plannedValue} scale={scale} />
-          <ComparisonBar label={COPY.EARNED} value={indicators.earnedValue} scale={scale} />
-          <ComparisonBar label={COPY.ACTUAL} value={indicators.actualCost} scale={scale} />
+        <dl aria-label={COPY.LIST_LABEL} className="flex flex-col gap-4">
+          {rows.map((row) => (
+            <ComparisonBar key={row.key} row={row} scale={scale} />
+          ))}
         </dl>
       )}
     </Card>
-  );
-}
-
-function maxOf(indicators: EvmIndicators): number {
-  return Math.max(indicators.plannedValue, indicators.earnedValue, indicators.actualCost);
-}
-
-const FULL_WIDTH_PERCENT = 100;
-
-interface ComparisonBarProps {
-  label: string;
-  value: number;
-  scale: number;
-}
-
-function ComparisonBar({ label, value, scale }: ComparisonBarProps) {
-  const width = (value / scale) * FULL_WIDTH_PERCENT;
-
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-baseline justify-between gap-4">
-        <dt className="text-sm text-ink-muted">{label}</dt>
-        <dd className="numeric text-sm font-semibold text-ink">{formatMoney(value)}</dd>
-      </div>
-      <div className="h-3 w-full overflow-hidden rounded-pill bg-surface-sunken">
-        <div className="h-full rounded-pill bg-accent" style={{ width: `${String(width)}%` }} />
-      </div>
-    </div>
   );
 }
