@@ -1,93 +1,50 @@
-import { formatMoney } from '@/lib/format';
+import { isNothingToEvaluate } from '@/features/evm-report/report-reading';
 
-import { SUMMARY_COPY } from './summary-copy';
-import { isNothingToEvaluate, readSign } from './summary-reading';
+import { readDeviationFocus } from './deviation-focus';
 import {
-  COMPLETION_GAP_READING,
-  CONSEQUENCE_COPY,
+  EMPTY_READING_COPY,
+  FORECAST_REASON_COPY,
   VERDICT_BY_STATUS,
   VERDICT_LEVEL,
-  VERDICT_LEVEL_TONE,
 } from './verdict-copy';
 
 import type { VerdictLevel } from './verdict-copy';
-import type { EvmIndicators } from '@/api/types';
-import type { EvmTone } from '@/evm/tone';
+import type { EvmActivityReport, EvmIndicators } from '@/api/types';
 
 /**
- * Presentation-only reading of the verdict band.
+ * Presentation-only reading of the band.
  *
- * It looks up wording by the pair of statuses the report brings and reads the sign of the
- * figures it already computed. No EVM indicator is derived here: the only arithmetic is
- * dropping the minus sign of a variance whose direction is already spelled out in words.
+ * It looks up the sentence by the pair of statuses the report brings and names the activity
+ * that carries the deviation at closing. No EVM indicator is derived here.
  */
 
-/** The whole band in one object, so the component renders and does not decide. */
-export interface VerdictReading {
+/** The conclusion cell in one object, so the component renders and does not decide. */
+export interface BandReading {
   level: VerdictLevel;
-  tone: EvmTone;
   /** The one-line answer, the largest thing on the band. */
   headline: string;
-  /** The consequence in money, or the reason there is none to show. */
+  /** Where the deviation sits, or why there is nothing to evaluate. */
   detail: string;
-  /** False when the report has nothing to evaluate: the tiles would only show dashes. */
+  /** False when the report has nothing to evaluate: the gauges would only show dashes. */
   hasAnswers: boolean;
 }
 
-/** Magnitude of a figure whose direction is already read in words ("5.172,41 por encima"). */
-function magnitudeOf(value: number): number {
-  return Math.abs(value);
-}
-
-function readForecastReason(costPerformanceIndex: number | null): string {
-  if (costPerformanceIndex === null) {
-    return CONSEQUENCE_COPY.NO_COST_REASON;
-  }
-  if (costPerformanceIndex === 0) {
-    return CONSEQUENCE_COPY.NO_PROGRESS_REASON;
-  }
-  return CONSEQUENCE_COPY.NOT_COMPUTABLE_REASON;
-}
+const NO_EFFICIENCY = 0;
 
 /**
- * What the verdict costs at the closing, in one sentence: what the project will end up
- * costing against its budget and by how much it misses it. When the report could not
- * compute EAC it says why instead of showing dashes (docs/EVM_GUIA.md §5).
+ * The sentence that answers how the project is going, plus the line that says where to
+ * intervene. A project with no activities gets the plain "nothing to evaluate" reading
+ * instead of a band full of dashes.
  */
-export function readConsequence(indicators: EvmIndicators): string {
-  const { estimateAtCompletion, budgetAtCompletion, varianceAtCompletion } = indicators;
-
-  if (estimateAtCompletion === null) {
-    return readForecastReason(indicators.costPerformanceIndex);
-  }
-
-  const forecast = `${CONSEQUENCE_COPY.FORECAST_LEAD} ${formatMoney(estimateAtCompletion)}`;
-
-  if (varianceAtCompletion === null) {
-    return `${forecast} ${CONSEQUENCE_COPY.BUDGET_REFERENCE} ${formatMoney(budgetAtCompletion)}.`;
-  }
-
-  const gap = readSign(varianceAtCompletion, COMPLETION_GAP_READING);
-
-  if (varianceAtCompletion === 0) {
-    return `${forecast}: ${gap.label}.`;
-  }
-
-  const missedBy = formatMoney(magnitudeOf(varianceAtCompletion));
-  return `${forecast} ${CONSEQUENCE_COPY.INSTEAD_OF} ${formatMoney(budgetAtCompletion)}: ${missedBy} ${gap.label}.`;
-}
-
-/**
- * The verdict of the project: the sentence that answers how it is going, the tone that
- * signals it before the sentence is read, and the consequence in money.
- */
-export function readVerdict(indicators: EvmIndicators): VerdictReading {
+export function readBand(
+  indicators: EvmIndicators,
+  activities: readonly EvmActivityReport[],
+): BandReading {
   if (isNothingToEvaluate(indicators)) {
     return {
       level: VERDICT_LEVEL.UNKNOWN,
-      tone: VERDICT_LEVEL_TONE[VERDICT_LEVEL.UNKNOWN],
-      headline: SUMMARY_COPY.EMPTY_HEADING,
-      detail: SUMMARY_COPY.EMPTY_BODY,
+      headline: EMPTY_READING_COPY.HEADING,
+      detail: EMPTY_READING_COPY.BODY,
       hasAnswers: false,
     };
   }
@@ -95,9 +52,25 @@ export function readVerdict(indicators: EvmIndicators): VerdictReading {
   const { level, headline } = VERDICT_BY_STATUS[indicators.costStatus][indicators.scheduleStatus];
   return {
     level,
-    tone: VERDICT_LEVEL_TONE[level],
     headline,
-    detail: readConsequence(indicators),
+    detail: readDeviationFocus(indicators, activities),
     hasAnswers: true,
   };
+}
+
+/**
+ * Why the closing cost cannot be projected, or `null` when the report did project it. The
+ * forecast cell says the reason instead of leaving two dashes without explanation.
+ */
+export function readForecastReason(indicators: EvmIndicators): string | null {
+  if (indicators.estimateAtCompletion !== null) {
+    return null;
+  }
+  if (indicators.costPerformanceIndex === null) {
+    return FORECAST_REASON_COPY.NO_COST;
+  }
+  if (indicators.costPerformanceIndex === NO_EFFICIENCY) {
+    return FORECAST_REASON_COPY.NO_PROGRESS;
+  }
+  return FORECAST_REASON_COPY.NOT_COMPUTABLE;
 }

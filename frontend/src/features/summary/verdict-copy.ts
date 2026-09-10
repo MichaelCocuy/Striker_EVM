@@ -1,31 +1,16 @@
 /**
- * Wording of the verdict band (module M9).
+ * Wording of the conclusion the reading band opens with (handoff §3.1, cell 1).
  *
- * The band answers "¿cómo va el proyecto?" in one sentence before the reader parses a
- * number, so every sentence lives here as a constant and is chosen by looking it up with
- * the pair of statuses the report brings (`costStatus` × `scheduleStatus`). Nothing here
- * calculates: the report already decided both traffic lights (docs/EVM_GUIA.md §3).
+ * The sentence is chosen by looking it up with the pair of statuses the report brings
+ * (`costStatus` × `scheduleStatus`), which is the whole point of the exercise: the reader
+ * gets the answer in plain Spanish before parsing a number. Nothing here calculates — the
+ * report already decided both traffic lights (docs/EVM_GUIA.md §3).
  */
 
 import { COST_STATUS, SCHEDULE_STATUS } from '@/api/types';
-import { EVM_TONE } from '@/evm/tone';
 
-import type { SignReading } from './summary-copy';
 import type { CostStatus, ScheduleStatus } from '@/api/types';
-import type { EvmTone } from '@/evm/tone';
-
-export const VERDICT_COPY = {
-  EYEBROW: 'Veredicto',
-  TITLE: '¿Cómo va el proyecto?',
-  DESCRIPTION: 'La respuesta en una línea, antes de cualquier número.',
-  ANSWERS_HEADING: 'Las tres respuestas',
-  ANSWERS_HINT:
-    'Costo, cronograma y cierre: cada pregunta con el indicador que la responde y la desviación en dinero que la respalda.',
-  COST_QUESTION: '¿Cómo vamos en costo?',
-  SCHEDULE_QUESTION: '¿Cómo vamos en cronograma?',
-  FORECAST_QUESTION: '¿En cuánto va a terminar?',
-  LOADING_LABEL: 'Leyendo el estado del proyecto…',
-} as const;
+import type { SignReading } from '@/features/evm-report/indicator-copy';
 
 /** How the pair of traffic lights reads as a whole. */
 export const VERDICT_LEVEL = {
@@ -41,6 +26,11 @@ export const VERDICT_LEVEL = {
 
 export type VerdictLevel = (typeof VERDICT_LEVEL)[keyof typeof VERDICT_LEVEL];
 
+/**
+ * How the whole reading reads in two words. It is never more optimistic than the worst of
+ * the two traffic lights: a mixed case reads as a warning, because in this app amber
+ * already means "en meta" (ARQUITECTURA §12) and would pass for good news.
+ */
 export const VERDICT_LEVEL_LABEL: Record<VerdictLevel, string> = {
   [VERDICT_LEVEL.GOOD]: 'Va bien',
   [VERDICT_LEVEL.ON_PLAN]: 'Va según el plan',
@@ -48,20 +38,6 @@ export const VERDICT_LEVEL_LABEL: Record<VerdictLevel, string> = {
   [VERDICT_LEVEL.BAD]: 'Va mal',
   [VERDICT_LEVEL.PARTIAL]: 'Respuesta parcial',
   [VERDICT_LEVEL.UNKNOWN]: 'Sin datos',
-};
-
-/**
- * Tone of the whole band. It is never more optimistic than the worst of the two traffic
- * lights: a mixed case paints red, because in this app amber already means "en meta"
- * (ARQUITECTURA §12) and would read as good news.
- */
-export const VERDICT_LEVEL_TONE: Record<VerdictLevel, EvmTone> = {
-  [VERDICT_LEVEL.GOOD]: EVM_TONE.GOOD,
-  [VERDICT_LEVEL.ON_PLAN]: EVM_TONE.NEUTRAL,
-  [VERDICT_LEVEL.WARNING]: EVM_TONE.BAD,
-  [VERDICT_LEVEL.BAD]: EVM_TONE.BAD,
-  [VERDICT_LEVEL.PARTIAL]: EVM_TONE.NA,
-  [VERDICT_LEVEL.UNKNOWN]: EVM_TONE.NA,
 };
 
 /** The verdict of one combination of statuses: how it reads and what it says. */
@@ -130,8 +106,7 @@ export const VERDICT_BY_STATUS: Record<CostStatus, Record<ScheduleStatus, Status
     },
     [SCHEDULE_STATUS.BEHIND_SCHEDULE]: {
       level: VERDICT_LEVEL.BAD,
-      headline:
-        'Este proyecto va mal: está atrasado y sobre presupuesto; gasta más de lo que avanza.',
+      headline: 'Gasta más de lo que avanza, y el atraso es lo que empuja el sobrecosto.',
     },
     [SCHEDULE_STATUS.NOT_APPLICABLE]: {
       level: VERDICT_LEVEL.BAD,
@@ -163,40 +138,25 @@ export const VERDICT_BY_STATUS: Record<CostStatus, Record<ScheduleStatus, Status
   },
 };
 
-/** Second line of the band: what the verdict costs, or why the closing cost is not computable. */
-export const CONSEQUENCE_COPY = {
-  FORECAST_LEAD: 'Si sigue así terminará costando',
-  INSTEAD_OF: 'en vez de',
-  BUDGET_REFERENCE: 'frente a un presupuesto de',
-  NO_COST_REASON:
-    'Todavía no hay costos registrados, así que no se puede proyectar en cuánto terminará.',
-  NO_PROGRESS_REASON:
-    'Con el avance real en cero no hay eficiencia con la que proyectar el cierre.',
-  NOT_COMPUTABLE_REASON: 'Con los datos de hoy el pronóstico al cierre no es calculable.',
+/** What the band says when the report has nothing to evaluate (docs/EVM_GUIA.md §5.5). */
+export const EMPTY_READING_COPY = {
+  HEADING: 'Todavía no hay nada que evaluar',
+  BODY: 'El proyecto no tiene actividades registradas: no hay plan, ni avance, ni costo que comparar. Al registrar la primera actividad aparecerán la lectura del corte, las desviaciones y el pronóstico.',
 } as const;
 
-/** Short readings used inside the answer tiles, where the figure carries its own label. */
-export const COST_VARIANCE_SHORT_READING = {
-  POSITIVE: 'ahorro',
-  ZERO: 'sin desviación',
-  NEGATIVE: 'sobrecosto',
-} as const satisfies SignReading;
+/** Why the closing cost is not projectable, when the report could not compute the EAC. */
+export const FORECAST_REASON_COPY = {
+  NO_COST: 'Todavía no hay costos registrados, así que no se puede proyectar en cuánto terminará.',
+  NO_PROGRESS: 'Con el avance real en cero no hay eficiencia con la que proyectar el cierre.',
+  NOT_COMPUTABLE: 'Con los datos de hoy el pronóstico al cierre no es calculable.',
+} as const;
 
-export const SCHEDULE_VARIANCE_SHORT_READING = {
-  POSITIVE: 'adelanto',
-  ZERO: 'sin desviación',
-  NEGATIVE: 'atraso',
-} as const satisfies SignReading;
-
+/** How the variance at completion reads next to its figure in the forecast cell. */
 export const COMPLETION_VARIANCE_SHORT_READING = {
   POSITIVE: 'por debajo del presupuesto',
   ZERO: 'justo en el presupuesto',
   NEGATIVE: 'por encima del presupuesto',
 } as const satisfies SignReading;
 
-/** How the gap against the budget reads inside the consequence sentence. */
-export const COMPLETION_GAP_READING = {
-  POSITIVE: 'por debajo',
-  ZERO: 'justo en el presupuesto',
-  NEGATIVE: 'por encima',
-} as const satisfies SignReading;
+/** Notes the report attaches when an indicator does not apply. */
+export const NOTES_HEADING = 'Notas del cálculo';

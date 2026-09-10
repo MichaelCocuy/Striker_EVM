@@ -1,7 +1,8 @@
 import { formatNumber } from '@/lib/format';
 
 /**
- * Geometry of the semicircular index gauge, in viewBox units.
+ * Geometry of the semicircular index gauge of the reading band, in viewBox units
+ * (handoff §3.1, cells 2 and 3).
  *
  * The scale runs from 0 to 2 so the EVM reference, 1.0, sits exactly at the top of the arc;
  * the reference mark is still derived from `REFERENCE` instead of assuming the top.
@@ -19,19 +20,23 @@ const FULL_ARC_FRACTION = 1;
 const HALF_TURN_DEGREES = 180;
 const DEGREES_TO_RADIANS = Math.PI / HALF_TURN_DEGREES;
 
-export const GAUGE_VIEWBOX = { WIDTH: 200, HEIGHT: 114 } as const;
+export const GAUGE_VIEWBOX = { WIDTH: 200, HEIGHT: 118 } as const;
 
 export const GAUGE_ARC = {
   CENTER_X: 100,
   CENTER_Y: 108,
   RADIUS: 86,
-  TRACK_WIDTH: 12,
+  TRACK_WIDTH: 10,
   /** Radii the reference mark is drawn between, and the one its label sits on. */
   MARK_INNER_RADIUS: 78,
-  MARK_OUTER_RADIUS: 94,
+  MARK_OUTER_RADIUS: 92,
   MARK_WIDTH: 2,
-  MARK_LABEL_RADIUS: 98,
-  MARK_LABEL_FONT_SIZE: 10,
+  MARK_LABEL_RADIUS: 96,
+  MARK_LABEL_FONT_SIZE: 9,
+  /** The value is read inside the arc, not under it. */
+  VALUE_Y: 100,
+  VALUE_FONT_SIZE: 30,
+  VALUE_TRACKING: '-1px',
 } as const;
 
 /** The reference reads as a scale mark ("1,0"), not as an indicator value. */
@@ -40,6 +45,9 @@ export const GAUGE_REFERENCE_LABEL = formatNumber(GAUGE_SCALE.REFERENCE, REFEREN
 
 /** SVG `pathLength` normalises the arc to 1 unit so a dash array can reveal a fraction. */
 export const NORMALISED_PATH_LENGTH = FULL_ARC_FRACTION;
+
+/** An index that is not computable leaves the arc undrawn; it is never swept to zero. */
+export const EMPTY_ARC = EMPTY_ARC_FRACTION;
 
 export interface ArcPoint {
   x: number;
