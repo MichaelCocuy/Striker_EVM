@@ -47,6 +47,22 @@ describe('the login view of the redesign', () => {
     expect(screen.getByText(COPY.INDICATORS_CHIP)).toBeInTheDocument();
   });
 
+  /**
+   * The screen used to anchor its content to the top, leaving the lower half of the gradient
+   * empty: the outer box was full height but the grid inside only took the height of its own
+   * content. jsdom does no layout, so the fix is pinned as a contract on the box that has to
+   * carry it — full viewport height AND vertical centring on the same element.
+   */
+  it('centres the access screen on the gradient instead of anchoring it to the top', () => {
+    const { container } = renderLogin();
+    const accessScreen = container.firstElementChild;
+
+    expect(accessScreen).not.toBeNull();
+    expect(accessScreen?.className).toContain('min-h-dvh');
+    expect(accessScreen?.className).toContain('flex');
+    expect(accessScreen?.className).toContain('items-center');
+  });
+
   it('offers a single way in, as production does', () => {
     renderLogin();
 
