@@ -1,24 +1,18 @@
 import gsap from 'gsap';
-import { X } from 'lucide-react';
-import { useEffect, useId, useLayoutEffect, useRef } from 'react';
+import { useId, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
+import { ICON_SIZE, ICON_STROKE, X } from '@/components/ui/icons';
+import { useDismissOnEscape } from '@/components/ui/useDismissOnEscape';
+import { useFocusTrap } from '@/components/ui/useFocusTrap';
 import { MOTION_DURATION_SECONDS, MOTION_EASE } from '@/motion/constants';
 import { prefersReducedMotion } from '@/motion/reduced-motion';
-
-import { ICON_SIZE, ICON_STROKE } from './activity-icons';
 
 import type { ReactNode, RefObject } from 'react';
 
 const COPY = {
   CLOSE: 'Cerrar',
 } as const;
-
-const ESCAPE_KEY = 'Escape';
-const TAB_KEY = 'Tab';
-
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /** The panel slides in from the right edge, so it starts one full width off-screen. */
 const OFF_SCREEN_X = '100%';
@@ -59,7 +53,7 @@ export function SidePanel({ eyebrow, title, onClose, footer, children }: SidePan
   const panelRef = useRef<HTMLElement>(null);
   const titleId = useId();
 
-  usePanelFocus(panelRef);
+  useFocusTrap(panelRef);
   usePanelEntrance(backdropRef, panelRef);
   useDismissOnEscape(onClose);
 
@@ -87,7 +81,7 @@ export function SidePanel({ eyebrow, title, onClose, footer, children }: SidePan
             aria-label={COPY.CLOSE}
             className="-mr-1 shrink-0 rounded-md p-1 text-ink-subtle transition-colors duration-150 hover:text-ink"
           >
-            <X aria-hidden="true" size={ICON_SIZE.CLOSE} strokeWidth={ICON_STROKE.EMPHASIS} />
+            <X aria-hidden="true" size={ICON_SIZE.CONTENT} strokeWidth={ICON_STROKE.UI} />
           </button>
         </header>
         <div className={BODY_CLASS}>{children}</div>
@@ -98,45 +92,6 @@ export function SidePanel({ eyebrow, title, onClose, footer, children }: SidePan
     </>,
     document.body,
   );
-}
-
-/**
- * Moves focus into the panel, keeps Tab inside it while it is open and hands focus back to
- * whatever opened it on close.
- */
-function usePanelFocus(panelRef: RefObject<HTMLElement | null>): void {
-  useEffect(() => {
-    const panel = panelRef.current;
-    const previouslyFocused = document.activeElement;
-    panel?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key !== TAB_KEY || panel === null) {
-        return;
-      }
-      const focusable = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
-      const first = focusable.at(0);
-      const last = focusable.at(-1);
-      if (first === undefined || last === undefined) {
-        return;
-      }
-      const active = document.activeElement;
-      const leavesBackwards = event.shiftKey && (active === first || active === panel);
-      const leavesForwards = !event.shiftKey && active === last;
-      if (leavesBackwards || leavesForwards) {
-        event.preventDefault();
-        (leavesBackwards ? last : first).focus();
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      if (previouslyFocused instanceof HTMLElement) {
-        previouslyFocused.focus();
-      }
-    };
-  }, [panelRef]);
 }
 
 /** The backdrop fades in and the panel slides from the right; both skip under reduced motion. */
@@ -175,18 +130,4 @@ function usePanelEntrance(
       timeline.kill();
     };
   }, [backdropRef, panelRef]);
-}
-
-function useDismissOnEscape(onClose: () => void): void {
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === ESCAPE_KEY) {
-        onClose();
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onClose]);
 }

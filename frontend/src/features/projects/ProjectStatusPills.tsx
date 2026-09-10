@@ -1,3 +1,5 @@
+import { STATUS_PILL_SIZE } from '@/components/ui/status-pill-sizes';
+import { StatusPill } from '@/components/ui/StatusPill';
 import {
   COST_STATUS_LABEL,
   EVM_TONE,
@@ -7,7 +9,6 @@ import {
 } from '@/evm/tone';
 
 import { PORTFOLIO_COPY } from './portfolio-copy';
-import { StatusChip } from './StatusChip';
 
 import type { EvmIndicators } from '@/api/types';
 
@@ -25,7 +26,11 @@ export function ProjectStatusPills({ indicators }: ProjectStatusPillsProps) {
     return (
       <ul className="flex flex-wrap gap-1.5" aria-label={PORTFOLIO_COPY.LIST.STATUS_LABEL}>
         <li>
-          <StatusChip tone={EVM_TONE.NA} label={PORTFOLIO_COPY.LIST.STATUS_UNAVAILABLE} />
+          <StatusPill
+            tone={EVM_TONE.NA}
+            label={PORTFOLIO_COPY.LIST.STATUS_UNAVAILABLE}
+            size={STATUS_PILL_SIZE.SM}
+          />
         </li>
       </ul>
     );
@@ -34,15 +39,17 @@ export function ProjectStatusPills({ indicators }: ProjectStatusPillsProps) {
   return (
     <ul className="flex flex-wrap gap-1.5" aria-label={PORTFOLIO_COPY.LIST.STATUS_LABEL}>
       <li>
-        <StatusChip
+        <StatusPill
           tone={costStatusTone(indicators.costStatus)}
           label={COST_STATUS_LABEL[indicators.costStatus]}
+          size={STATUS_PILL_SIZE.SM}
         />
       </li>
       <li>
-        <StatusChip
+        <StatusPill
           tone={scheduleStatusTone(indicators.scheduleStatus)}
           label={SCHEDULE_STATUS_LABEL[indicators.scheduleStatus]}
+          size={STATUS_PILL_SIZE.SM}
         />
       </li>
     </ul>

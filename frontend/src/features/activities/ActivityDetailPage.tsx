@@ -1,9 +1,9 @@
-import { ArrowLeft } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { Card } from '@/components/ui/Card';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ArrowLeft, ICON_SIZE, ICON_STROKE } from '@/components/ui/icons';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { projectDashboardPath, ROUTE_PARAMS } from '@/constants/routes';
@@ -13,7 +13,6 @@ import { REVEAL_ATTRIBUTE } from '@/motion/constants';
 import { useStaggerReveal } from '@/motion/useStaggerReveal';
 
 import { ACTIVITY_DETAIL_COPY } from './activity-detail';
-import { ICON_SIZE, ICON_STROKE } from './activity-icons';
 import { ActivityDeleteDialog } from './ActivityDeleteDialog';
 import { ActivityFormDialog } from './ActivityFormDialog';
 import { ActivityIndicatorsCard } from './ActivityIndicatorsCard';
@@ -74,7 +73,7 @@ export function ActivityDetailPage() {
         to={projectDashboardPath(projectId)}
         className="inline-flex items-center gap-2 self-start font-heading text-caption font-semibold text-accent"
       >
-        <ArrowLeft aria-hidden="true" size={ICON_SIZE.ROW} strokeWidth={ICON_STROKE.EMPHASIS} />
+        <ArrowLeft aria-hidden="true" size={ICON_SIZE.COMPACT} strokeWidth={ICON_STROKE.ALERT} />
         {ACTIVITY_DETAIL_COPY.BACK}
       </Link>
 

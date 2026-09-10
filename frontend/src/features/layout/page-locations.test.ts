@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { projectDashboardPath, ROUTES } from '@/constants/routes';
+import { activityDetailPath, projectDashboardPath, ROUTES } from '@/constants/routes';
 
 import { pageLocationFor } from './page-locations';
 
 const PROJECT_ID = '22222222-2222-4222-8222-000000000001';
+const ACTIVITY_ID = '33333333-3333-4333-8333-000000000001';
 
 describe('pageLocationFor', () => {
   it('names the portfolio and its crumb', () => {
@@ -18,6 +19,13 @@ describe('pageLocationFor', () => {
     expect(pageLocationFor(projectDashboardPath(PROJECT_ID))).toEqual({
       crumb: 'Portafolio',
       title: 'Tablero del proyecto',
+    });
+  });
+
+  it('names the activity detail, so the topbar does not fall back to the product', () => {
+    expect(pageLocationFor(activityDetailPath(PROJECT_ID, ACTIVITY_ID))).toEqual({
+      crumb: 'Portafolio',
+      title: 'Actividad',
     });
   });
 

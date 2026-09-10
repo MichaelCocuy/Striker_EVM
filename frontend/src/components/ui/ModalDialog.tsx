@@ -1,5 +1,5 @@
 import gsap from 'gsap';
-import { useEffect, useId, useLayoutEffect, useRef } from 'react';
+import { useId, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 import { MOTION_DURATION_SECONDS, MOTION_EASE, MOTION_OFFSET_PX } from '@/motion/constants';
@@ -7,6 +7,8 @@ import { prefersReducedMotion } from '@/motion/reduced-motion';
 
 import { IconButton } from './IconButton';
 import { ICON_SIZE, ICON_STROKE, X } from './icons';
+import { useDismissOnEscape } from './useDismissOnEscape';
+import { useFocusTrap } from './useFocusTrap';
 
 import type { MouseEvent, ReactNode, RefObject } from 'react';
 
@@ -21,7 +23,6 @@ const COPY = {
   CLOSE: 'Cerrar',
 } as const;
 
-const ESCAPE_KEY = 'Escape';
 /** The modal pop of the handoff: scale .95 → 1. */
 const ENTER_SCALE = 0.95;
 
@@ -30,14 +31,15 @@ const ENTER_SCALE = 0.95;
  *
  * It renders in a portal because the page transition leaves a GSAP transform on `main`, which
  * would otherwise become the containing block of the fixed overlay. Escape, the close button and
- * a click on the backdrop all dismiss it, and focus returns to whatever opened it.
+ * a click on the backdrop all dismiss it; Tab cycles inside it and never reaches the page
+ * behind, and focus returns to whatever opened it.
  */
 export function ModalDialog({ title, description, onClose, children }: ModalDialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
 
-  useDialogFocus(panelRef);
+  useFocusTrap(panelRef);
   useDialogEntrance(panelRef);
   useDismissOnEscape(onClose);
 
@@ -85,19 +87,6 @@ export function ModalDialog({ title, description, onClose, children }: ModalDial
   );
 }
 
-/** Moves focus into the dialog and hands it back to whatever opened it on close. */
-function useDialogFocus(panelRef: RefObject<HTMLElement | null>): void {
-  useEffect(() => {
-    const previouslyFocused = document.activeElement;
-    panelRef.current?.focus();
-    return () => {
-      if (previouslyFocused instanceof HTMLElement) {
-        previouslyFocused.focus();
-      }
-    };
-  }, [panelRef]);
-}
-
 /** Slides and scales the panel in; under reduced motion it simply appears. */
 function useDialogEntrance(panelRef: RefObject<HTMLElement | null>): void {
   useLayoutEffect(() => {
@@ -119,18 +108,4 @@ function useDialogEntrance(panelRef: RefObject<HTMLElement | null>): void {
       tween.kill();
     };
   }, [panelRef]);
-}
-
-function useDismissOnEscape(onClose: () => void): void {
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === ESCAPE_KEY) {
-        onClose();
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onClose]);
 }

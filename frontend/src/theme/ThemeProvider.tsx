@@ -2,8 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { STORAGE_KEYS } from '@/constants/storage-keys';
 
-import './shell-tokens.css';
-
 import {
   DARK_SCHEME_QUERY,
   isTheme,

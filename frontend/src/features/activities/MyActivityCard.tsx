@@ -1,12 +1,13 @@
 import { Button } from '@/components/ui/Button';
 import { BUTTON_VARIANT } from '@/components/ui/button-variants';
+import { STATUS_PILL_SIZE } from '@/components/ui/status-pill-sizes';
+import { StatusPill } from '@/components/ui/StatusPill';
 import { PERMISSIONS } from '@/features/auth/permissions';
 import { useCan } from '@/features/auth/useCan';
 import { formatPercent } from '@/lib/format';
 
-import { ACTIVITY_INDEX_COLUMNS, INDEX_CHIP_SIZE } from './activity-index';
+import { ACTIVITY_INDEX_COLUMNS, activityIndexChip } from './activity-index';
 import { PROGRESS_COPY, PROGRESS_TRACK_SIZE } from './activity-progress';
-import { ActivityIndexChip } from './ActivityIndexChip';
 import { ActivityProgressTrack } from './ActivityProgressTrack';
 
 import type { OwnedActivity } from './useOwnedActivities';
@@ -58,12 +59,10 @@ export function MyActivityCard({ owned, onRegister }: MyActivityCardProps) {
 
       <div className="flex flex-wrap gap-2">
         {ACTIVITY_INDEX_COLUMNS.map((index) => (
-          <ActivityIndexChip
+          <StatusPill
             key={index.key}
-            index={index}
-            indicators={activity.indicators}
-            size={INDEX_CHIP_SIZE.CARD}
-            withName
+            {...activityIndexChip(index, activity.indicators, { withName: true })}
+            size={STATUS_PILL_SIZE.FIGURE_SM}
           />
         ))}
       </div>

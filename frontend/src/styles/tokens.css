@@ -6,8 +6,8 @@
  * them in theme.css, so a component never repeats a hex value.
  *
  * Two layers on purpose:
- *   --tc-*    only what the semantic layer cannot express: the navy of the shell, the
- *             three reserved gradients and the layout dimensions.
+ *   --tc-*    only what the semantic layer cannot express: the navy surfaces of the shell,
+ *             the reserved gradients and the layout dimensions.
  *   semantic  --canvas, --surface, --ink, --accent, --evm-* keep their names and point at
  *             Trycore values, so every existing utility keeps working.
  *
@@ -35,6 +35,29 @@
   --tc-grad-sidebar: linear-gradient(175deg, #1d2751 0%, #111c42 60%, #0d1835 100%);
   /* Reading band of the dashboard. */
   --tc-grad-band: linear-gradient(175deg, #1d2751 0%, #111c42 100%);
+
+  /* ── Navy surfaces of the shell: the sidebar, the topbar band and the login ──
+   * Values from the handoff's «Shell de la aplicación» and «1 · Login» sections. Everything
+   * expressible with a semantic token stays one: the on-navy inks are `white` and
+   * `--accent-on-navy` with an alpha modifier, and the gradients are the four above.
+   * They keep their light values in the dark theme, because the shell stays navy in both.
+   */
+
+  /* Active navigation item: a lighter teal than --accent-on-navy, legible on the navy. */
+  --tc-nav-ink-active: #7fdcd8;
+  --tc-nav-ring-active: inset 0 0 0 1px rgb(100 194 200 / 0.22), 0 2px 8px rgb(0 161 154 / 0.18);
+
+  --tc-sidebar-shadow: 4px 0 20px rgb(0 0 0 / 0.25);
+
+  /* The teal wash of the topbar resolves against the surface, so it follows the theme. */
+  --tc-topbar-bg: linear-gradient(90deg, rgb(0 161 154 / 0.055) 0%, var(--surface) 38%);
+
+  /* Login: the brand chip is the one place a bright teal carries letters, so its ink is navy. */
+  --tc-chip-brand-bg: #1fe0d7;
+  --tc-chip-brand-ink: #011955;
+
+  /* Outer node of the orbital figure; the inner one uses --accent-on-navy. */
+  --tc-orbit-node: #00ccc2;
 
   /* ── Layout dimensions ── */
   --tc-sidebar-w: 252px;
@@ -92,6 +115,17 @@
   --evm-bad-soft: #f2dede;
   --evm-na: #4a5568;
   --evm-na-soft: #f3f4f6;
+
+  /* ── EVM traffic light on navy: the reading band ──
+   * The band is `--tc-grad-band` in both themes, so it cannot borrow the `--evm-*` inks:
+   * those are tuned for a white card and #A64242 on navy is unreadable. The handoff
+   * («3.1 Banda de lectura») fixes a lighter ink per tone for that one surface. There is no
+   * dark variant on purpose — the surface is navy either way.
+   */
+  --evm-good-on-navy: #86d45f;
+  --evm-neutral-on-navy: #f2d24a;
+  --evm-bad-on-navy: #f08585;
+  --evm-na-on-navy: #9ba4c7;
 
   /* ── Feedback ── */
   --danger: #a64242;

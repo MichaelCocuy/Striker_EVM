@@ -1,5 +1,7 @@
 import { useRef } from 'react';
 
+import { ORBITAL_FIGURE_VARIANT } from '@/components/ui/orbital-figure-variants';
+import { OrbitalFigure } from '@/components/ui/OrbitalFigure';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
   COST_STATUS_LABEL,
@@ -16,7 +18,6 @@ import { BandConclusion } from './BandConclusion';
 import { BandForecast } from './BandForecast';
 import { BandGauge } from './BandGauge';
 import { BandIndexTable } from './BandIndexTable';
-import { BandOrbit } from './BandOrbit';
 import {
   SUMMARY_REVEAL_ATTRIBUTE,
   SUMMARY_REVEAL_KEY,
@@ -38,6 +39,8 @@ export interface ProjectReadingBandProps extends Omit<HTMLAttributes<HTMLElement
 }
 
 const BAND_CLASS = 'relative overflow-hidden rounded-lg px-[22px] py-5';
+/** Where the identity's orbital figure sits behind the band (handoff §3.1). */
+const ORBIT_CLASS = 'absolute -top-[90px] -right-[60px] size-[300px] opacity-35';
 const CELLS_CLASS = 'relative grid min-w-0 items-center gap-5';
 /** Four cells at the 210px minimum of the handoff; one cell when there is nothing to read. */
 const GRID_CLASS = {
@@ -79,7 +82,7 @@ export function ProjectReadingBand({
       style={{ backgroundImage: BAND_GRADIENT }}
       {...rest}
     >
-      <BandOrbit />
+      <OrbitalFigure variant={ORBITAL_FIGURE_VARIANT.BAND} className={ORBIT_CLASS} />
       {indicators === null ? (
         <LoadingCells cellsRef={cellsRef} />
       ) : (

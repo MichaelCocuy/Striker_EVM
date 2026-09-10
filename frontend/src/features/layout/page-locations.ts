@@ -15,9 +15,15 @@ const PORTFOLIO_CRUMB = 'Portafolio';
  *
  * The dashboard's crumb stops at «Portafolio» rather than naming the project: the topbar is
  * outside the view that owns the report request, and the handoff keeps that request single.
+ * The activity detail says «Actividad» for the same reason — the name of the activity lives in
+ * the page header, which is inside the view that already has the report.
  */
 const LOCATIONS: readonly { pattern: string; location: PageLocation }[] = [
   { pattern: ROUTES.PROJECTS, location: { crumb: PORTFOLIO_CRUMB, title: 'Todos los proyectos' } },
+  {
+    pattern: ROUTES.ACTIVITY_DETAIL,
+    location: { crumb: PORTFOLIO_CRUMB, title: 'Actividad' },
+  },
   {
     pattern: ROUTES.PROJECT_DASHBOARD,
     location: { crumb: PORTFOLIO_CRUMB, title: 'Tablero del proyecto' },

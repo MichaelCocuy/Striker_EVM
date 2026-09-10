@@ -1,15 +1,16 @@
-import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
+import { ArrowRight, ICON_SIZE, ICON_STROKE } from '@/components/ui/icons';
+import { STATUS_PILL_SIZE } from '@/components/ui/status-pill-sizes';
+import { StatusPill } from '@/components/ui/StatusPill';
 import { MONEY_DECIMALS } from '@/lib/format';
 
 import { activityDeviation } from './activity-deviation';
-import { ICON_SIZE, ICON_STROKE } from './activity-icons';
+import { activityIndexChip } from './activity-index';
 import { INDICATOR_KIND, TABLE_INDICATORS } from './activity-indicators';
 import { ACTIVITY_COLUMN_LABELS, TABLE_CLASS, TABLE_ROLE } from './activity-table';
 import { ActivityDeviationGlyph } from './ActivityDeviationGlyph';
-import { ActivityIndexChip } from './ActivityIndexChip';
 import { ActivityProgressBar } from './ActivityProgressBar';
 
 import type { ActivityMeasures, EvmIndicators, UserSummary } from '@/api/types';
@@ -114,7 +115,10 @@ export function ActivityIndicatorCells({ indicators }: ActivityIndicatorCellsPro
         indicator.kind === INDICATOR_KIND.INDEX ? (
           <td key={indicator.key} role={TABLE_ROLE.CELL} className={TABLE_CLASS.CHIP_CELL}>
             <StackLabel label={indicator.label} />
-            <ActivityIndexChip index={indicator} indicators={indicators} />
+            <StatusPill
+              {...activityIndexChip(indicator, indicators)}
+              size={STATUS_PILL_SIZE.FIGURE}
+            />
           </td>
         ) : (
           <td key={indicator.key} role={TABLE_ROLE.CELL} className={TABLE_CLASS.NUMERIC_CELL}>
@@ -133,7 +137,7 @@ export function ActivityDetailArrowCell() {
     <td role={TABLE_ROLE.CELL} className={`${TABLE_CLASS.CELL} text-right max-[700px]:hidden`}>
       <ArrowRight
         aria-hidden="true"
-        size={ICON_SIZE.ROW}
+        size={ICON_SIZE.COMPACT}
         strokeWidth={ICON_STROKE.UI}
         className="inline-block text-ink-subtle"
       />

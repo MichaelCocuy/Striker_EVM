@@ -34,7 +34,11 @@ export type { LucideIcon } from 'lucide-react';
 
 /** 16px in the sidebar, 18px in content, as the handoff's iconography section states. */
 export const ICON_SIZE = {
-  SIDEBAR: 16,
+  /**
+   * The handoff's 16px sidebar measure, which is also what an inline affordance takes: the
+   * arrow of a table row, the icon inside a button or a chip, the actions of a dense row.
+   */
+  COMPACT: 16,
   CONTENT: 18,
 } as const;
 

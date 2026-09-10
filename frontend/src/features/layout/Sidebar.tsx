@@ -96,7 +96,7 @@ function SidebarLink({ item }: SidebarLinkProps) {
     >
       <Icon
         aria-hidden="true"
-        size={ICON_SIZE.SIDEBAR}
+        size={ICON_SIZE.COMPACT}
         strokeWidth={ICON_STROKE.UI}
         className="shrink-0"
       />
