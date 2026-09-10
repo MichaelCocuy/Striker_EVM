@@ -3,6 +3,7 @@ import { EVM_TONE, EVM_TONE_LABEL, EVM_TONE_TOKENS } from '@/evm/tone';
 import { formatIndex, INDEX_DECIMALS } from '@/lib/format';
 import { MOTION_DURATION_SECONDS } from '@/motion/constants';
 import { useCountUp } from '@/motion/useCountUp';
+import { useFractionSweep } from '@/motion/useFractionSweep';
 
 import { MILLISECONDS_PER_SECOND } from './chart-config';
 import {
@@ -15,7 +16,6 @@ import {
   REFERENCE_FRACTION,
   toArcFraction,
 } from './gauge-geometry';
-import { useFractionSweep } from './useFractionSweep';
 
 import type { EvmTone } from '@/evm/tone';
 

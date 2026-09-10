@@ -16,7 +16,14 @@ const COPY = {
   SEPARATOR: ' · ',
 } as const;
 
-/** The fill grows from nothing on first render; later values slide with a CSS transition. */
+/**
+ * The fill grows from nothing on first render; later values slide with a CSS transition.
+ *
+ * This tweens the element directly instead of using `motion/useFractionSweep`, which returns the
+ * fraction on every frame: that hook is right for an SVG arc whose path has to be recomputed,
+ * but a table renders one bar per row and re-rendering all of them on every frame would be
+ * wasteful when a transform does the same job on the compositor.
+ */
 const GROWN_SCALE_X = 1;
 const EMPTY_SCALE_X = 0;
 

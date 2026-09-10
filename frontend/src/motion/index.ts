@@ -4,6 +4,7 @@ export { usePageTransition } from './usePageTransition';
 export { useStaggerReveal } from './useStaggerReveal';
 export type { StaggerRevealOptions } from './useStaggerReveal';
 export { useCountUp } from './useCountUp';
+export { useFractionSweep } from './useFractionSweep';
 export type { CountUpOptions } from './useCountUp';
 export {
   STATUS_COLOR_VARIABLE,

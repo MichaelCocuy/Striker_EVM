@@ -1,18 +1,21 @@
 import gsap from 'gsap';
 import { useEffect, useRef, useState } from 'react';
 
-import { MOTION_DURATION_SECONDS, MOTION_EASE } from '@/motion/constants';
-import { usePrefersReducedMotion } from '@/motion/reduced-motion';
+import { MOTION_DURATION_SECONDS, MOTION_EASE } from './constants';
+import { usePrefersReducedMotion } from './reduced-motion';
 
-import { EMPTY_FRACTION } from './bar-scale';
+/** A shape that is not drawn at all; where every sweep starts. */
+const EMPTY_FRACTION = 0;
 
 /**
  * Fraction of a shape that is drawn, tweened towards `fraction`: it sweeps from empty on
  * first render and from the previous value when the report is recalculated, and under reduced
  * motion the final state is returned straight away.
  *
- * Shared by the gauge arc and by the bars of the two explanatory cards; Recharts cannot
- * animate a hand-rolled SVG arc or an HTML box, hence GSAP here.
+ * Shared by the gauge arc and by the bars of the explanatory cards; Recharts cannot animate a
+ * hand-rolled SVG arc, hence GSAP here. It returns the fraction on every frame, so use it where
+ * the value itself has to be painted (an SVG `stroke-dasharray`, a computed width) and prefer
+ * tweening the element directly where a re-render per frame would be wasteful.
  */
 export function useFractionSweep(
   fraction: number,
