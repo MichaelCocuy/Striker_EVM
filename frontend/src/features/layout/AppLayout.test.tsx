@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
 import { ROLES } from '@/api/types';
-import { projectDashboardPath, ROUTES } from '@/constants/routes';
+import { activityDetailPath, projectDashboardPath, ROUTES } from '@/constants/routes';
 import { renderWithRouter, signInAs } from '@/test/render';
 
 import { AppLayout } from './AppLayout';
@@ -14,6 +14,8 @@ import type { RouteObject } from 'react-router-dom';
 
 const VIEW_TEXT = 'Contenido de la vista';
 const PROJECT_ID = '22222222-2222-4222-8222-000000000001';
+const ACTIVITY_ID = '33333333-3333-4333-8333-000000000001';
+const ACTIVITY_TITLE = 'Actividad';
 
 const GROUP = { TRACKING: 'Seguimiento', MY_WORK: 'Mi trabajo' } as const;
 const NAME = {
@@ -28,6 +30,7 @@ const routes: RouteObject[] = [
     children: [
       { path: ROUTES.PROJECTS, element: <p>{VIEW_TEXT}</p> },
       { path: ROUTES.PROJECT_DASHBOARD, element: <p>{VIEW_TEXT}</p> },
+      { path: ROUTES.ACTIVITY_DETAIL, element: <p>{VIEW_TEXT}</p> },
       { path: ROUTES.MY_ACTIVITIES, element: <p>{VIEW_TEXT}</p> },
     ],
   },
@@ -73,6 +76,13 @@ describe('AppLayout', () => {
       'href',
       projectDashboardPath(PROJECT_ID),
     );
+  });
+
+  /** The generic «Striker EVM · Valor ganado» is what an unnamed route falls back to. */
+  it('names the activity detail in the topbar instead of falling back to the product', () => {
+    renderShell(ROLES.REVIEWER, activityDetailPath(PROJECT_ID, ACTIVITY_ID));
+
+    expect(screen.getByText(ACTIVITY_TITLE)).toBeInTheDocument();
   });
 
   it('names the signed-in user in the topbar', () => {
