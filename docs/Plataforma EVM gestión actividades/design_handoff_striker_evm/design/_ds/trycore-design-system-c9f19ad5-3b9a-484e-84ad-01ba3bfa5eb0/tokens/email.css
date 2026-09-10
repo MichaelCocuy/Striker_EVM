@@ -1,0 +1,65 @@
+/* ════════════════════════════════════════════════
+   Trycore · Mailing — capa de correo
+   Deducido de los envíos reales 2026 en HubSpot
+   (uploads/referencias-*.png y los .html exportados).
+
+   El correo NO puede usar los tokens de producto tal cual: no hay
+   webfonts, no hay flex/grid y el color debe sobrevivir al modo oscuro
+   de Gmail y Apple Mail. Esta capa fija los valores que sí se pegan
+   dentro del atributo style de cada celda.
+
+   Ancho de plantilla: 640px (decisión de marca, ago 2026).
+   Todo valor de aquí se escribe INLINE en el HTML del correo; estos
+   custom properties existen para las tarjetas de especificación y para
+   que un editor consulte el valor exacto, no para que el correo los lea.
+   ════════════════════════════════════════════════ */
+:root {
+  /* ── Geometría ── */
+  --tc-mail-w:          640px;   /* @kind spacing */
+  --tc-mail-w-mobile:   100%;    /* @kind spacing */
+  --tc-mail-pad-x:      32px;    /* @kind spacing */
+  --tc-mail-pad-x-sm:   20px;    /* @kind spacing */ /* < 480px */
+  --tc-mail-gap-block:  28px;    /* @kind spacing */ /* entre bloques */
+  --tc-mail-gap-section:44px;    /* @kind spacing */ /* entre secciones */
+  --tc-mail-radius:     6px;     /* @kind radius */ /* CTA, tarjetas y bloques */
+
+  /* ── Superficies ── */
+  --tc-mail-bg:         #EDF2FD;  /* lienzo del correo (lavanda casi blanco) */
+  --tc-mail-surface:    #FFFFFF;  /* columna de contenido */
+  --tc-mail-band:       #E6F7F6;  /* banda aqua del encabezado */
+  --tc-mail-block-navy: #0A1C63;  /* bloque destacado navy */
+  --tc-mail-block-soft: #F4F6FB;  /* bloque gris de apoyo */
+
+  /* ── Tinta ── */
+  --tc-mail-ink:        #0B1F5C;  /* titulares */
+  --tc-mail-body:       #333333;  /* cuerpo — más oscuro que en pantalla */
+  --tc-mail-muted:      #6B7280;  /* pie, metadatos */
+  --tc-mail-teal:       #007F7A;  /* overline y subtítulo sobre blanco — el teal de marca
+                                     como LETRA sobre blanco da 2,0:1, así que el correo usa
+                                     el mismo teal profundo del producto (4,9:1) */
+  --tc-mail-teal-on-navy:#1FE0D7; /* overline y titulares sobre navy (9,7:1) */
+  --tc-mail-hairline:   #D8DCE5;
+
+  /* ── CTA ──
+     Relleno en el teal claro de marca y tinta NAVY, no blanca:
+     blanco sobre #1FE0D7 da 1,65:1. La variante navy sí lleva texto blanco. */
+  --tc-mail-cta-bg:     #1FE0D7;  /* píldora teal claro */
+  --tc-mail-cta-fg:     #011955;  /* tinta navy · 9,7:1 */
+  --tc-mail-cta-navy-bg:#0B1F5C;  /* variante de autoridad, texto blanco */
+  --tc-mail-cta-pad:    16px 34px;/* @kind spacing */
+
+  /* ── Tipografía ──
+     Sin webfonts: Poppins encabeza la pila por si el cliente la tiene,
+     Trebuchet MS es el fallback real que Trycore ya usaba. */
+  --tc-mail-font:       'Poppins', 'Trebuchet MS', Verdana, Arial, Helvetica, sans-serif;   /* @kind font */
+  --tc-mail-fs-overline: 15px;   /* @kind font */ /* teal, bold */
+  --tc-mail-fs-h1:      28px;    /* @kind font */ /* titular navy centrado */
+  --tc-mail-fs-h1-sm:   23px;    /* @kind font */ /* < 480px */
+  --tc-mail-fs-h2:      21px;    /* @kind font */ /* encabezado de sección teal */
+  --tc-mail-fs-lead:    17px;    /* @kind font */ /* subtítulo teal */
+  --tc-mail-fs-body:    16px;    /* @kind font */
+  --tc-mail-fs-small:   14px;    /* @kind font */ /* firma, notas */
+  --tc-mail-fs-footer:  12px;    /* @kind font */
+  --tc-mail-lh-body:    26px;    /* @kind font */ /* exacto para Outlook */
+  --tc-mail-lh-h1:      36px;    /* @kind font */
+}

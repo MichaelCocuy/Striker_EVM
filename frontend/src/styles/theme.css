@@ -6,17 +6,24 @@
   --color-surface-raised: var(--surface-raised);
   --color-surface-sunken: var(--surface-sunken);
   --color-surface-overlay: var(--surface-overlay);
+  --color-surface-inverse: var(--surface-inverse);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-ink: var(--ink);
+  --color-ink-body: var(--ink-body);
   --color-ink-muted: var(--ink-muted);
   --color-ink-subtle: var(--ink-subtle);
   --color-ink-inverse: var(--ink-inverse);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-bright: var(--accent-bright);
+  --color-accent-top: var(--accent-top);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-on-navy: var(--accent-on-navy);
   --color-accent-ink: var(--accent-ink);
   --color-focus-ring: var(--focus-ring);
+  --color-navy: var(--tc-navy);
   --color-evm-good: var(--evm-good);
   --color-evm-good-soft: var(--evm-good-soft);
   --color-evm-neutral: var(--evm-neutral);
@@ -27,6 +34,8 @@
   --color-evm-na-soft: var(--evm-na-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
   --color-white: #ffffff;
   --color-transparent: transparent;
 
@@ -38,18 +47,45 @@
   --radius-pill: var(--radius-pill);
 
   --shadow-*: initial;
+  --shadow-low: var(--shadow-low);
   --shadow-card: var(--shadow-card);
   --shadow-raised: var(--shadow-raised);
+  --shadow-focus: var(--shadow-focus);
   --shadow-glow: var(--shadow-glow);
+  --shadow-glow-brand: var(--shadow-glow-brand);
 
+  --font-heading: var(--font-heading);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 
-  --text-display: var(--text-display);
-  --text-display--line-height: 1.05;
-  --text-kpi: var(--text-kpi);
-  --text-kpi--line-height: 1;
+  /* The type scale of the design system, in the px values the handoff declares. */
+  --text-h1: var(--text-h1);
+  --text-h1--line-height: var(--leading-h1);
+  --text-h2: var(--text-h2);
+  --text-h2--line-height: var(--leading-h2);
+  --text-h3: var(--text-h3);
+  --text-h3--line-height: var(--leading-h3);
+  --text-body: var(--text-body);
+  --text-body--line-height: var(--leading-body);
+  --text-small: var(--text-small);
+  --text-caption: var(--text-caption);
+  --text-badge: var(--text-badge);
+
+  --text-figure-xl: var(--text-figure-xl);
+  --text-figure-xl--line-height: var(--leading-tight);
+  --text-figure-lg: var(--text-figure-lg);
+  --text-figure-lg--line-height: var(--leading-tight);
+  --text-figure-md: var(--text-figure-md);
+  --text-figure-md--line-height: var(--leading-tight);
+  --text-figure-sm: var(--text-figure-sm);
+  --text-figure-sm--line-height: var(--leading-tight);
+  --text-figure-xs: var(--text-figure-xs);
+  --text-figure-xs--line-height: var(--leading-tight);
 
   --tracking-tight: var(--tracking-tight);
+  --tracking-figure: var(--tracking-figure);
   --tracking-wide: var(--tracking-wide);
+  --tracking-label: var(--tracking-label);
+
+  --ease-standard: var(--ease-standard);
 }

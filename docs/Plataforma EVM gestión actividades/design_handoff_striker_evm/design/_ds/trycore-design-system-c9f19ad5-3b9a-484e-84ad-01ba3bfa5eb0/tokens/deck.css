@@ -1,0 +1,73 @@
+/* ════════════════════════════════════════════════
+   Deck · presentaciones 1920×1080
+   Capa propia, y no un ajuste de la de documentos:
+   un deck se lee solo, a distancia, y su restricción
+   dura es que NADA puede desbordar el lienzo.
+   Estos tokens SOLO aplican dentro de un lienzo de
+   deck. En interfaz y en documentos manda el sistema
+   de producto (radio máximo 6pt/6px).
+   ════════════════════════════════════════════════ */
+:root {
+  /* ── Lienzo ── */
+  --tc-deck-w:            1920px;
+  --tc-deck-h:            1080px;
+  --tc-deck-pad-x:        96px;   /* margen lateral de página */
+  --tc-deck-pad-y:        72px;
+  --tc-deck-gap:          28px;   /* separación entre teselas */
+
+  /* ── Escala. 24px es el PISO de todo: cuerpo, etiqueta,
+        pie de figura, dato de tesela. Sin excepción. ── */
+  --tc-deck-fs-min:       24px;
+  --tc-deck-fs-body:      24px;
+  --tc-deck-fs-body-lg:   28px;
+  --tc-deck-fs-overline:  24px;
+  --tc-deck-fs-tile-t:    30px;   /* título de tesela */
+  --tc-deck-fs-close:     30px;   /* línea de cierre: 28–34 */
+  --tc-deck-fs-h1:        50px;   /* titular de página: 44–56 */
+  --tc-deck-fs-cover:     76px;   /* titular de portada */
+  --tc-deck-fs-figure:    64px;   /* cifra protagonista: 48–72 */
+  --tc-deck-fs-figure-sm: 44px;   /* cifra de tesela: 40–48 */
+
+  /* ── Interlineado. Con 24px de piso, 1.4 es el límite
+        práctico en cuerpo: más aire y la página no cierra. ── */
+  --tc-deck-lh-head:      1.12; /* @kind other */
+  --tc-deck-lh-body:      1.4;  /* @kind other */
+  --tc-deck-lh-tight:     1.25; /* @kind other */
+  --tc-deck-ls-overline:  2px;
+  --tc-deck-ls-figure:    -0.03em;
+  --tc-deck-ls-head:      -0.02em;
+
+  /* ── Forma. Contradice a propósito el tope de 6px del
+        sistema: en deck el radio amplio del board 2026 es
+        el que funciona, y queda acotado a esta capa. ── */
+  --tc-deck-r-tile:       18px;   /* tesela de contenido */
+  --tc-deck-r-panel:      22px;   /* panel o contenedor grande */
+  --tc-deck-r-inner:      12px;   /* pieza interna */
+  --tc-deck-r-chip:       999px;
+
+  /* ── Elevación: una sombra, dos intensidades ── */
+  --tc-deck-shadow:       0 10px 30px rgba(11,31,92,.08);
+  --tc-deck-shadow-panel: 0 12px 34px rgba(11,31,92,.09);
+
+  /* ── Superficies. Blanco, aqua o navy.
+        Una tesela navy por página COMO MÁXIMO, y es la que
+        carga el mensaje incómodo o la cifra dura. ── */
+  --tc-deck-canvas:       #F4F7FB;
+  --tc-deck-surface:      #FFFFFF;
+  --tc-deck-aqua:         #CDF1EC;
+  --tc-deck-navy:         #0B1F5C;
+
+  /* ── Tinta ── */
+  --tc-deck-ink:          #0B1F5C;
+  --tc-deck-body:         #2E3A5C;
+  --tc-deck-muted:        #67759B;  /* overline gris-azul del encabezado */
+  --tc-deck-accent:       #007F7A;  /* teal con texto: pasa AA */
+  --tc-deck-on-navy:      #FFFFFF;  /* SIEMPRE explícito sobre navy */
+  --tc-deck-on-navy-soft: #A9C7F5;
+
+  /* ── Diagramas ── */
+  --tc-deck-track:        linear-gradient(90deg, #00CCCC, #0B1F5C); /* @kind color */
+  --tc-deck-node-stroke:  #00A19A;
+  --tc-deck-lane-bg:      #F7FBFB;
+  --tc-deck-lane-border:  #DCE7EA;
+}

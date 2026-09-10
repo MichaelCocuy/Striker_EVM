@@ -1,6 +1,8 @@
 @layer base {
   html {
     font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -9,12 +11,10 @@
     margin: 0;
     min-height: 100dvh;
     background-color: var(--canvas);
-    background-image: var(--canvas-gradient);
-    background-attachment: fixed;
-    color: var(--ink);
+    color: var(--ink-body);
     transition:
-      background-color 200ms ease,
-      color 200ms ease;
+      background-color var(--duration-slow) var(--ease-standard),
+      color var(--duration-slow) var(--ease-standard);
   }
 
   :focus-visible {
@@ -28,11 +28,35 @@
     color: var(--ink);
   }
 
+  /* Poppins carries the headings and the figures; Karla carries running text. */
   h1,
   h2,
-  h3 {
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    color: var(--ink);
     letter-spacing: var(--tracking-tight);
     text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--text-h1);
+    line-height: var(--leading-h1);
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+    line-height: var(--leading-h2);
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: var(--text-h3);
+    line-height: var(--leading-h3);
+    font-weight: 600;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -45,16 +69,22 @@
   }
 }
 
+/** Figures are always Poppins with tabular digits, so columns of numbers line up. */
 @utility numeric {
+  font-family: var(--font-heading);
   font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 700;
+  letter-spacing: var(--tracking-figure);
 }
 
+/** The small label above a card title: Poppins 700, 10px, wide tracking, teal. */
 @utility eyebrow {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: var(--text-badge);
+  font-weight: 700;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  color: var(--ink-subtle);
+  color: var(--accent);
 }
 
 @utility card {

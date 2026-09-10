@@ -1,0 +1,75 @@
+/* ════════════════════════════════════════════════
+   Trycore · Color tokens
+   Teal = acción · Navy = autoridad
+   ════════════════════════════════════════════════ */
+:root {
+  /* ── Marca ── */
+  --tc-primary:      #00A19A;   /* Teal Trycore — acento, bordes, trazos, foco, series de gráfica.
+                                   Usos NO textuales: contra blanco da 3,2:1, que cumple el 3:1 de
+                                   WCAG para componentes de interfaz y gráficos, pero NO el 4,5:1 de
+                                   texto. No lo uses como relleno bajo texto ni como color de texto. */
+  --tc-primary-strong: #007F7A; /* Teal de contacto con texto: relleno de botón bajo blanco (4,9:1) y
+                                   teal como color de texto sobre blanco. Cumple WCAG AA. */
+  --tc-primary-strong-hover: #006B67; /* Hover del relleno anterior (6,4:1) */
+  --tc-primary-top:  #06C8BE;   /* Teal claro — extremo superior del degradado */
+  --tc-navy:         #1D2751;   /* Navy — sidebar, fondos oscuros, autoridad */
+  --tc-teal:         #64C2C8;   /* Teal claro — hover/activo sobre navy */
+  --tc-blue:         #5C82F2;   /* Blue medio — H3, etiquetas secundarias */
+
+  /* ── Texto ── */
+  --tc-text-h:       #1D2751;   /* Headings H1–H6 */
+  --tc-text-b:       #424242;   /* Body */
+  --tc-text-m:       #4A5568;   /* Labels secundarios, metadata */
+  --tc-text-s:       #9CA3AF;   /* Placeholders, captions */
+
+  /* ── Superficies ── */
+  --tc-bg-canvas:    #F9F9F9;   /* App shell */
+  --tc-bg-sidebar:   #1D2751;   /* Sidebar — siempre navy */
+  --tc-bg-topbar:    #FFFFFF;
+  --tc-card:         #FFFFFF;   /* Cards — blanco puro, flotan sobre el canvas */
+  --tc-accent:       #E8F6F7;   /* Quote boxes, bloques de énfasis */
+  --tc-bg-subtle:    #F3F4F6;   /* Chips, tags, inline badges */
+
+  /* ── Bordes ── */
+  --tc-border:       #E5E7EB;   /* Separadores, cards */
+  --tc-border-s:     #D1D5DB;   /* Bordes fuertes (inputs en foco) */
+
+  /* ── Estado ── */
+  --tc-green:    #16A34A;
+  --tc-amber:    #D97706;
+  --tc-red:      #DC2626;
+  --tc-green-bg: #DFF0D8;  --tc-green-fg: #5CA340;
+  --tc-amber-bg: #FCF8E3;  --tc-amber-fg: #B89500;
+  --tc-red-bg:   #F2DEDE;  --tc-red-fg:   #A64242;
+  --tc-info-bg:  #E8F0FE;  --tc-info-fg:  #2557A7;
+
+  /* ── Logo ── */
+  --tc-logo-dark: #000F4D;   /* Elipse base del símbolo */
+  --tc-logo-cyan: #00CCC2;   /* Línea curva con nodos */
+
+  /* ── Degradado de marca (brand mark / CTA) ── */
+  --tc-grad-brand: linear-gradient(180deg, #06C8BE 0%, #00A19A 100%);   /* @kind other */
+  --tc-grad-cta:   linear-gradient(135deg, #06C8BE 0%, #009490 100%);   /* @kind other */
+  --tc-grad-sidebar: linear-gradient(175deg, #1D2751 0%, #111C42 60%, #0D1835 100%);   /* @kind other */
+}
+
+/* ── Dark mode ── */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --tc-bg-canvas:  #0D1428;
+  --tc-card:       #1A2247;
+  --tc-bg-sidebar: #111B3A;
+  --tc-bg-topbar:  #111B3A;
+  --tc-bg-subtle:  #1E2B5A;
+  --tc-border:     #243068;
+  --tc-border-s:   #2E3E80;
+  --tc-text-h:     #F5F7FF;
+  --tc-text-b:     #D6DCEF;
+  --tc-text-m:     #9BA4C7;
+  --tc-text-s:     #6B7299;
+  --tc-accent:     rgba(0,161,154,.12);
+  --tc-green-bg: rgba(92,163,64,.18);  --tc-green-fg: #86D45F;
+  --tc-amber-bg: rgba(217,185,23,.18); --tc-amber-fg: #F2D24A;
+  --tc-red-bg:   rgba(166,66,66,.22);  --tc-red-fg:   #F08585;
+  --tc-info-bg:  rgba(37,87,167,.22);  --tc-info-fg:  #7FB0FF;
+}

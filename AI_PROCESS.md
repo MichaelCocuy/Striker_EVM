@@ -171,6 +171,22 @@ esperados anotados en comentarios, recreó la base desde cero en Docker y verifi
 contra el API, comprobó la idempotencia del script y documentó el conjunto en el README y en
 `docs/EVM_GUIA.md §9`.
 
+### Prompt 10 — 2026-09-09 — Claude Code
+
+```text
+en la carpeta docs en la carpeta plataforma evm gestion actividades te deje un diseño realizado con claude design de lo que quiero implementar y como quiero que funcione la interfaz grafica, menu colores, tienes ahi los assets, asi que vamos a realizar dicha implementacion
+```
+
+**Qué hizo la IA:** leyó el *handoff* de diseño (`docs/Plataforma EVM gestión actividades`), que
+especifica el sistema Trycore (navy + teal, Poppins + Karla), seis vistas y siete
+visualizaciones, con su propio orden de implementación. Empezó por la capa que lo habilita todo
+—tokens, tema y tipografía— repuntando los nombres semánticos existentes a los valores Trycore
+para no romper ninguna utilidad, y siguió con el resto de las vistas en paralelo. La curva S
+queda fuera de esta entrega porque el propio diseño la marca como dependiente de un histórico de
+cortes que el modelo de datos no tiene.
+
+---
+
 ### Prompt 9 — 2026-09-09 — Claude Code
 
 ```text

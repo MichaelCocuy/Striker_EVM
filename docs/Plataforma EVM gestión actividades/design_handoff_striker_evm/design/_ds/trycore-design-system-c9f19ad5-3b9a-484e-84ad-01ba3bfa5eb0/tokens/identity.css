@@ -1,0 +1,72 @@
+/* ════════════════════════════════════════════════
+   Trycore · Identidad 2026 — paleta oficial
+   Fuente: board de identidad del diseñador de marca
+   (assets/samples/identidad-2026-moodboard.jpg), colores muestreados
+   pixel a pixel de la paleta que aparece en él.
+
+   AUTORIDAD. Para piezas de comunicación (web, social, newsletters,
+   celebraciones internas) esta paleta manda sobre los valores
+   aproximados de tokens/marketing.css.
+   El producto (TrySynergy) sigue con la paleta sobria de colors.css:
+   aquí no hay tokens de estado y el amarillo/violeta no entran a la app.
+
+   Cinco familias, cada una con pasos claros → medio → profundo.
+   Regla de uso: una familia domina la pieza, una segunda acompaña.
+   Nunca tres familias saturadas en la misma composición.
+   ════════════════════════════════════════════════ */
+:root {
+  /* ── Navy · azul · la familia troncal (autoridad) ── */
+  --tci-navy-950:  #000443;   /* píldora oscura del board, fondos plenos */
+  --tci-navy-900:  #011955;   /* paneles y titulares */
+  --tci-navy-700:  #144592;
+  --tci-navy-600:  #1851A0;
+  --tci-blue-500:  #5797EF;
+  --tci-blue-400:  #7CA8F3;
+  --tci-blue-300:  #9FBDF9;
+  --tci-blue-100:  #CFD8FF;
+
+  /* ── Teal · la familia de energía (acción, halos, trazos) ──
+     Los dos primeros son valores de marca fijados por el diseñador,
+     no muestreados del board: teal-600 es EL teal Trycore y teal-400
+     el teal claro de CTA. Ambos son claros, así que con texto encima
+     la tinta es navy, nunca blanca (blanco sobre #1FE0D7 da 1,65:1;
+     sobre navy #011955 da 9,7:1). */
+  --tci-teal-600:  #00CCCC;   /* Teal Trycore · trazo, nodo, acento */
+  --tci-teal-400:  #1FE0D7;   /* Teal claro CTA · relleno de botón con tinta navy */
+  --tci-teal-200:  #80FFF4;   /* Pálido · degradados y halos */
+
+  /* ── Amarillo · calidez y celebración ── */
+  --tci-yellow-600: #E5DC41;
+  --tci-yellow-400: #F0E572;
+  --tci-yellow-200: #F8EE99;
+  --tci-yellow-100: #F9F0B7;
+
+  /* ── Durazno / naranja · acento cálido de apoyo ── */
+  --tci-peach-600: #EFB065;
+  --tci-peach-400: #EFB77C;
+  --tci-peach-100: #F6E8CE;
+
+  /* ── Violeta · acento frío de apoyo ── */
+  --tci-violet-600: #6E66C9;
+  --tci-violet-400: #968DE8;
+  --tci-violet-200: #BEB9F3;
+  --tci-violet-100: #E2DEFF;
+
+  /* ── Lienzo ── */
+  --tci-canvas:    #F1F1F1;   /* gris claro del board, no blanco puro */
+  --tci-paper:     #FFFFFF;
+
+  /* ── Degradados de pieza (del board) ── */
+  --tci-grad-navy:      linear-gradient(150deg, #011955 0%, #013279 55%, #1851A0 100%);   /* @kind other */
+  --tci-grad-aqua-warm: linear-gradient(135deg, #F1F1F1 0%, #E8F6F4 40%, #CFF3EE 70%, #F9F0B7 100%);   /* @kind other */
+  --tci-grad-teal-soft: linear-gradient(120deg, #F1F1F1 0%, #D6F4F0 60%, #80FFF4 100%);   /* @kind other */
+  --tci-glow-yellow:    radial-gradient(circle at 50% 50%, rgba(248,238,153,.95) 0%, rgba(248,238,153,0) 70%);   /* @kind other */
+  --tci-glow-teal:      radial-gradient(circle at 50% 50%, rgba(128,255,244,.9) 0%, rgba(128,255,244,0) 70%);   /* @kind other */
+
+  /* ── Radios de comunicación ──
+     El board usa esquinas amplias en piezas y teselas de icono.
+     Esto aplica SOLO a comunicación; la interfaz sigue topada en 6px. */
+  --tci-r-piece: 20px;   /* tarjeta o pieza completa */
+  --tci-r-tile:  16px;   /* tesela de icono */
+  --tci-r-pill:  999px;
+}

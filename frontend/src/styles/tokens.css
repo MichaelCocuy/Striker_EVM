@@ -1,7 +1,15 @@
 /*
- * Striker EVM design tokens.
- * Raw tokens live here as CSS custom properties; Tailwind utilities are mapped
- * to them in theme.css so every component reads from one source of truth.
+ * Striker EVM design tokens — Trycore design system.
+ *
+ * Source of truth: docs/Plataforma EVM gestión actividades/design_handoff_striker_evm.
+ * Teal is action, navy is authority. Raw tokens live here; Tailwind utilities are mapped to
+ * them in theme.css, so a component never repeats a hex value.
+ *
+ * Two layers on purpose:
+ *   --tc-*    only what the semantic layer cannot express: the navy of the shell, the
+ *             three reserved gradients and the layout dimensions.
+ *   semantic  --canvas, --surface, --ink, --accent, --evm-* keep their names and point at
+ *             Trycore values, so every existing utility keeps working.
  *
  * Theme resolution order:
  *   1. data-theme="light" | "dark" on <html> (explicit user choice, see ThemeProvider)
@@ -11,150 +19,222 @@
 :root {
   color-scheme: light;
 
-  /* Surfaces */
-  --canvas: #f4f5fb;
-  --canvas-gradient:
-    radial-gradient(1200px 600px at 10% -10%, #e4e6ff 0%, transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, #dff5ee 0%, transparent 55%);
+  /* ── Shell of the application: navy is authority ── */
+  --tc-navy: #1d2751;
+
+  --tc-grad-brand: linear-gradient(180deg, #06c8be 0%, #00a19a 100%);
+  --tc-grad-cta: linear-gradient(135deg, #06c8be 0%, #009490 100%);
+  --tc-grad-sidebar: linear-gradient(175deg, #1d2751 0%, #111c42 60%, #0d1835 100%);
+  /* Reading band of the dashboard. */
+  --tc-grad-band: linear-gradient(175deg, #1d2751 0%, #111c42 100%);
+
+  /* ── Layout dimensions ── */
+  --tc-sidebar-w: 252px;
+  --tc-topbar-h: 66px;
+
+  /* ── Surfaces ──
+   * Four clearly distinct planes: 0 canvas, 1 navy sidebar, 2 white cards with sh-2,
+   * 3 white modals with sh-3. The dark sidebar is what lets the canvas be almost white.
+   */
+  --canvas: #f9f9f9;
   --surface: #ffffff;
   --surface-raised: #ffffff;
-  --surface-sunken: #eef0f7;
+  --surface-sunken: #f3f4f6;
   --surface-overlay: rgb(255 255 255 / 0.72);
-  --line: #e2e5f0;
-  --line-strong: #cbd0e2;
+  --surface-inverse: #1d2751;
+  --line: #e5e7eb;
+  --line-strong: #d1d5db;
 
-  /* Ink */
-  --ink: #0f1330;
-  --ink-muted: #4d5473;
-  --ink-subtle: #8189a6;
+  /* ── Ink ── */
+  --ink: #1d2751;
+  --ink-body: #424242;
+  --ink-muted: #4a5568;
+  --ink-subtle: #9ca3af;
   --ink-inverse: #ffffff;
 
-  /* Brand */
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-soft: #e7e6ff;
+  /* ── Accent ──
+   * Contrast rule of the system: #00A19A is 3,2:1 on white — enough for borders, strokes
+   * and markers, not for text. Anything with letters on it, or that IS the letters, uses
+   * #007F7A (4,9:1).
+   *
+   * Deviation from the handoff's token names, on purpose: `--accent` is the text-safe teal,
+   * so `bg-accent` + `text-accent-ink` and `text-accent` are AA by default and no component
+   * can fail contrast by omission. The bright teal keeps its own name for the non-text uses
+   * the system reserves it for.
+   */
+  --accent: #007f7a;
+  --accent-hover: #006b67;
+  --accent-bright: #00a19a;
+  --accent-top: #06c8be;
+  --accent-soft: #e8f6f7;
   --accent-ink: #ffffff;
-  --focus-ring: #6366f1;
+  /* Blue of the system, for secondary labels (never for the traffic light). */
+  --accent-blue: #5c82f2;
+  /* Light teal, legible only on navy: hover and active states of the sidebar. */
+  --accent-on-navy: #64c2c8;
+  --focus-ring: #007f7a;
+  --focus-ring-glow: rgb(100 194 200 / 0.35);
 
-  /* EVM traffic light: shared by cards, table and charts */
+  /* ── EVM traffic light: shared by cards, table and charts ── */
   --evm-good: #15803d;
-  --evm-good-soft: #dcfce7;
+  --evm-good-soft: #dff0d8;
   --evm-neutral: #b45309;
-  --evm-neutral-soft: #fef3c7;
-  --evm-bad: #b91c1c;
-  --evm-bad-soft: #fee2e2;
-  --evm-na: #64748b;
-  --evm-na-soft: #e6e9f0;
+  --evm-neutral-soft: #fcf8e3;
+  --evm-bad: #a64242;
+  --evm-bad-soft: #f2dede;
+  --evm-na: #4a5568;
+  --evm-na-soft: #f3f4f6;
 
-  /* Feedback */
-  --danger: #b91c1c;
-  --danger-soft: #fee2e2;
+  /* ── Feedback ── */
+  --danger: #a64242;
+  --danger-soft: #f2dede;
+  --info: #2557a7;
+  --info-soft: #e8f0fe;
 
-  /* Shape */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 26px;
+  /* ── Shape: rectangular surfaces never exceed 6px; the pill is for CTAs and chips ── */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 6px;
   --radius-pill: 999px;
 
-  /* Depth */
-  --shadow-card: 0 1px 2px rgb(15 19 48 / 0.04), 0 8px 24px -12px rgb(15 19 48 / 0.12);
-  --shadow-raised: 0 2px 6px rgb(15 19 48 / 0.06), 0 20px 40px -20px rgb(15 19 48 / 0.22);
-  --shadow-glow: 0 0 0 1px rgb(79 70 229 / 0.25), 0 12px 32px -12px rgb(79 70 229 / 0.45);
+  /* ── Depth: neutral shadows, no colour tint ── */
+  --shadow-low: rgb(0 0 0 / 0.1) 0 1px 3px, rgb(0 0 0 / 0.06) 0 1px 2px;
+  --shadow-card: 0 4px 12px rgb(0 0 0 / 0.08);
+  --shadow-raised: 0 12px 32px rgb(0 0 0 / 0.14);
+  --shadow-focus: 0 0 0 3px rgb(100 194 200 / 0.35);
+  --shadow-glow: 0 5px 16px rgb(0 161 154 / 0.42);
+  --shadow-glow-brand: 0 2px 8px rgb(0 161 154 / 0.45);
 
-  /* Typography */
-  --font-sans:
-    'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    sans-serif;
+  /* ── Typography: Poppins for headings and figures, Karla for body ── */
+  --font-heading: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Karla', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --text-display: clamp(2rem, 1.4rem + 1.6vw, 2.75rem);
-  --text-kpi: clamp(2.25rem, 1.8rem + 1.8vw, 3.25rem);
-  --tracking-tight: -0.02em;
-  --tracking-wide: 0.08em;
+
+  --text-h1: 30px;
+  --text-h2: 22px;
+  --text-h3: 17px;
+  --text-body: 15px;
+  --text-small: 13px;
+  --text-caption: 12px;
+  --text-badge: 10px;
+
+  /* Figure scale: the dominant KPI down to the tiles of the activity detail. */
+  --text-figure-xl: 30px;
+  --text-figure-lg: 28px;
+  --text-figure-md: 24px;
+  --text-figure-sm: 19px;
+  --text-figure-xs: 18px;
+
+  --leading-h1: 1.25;
+  --leading-h2: 1.3;
+  --leading-h3: 1.35;
+  --leading-body: 1.6;
+  --leading-tight: 1.2;
+
+  --tracking-tight: -0.01em;
+  --tracking-figure: -0.02em;
+  --tracking-wide: 1.1px;
+  --tracking-label: 0.55px;
+
+  /* ── Motion ── */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 0.12s;
+  --duration-base: 0.15s;
+  --duration-slow: 0.25s;
 }
 
+/*
+ * Dark theme. Values come from the design system's own `[data-theme="dark"]` block, not
+ * from a palette invented here: the sidebar stays navy, the canvas drops to #0D1428 and
+ * the traffic light keeps its four tones with lighter inks.
+ */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
 
-    --canvas: #0b0e1c;
-    --canvas-gradient:
-      radial-gradient(1200px 600px at 10% -10%, #1b1a4a 0%, transparent 60%),
-      radial-gradient(900px 500px at 110% 10%, #0f3a33 0%, transparent 55%);
-    --surface: #141830;
-    --surface-raised: #1a1f3b;
-    --surface-sunken: #0f1327;
-    --surface-overlay: rgb(20 24 48 / 0.72);
-    --line: #262c4d;
-    --line-strong: #364070;
+    --canvas: #0d1428;
+    --surface: #1a2247;
+    --surface-raised: #1a2247;
+    --surface-sunken: #1e2b5a;
+    --surface-overlay: rgb(26 34 71 / 0.72);
+    --surface-inverse: #111b3a;
+    --line: #243068;
+    --line-strong: #2e3e80;
 
-    --ink: #eef0fb;
-    --ink-muted: #a8afcf;
-    --ink-subtle: #737c9f;
-    --ink-inverse: #0f1330;
+    --ink: #f5f7ff;
+    --ink-body: #d6dcef;
+    --ink-muted: #9ba4c7;
+    --ink-subtle: #6b7299;
+    --ink-inverse: #0d1428;
 
-    --accent: #8b85ff;
-    --accent-hover: #a29dff;
-    --accent-soft: #262a5e;
-    --accent-ink: #0f1330;
-    --focus-ring: #a5b4fc;
+    --accent: #64c2c8;
+    --accent-hover: #8ad3d8;
+    --accent-bright: #06c8be;
+    --accent-soft: rgb(0 161 154 / 0.12);
+    --accent-ink: #0d1428;
+    --focus-ring: #64c2c8;
 
-    --evm-good: #4ade80;
-    --evm-good-soft: #10331f;
-    --evm-neutral: #fbbf24;
-    --evm-neutral-soft: #3a2a08;
-    --evm-bad: #f87171;
-    --evm-bad-soft: #3d1414;
-    --evm-na: #9aa3ba;
-    --evm-na-soft: #232a40;
+    --evm-good: #86d45f;
+    --evm-good-soft: rgb(92 163 64 / 0.18);
+    --evm-neutral: #f2d24a;
+    --evm-neutral-soft: rgb(217 185 23 / 0.18);
+    --evm-bad: #f08585;
+    --evm-bad-soft: rgb(166 66 66 / 0.22);
+    --evm-na: #9ba4c7;
+    --evm-na-soft: #1e2b5a;
 
-    --danger: #f87171;
-    --danger-soft: #3d1414;
+    --danger: #f08585;
+    --danger-soft: rgb(166 66 66 / 0.22);
+    --info: #7fb0ff;
+    --info-soft: rgb(37 87 167 / 0.22);
 
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px -14px rgb(0 0 0 / 0.7);
-    --shadow-raised: 0 2px 6px rgb(0 0 0 / 0.5), 0 24px 48px -20px rgb(0 0 0 / 0.8);
-    --shadow-glow: 0 0 0 1px rgb(139 133 255 / 0.35), 0 12px 32px -12px rgb(139 133 255 / 0.5);
+    --shadow-low: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-card: 0 4px 12px rgb(0 0 0 / 0.5);
+    --shadow-raised: 0 12px 32px rgb(0 0 0 / 0.6);
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --canvas: #0b0e1c;
-  --canvas-gradient:
-    radial-gradient(1200px 600px at 10% -10%, #1b1a4a 0%, transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, #0f3a33 0%, transparent 55%);
-  --surface: #141830;
-  --surface-raised: #1a1f3b;
-  --surface-sunken: #0f1327;
-  --surface-overlay: rgb(20 24 48 / 0.72);
-  --line: #262c4d;
-  --line-strong: #364070;
+  --canvas: #0d1428;
+  --surface: #1a2247;
+  --surface-raised: #1a2247;
+  --surface-sunken: #1e2b5a;
+  --surface-overlay: rgb(26 34 71 / 0.72);
+  --surface-inverse: #111b3a;
+  --line: #243068;
+  --line-strong: #2e3e80;
 
-  --ink: #eef0fb;
-  --ink-muted: #a8afcf;
-  --ink-subtle: #737c9f;
-  --ink-inverse: #0f1330;
+  --ink: #f5f7ff;
+  --ink-body: #d6dcef;
+  --ink-muted: #9ba4c7;
+  --ink-subtle: #6b7299;
+  --ink-inverse: #0d1428;
 
-  --accent: #8b85ff;
-  --accent-hover: #a29dff;
-  --accent-soft: #262a5e;
-  --accent-ink: #0f1330;
-  --focus-ring: #a5b4fc;
+  --accent: #64c2c8;
+  --accent-hover: #8ad3d8;
+  --accent-bright: #06c8be;
+  --accent-soft: rgb(0 161 154 / 0.12);
+  --accent-ink: #0d1428;
+  --focus-ring: #64c2c8;
 
-  --evm-good: #4ade80;
-  --evm-good-soft: #10331f;
-  --evm-neutral: #fbbf24;
-  --evm-neutral-soft: #3a2a08;
-  --evm-bad: #f87171;
-  --evm-bad-soft: #3d1414;
-  --evm-na: #9aa3ba;
-  --evm-na-soft: #232a40;
+  --evm-good: #86d45f;
+  --evm-good-soft: rgb(92 163 64 / 0.18);
+  --evm-neutral: #f2d24a;
+  --evm-neutral-soft: rgb(217 185 23 / 0.18);
+  --evm-bad: #f08585;
+  --evm-bad-soft: rgb(166 66 66 / 0.22);
+  --evm-na: #9ba4c7;
+  --evm-na-soft: #1e2b5a;
 
-  --danger: #f87171;
-  --danger-soft: #3d1414;
+  --danger: #f08585;
+  --danger-soft: rgb(166 66 66 / 0.22);
+  --info: #7fb0ff;
+  --info-soft: rgb(37 87 167 / 0.22);
 
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px -14px rgb(0 0 0 / 0.7);
-  --shadow-raised: 0 2px 6px rgb(0 0 0 / 0.5), 0 24px 48px -20px rgb(0 0 0 / 0.8);
-  --shadow-glow: 0 0 0 1px rgb(139 133 255 / 0.35), 0 12px 32px -12px rgb(139 133 255 / 0.5);
+  --shadow-low: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-card: 0 4px 12px rgb(0 0 0 / 0.5);
+  --shadow-raised: 0 12px 32px rgb(0 0 0 / 0.6);
 }

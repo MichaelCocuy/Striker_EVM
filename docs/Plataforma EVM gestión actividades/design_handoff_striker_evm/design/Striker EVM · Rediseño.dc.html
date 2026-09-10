@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/trycore-design-system-c9f19ad5-3b9a-484e-84ad-01ba3bfa5eb0/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/trycore-design-system-c9f19ad5-3b9a-484e-84ad-01ba3bfa5eb0/tokens/colors.css">
+<link rel="stylesheet" href="_ds/trycore-design-system-c9f19ad5-3b9a-484e-84ad-01ba3bfa5eb0/tokens/identity.css">
+<link rel="stylesheet" href="_ds/trycore-design-system-c9f19ad5-3b9a-484e-84ad-01ba3bfa5eb0/tokens/typography.css">
+<link rel="stylesheet" href="_ds/trycore-design-system-c9f19ad5-3b9a-484e-84ad-01ba3bfa5eb0/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/trycore-design-system-c9f19ad5-3b9a-484e-84ad-01ba3bfa5eb0/tokens/effects.css">
+<link rel="stylesheet" href="_ds/trycore-design-system-c9f19ad5-3b9a-484e-84ad-01ba3bfa5eb0/tokens/base.css">
+<link rel="stylesheet" href="_ds/trycore-design-system-c9f19ad5-3b9a-484e-84ad-01ba3bfa5eb0/styles.css">
+<script src="_ds/trycore-design-system-c9f19ad5-3b9a-484e-84ad-01ba3bfa5eb0/_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: #F9F9F9; }
+  a { color: #007F7A; text-decoration: none; }
+  a:hover { color: #006B67; }
+  @keyframes striker-draw { from { stroke-dashoffset: 1400; } to { stroke-dashoffset: 0; } }
+  @keyframes striker-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+
+<div style="font-family: Karla, 'Helvetica Neue', Arial, sans-serif; color: #424242; background: #F9F9F9; min-height: 100vh; -webkit-font-smoothing: antialiased;">
+
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+    <div style="display: grid; grid-template-columns: minmax(0, 1fr); min-height: 100vh; background: linear-gradient(175deg, #1D2751 0%, #111C42 60%, #0D1835 100%);">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); align-items: center; gap: 48px; padding: 56px 48px; max-width: 1180px; margin: 0 auto; width: 100%; box-sizing: border-box;">
+        <div style="display: flex; flex-direction: column; gap: 28px; position: relative;">
+          <svg viewBox="0 0 420 420" style="position: absolute; left: -110px; top: -70px; width: 420px; height: 420px; opacity: .5; pointer-events: none;" aria-hidden="true">
+            <circle cx="210" cy="210" r="196" fill="none" stroke="rgba(100,194,200,.18)" stroke-width="1"></circle>
+            <circle cx="210" cy="210" r="152" fill="none" stroke="rgba(100,194,200,.14)" stroke-width="1" stroke-dasharray="3 6"></circle>
+            <circle cx="210" cy="210" r="108" fill="none" stroke="rgba(100,194,200,.12)" stroke-width="1"></circle>
+            <circle cx="406" cy="210" r="5" fill="#00CCC2"></circle>
+            <circle cx="210" cy="58" r="4" fill="#64C2C8"></circle>
+          </svg>
+          <div style="position: relative; display: flex; align-items: center; gap: 12px;">
+            <span style="display: grid; place-items: center; width: 40px; height: 40px; border-radius: 6px; background: linear-gradient(180deg, #06C8BE 0%, #00A19A 100%); box-shadow: 0 2px 8px rgba(0,161,154,.45); padding: 7px; box-sizing: border-box;">
+              <img src="assets/symbol-trycore.svg" alt="" style="width: 100%; height: 100%; filter: brightness(0) invert(1);">
+            </span>
+            <span style="font-family: Poppins, sans-serif; font-weight: 700; font-size: 15px; color: #FFFFFF; letter-spacing: -0.01em;">Striker EVM</span>
+            <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: rgba(100,194,200,.75); border-left: 1px solid rgba(255,255,255,.18); padding-left: 12px; text-transform: none; letter-spacing: 0; font-size: 13px;">trycore</span>
+          </div>
+          <h1 style="position: relative; margin: 0; font-family: Poppins, sans-serif; font-weight: 700; font-size: 44px; line-height: 1.12; letter-spacing: -0.02em; color: #FFFFFF; max-width: 15ch;">¿Sabes hoy si el proyecto va bien, o solo cuánto llevas gastado?</h1>
+          <p style="position: relative; margin: 0; font-family: Poppins, sans-serif; font-weight: 400; font-size: 17px; line-height: 1.5; color: rgba(255,255,255,.72); max-width: 44ch;">Valor ganado calculado sobre lo que registran tus líderes. Costo y cronograma en la misma lectura, sin hojas de cálculo intermedias.</p>
+          <div style="position: relative; display: flex; flex-wrap: wrap; gap: 10px;">
+            <span style="font-family: Poppins, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: #011955; background: #1FE0D7; border-radius: 999px; padding: 7px 14px;">PMI · Earned Value</span>
+            <span style="font-family: Poppins, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,.8); border: 1.5px solid rgba(255,255,255,.35); border-radius: 999px; padding: 7px 14px;">CPI · SPI · EAC · VAC</span>
+          </div>
+        </div>
+
+        <div style="background: #FFFFFF; border-radius: 6px; box-shadow: 0 12px 32px rgba(0,0,0,.14); padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Acceso</span>
+            <h2 style="margin: 0; font-family: Poppins, sans-serif; font-size: 22px; font-weight: 700; color: #1D2751; letter-spacing: -0.01em;">Inicia sesión</h2>
+          </div>
+          <label style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-family: Poppins, sans-serif; font-size: 12px; font-weight: 600; color: #4A5568;">Correo electrónico</span>
+            <input type="email" value="revisor@striker.local" style="font-family: Karla, sans-serif; font-size: 15px; color: #424242; background: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 4px; padding: 10px 12px;" style-focus="border-color: #00A19A; box-shadow: 0 0 0 3px rgba(100,194,200,.35); outline: none;">
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-family: Poppins, sans-serif; font-size: 12px; font-weight: 600; color: #4A5568;">Contraseña</span>
+            <input type="password" value="Striker2026!" style="font-family: Karla, sans-serif; font-size: 15px; color: #424242; background: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 4px; padding: 10px 12px;" style-focus="border-color: #00A19A; box-shadow: 0 0 0 3px rgba(100,194,200,.35); outline: none;">
+          </label>
+          <button onClick="{{ loginReviewer }}" style="border: 0; border-radius: 999px; background: linear-gradient(135deg, #06C8BE 0%, #009490 100%); color: #FFFFFF; font-family: Poppins, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 13px 20px; cursor: pointer;" style-hover="box-shadow: 0 5px 16px rgba(0,161,154,.42);">Entrar como revisor</button>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="flex: 1; height: 1px; background: #E5E7EB;"></span>
+            <span style="font-family: Karla, sans-serif; font-size: 12px; color: #9CA3AF;">o</span>
+            <span style="flex: 1; height: 1px; background: #E5E7EB;"></span>
+          </div>
+          <button onClick="{{ loginRegistrar }}" style="border: 1.5px solid #1D2751; border-radius: 999px; background: transparent; color: #1D2751; font-family: Poppins, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 12px 20px; cursor: pointer;" style-hover="background: #E8F6F7;">Entrar como registrador</button>
+          <p style="margin: 0; font-family: Karla, sans-serif; font-size: 12px; color: #9CA3AF; line-height: 1.5;">Entorno de demostración · revisor@striker.local · registrador@striker.local · contraseña Striker2026!</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; min-height: 100vh; align-items: stretch;">
+
+      <aside style="width: 252px; flex-shrink: 0; background: linear-gradient(175deg, #1D2751 0%, #111C42 60%, #0D1835 100%); box-shadow: 4px 0 20px rgba(0,0,0,.25); display: flex; flex-direction: column;">
+        <div style="padding: 17px 18px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(100,194,200,.15);">
+          <div style="width: 34px; height: 34px; border-radius: 6px; background: linear-gradient(180deg, #06C8BE 0%, #00A19A 100%); box-shadow: 0 2px 8px rgba(0,161,154,.45); display: grid; place-items: center; flex-shrink: 0; padding: 6px; box-sizing: border-box;">
+            <img src="assets/symbol-trycore.svg" alt="" style="width: 100%; height: 100%; filter: brightness(0) invert(1);">
+          </div>
+          <div>
+            <div style="font-family: Poppins, sans-serif; font-weight: 700; font-size: 14px; color: #fff; line-height: 1.2;">Striker EVM</div>
+            <div style="font-size: 10px; color: rgba(255,255,255,.5); letter-spacing: .5px; text-transform: uppercase; margin-top: 2px;">Valor ganado</div>
+          </div>
+        </div>
+
+        <div style="flex: 1; padding-bottom: 12px;">
+          <nav>
+            <div style="font-family: Poppins, sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 1.1px; color: rgba(100,194,200,.5); padding: 14px 16px 4px; font-weight: 600;">Seguimiento</div>
+            <a href="#" onClick="{{ goPortfolio }}" style="display: flex; align-items: center; gap: 9px; padding: 8px 10px; margin: 1px 8px; font-size: 14px; border-radius: 4px; background: {{ navPortfolioBg }}; color: {{ navPortfolioInk }}; box-shadow: {{ navPortfolioRing }};">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
+              Portafolio
+            </a>
+            <a href="#" onClick="{{ goDashboard }}" style="display: flex; align-items: center; gap: 9px; padding: 8px 10px; margin: 1px 8px; font-size: 14px; border-radius: 4px; background: {{ navDashboardBg }}; color: {{ navDashboardInk }}; box-shadow: {{ navDashboardRing }};">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+              Tablero del proyecto
+            </a>
+          </nav>
+          <nav>
+            <div style="font-family: Poppins, sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 1.1px; color: rgba(100,194,200,.5); padding: 14px 16px 4px; font-weight: 600;">Mi trabajo</div>
+            <a href="#" onClick="{{ goMine }}" style="display: flex; align-items: center; gap: 9px; padding: 8px 10px; margin: 1px 8px; font-size: 14px; border-radius: 4px; background: {{ navMineBg }}; color: {{ navMineInk }}; box-shadow: {{ navMineRing }};">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+              Mis actividades
+            </a>
+            <a href="#" onClick="{{ openRegister }}" style="display: flex; align-items: center; gap: 9px; padding: 8px 10px; margin: 1px 8px; font-size: 14px; border-radius: 4px; background: transparent; color: rgba(255,255,255,.68);" style-hover="background: rgba(255,255,255,.09); color: #fff;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+              Registrar avance
+            </a>
+          </nav>
+        </div>
+
+        <div style="margin: 0 8px 12px; padding: 12px; border-radius: 4px; background: rgba(100,194,200,.1); border: 1px solid rgba(100,194,200,.18);">
+          <div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #7FDCD8;">Fecha de corte</div>
+          <div style="font-family: Poppins, sans-serif; font-size: 15px; font-weight: 600; color: #fff; margin-top: 4px;">30 Sep 2026</div>
+          <div style="font-size: 11px; color: rgba(255,255,255,.5); margin-top: 2px;">Periodo 5 de 8</div>
+        </div>
+        <div style="padding: 12px 18px; border-top: 1px solid rgba(255,255,255,.08); font-size: 11px; color: rgba(255,255,255,.32);">Trycore S.A.S. · Striker EVM</div>
+      </aside>
+
+      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+        <header style="background: linear-gradient(90deg, rgba(0,161,154,.055) 0%, #FFFFFF 38%); border-bottom: 1px solid #E5E7EB; border-top: 3px solid #00A19A; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 26px; box-shadow: 0 4px 12px rgba(0,0,0,.08);">
+          <div style="min-width: 0; flex: 0 1 auto; overflow: hidden;">
+            <div style="font-size: 11px; color: #9CA3AF; text-transform: uppercase; letter-spacing: .7px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ crumb }}</div>
+            <h2 style="font-family: Poppins, sans-serif; font-size: 19px; margin: 0; font-weight: 700; letter-spacing: -0.02em; color: #1D2751; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ pageTitle }}</h2>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; flex: 1 1 auto; min-width: 0; justify-content: flex-end;">
+            <div style="display: flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 4px; padding: 7px 12px; flex: 1 1 0; min-width: 0; max-width: 220px; overflow: hidden;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9CA3AF" stroke-width="1.6" stroke-linecap="round" style="flex-shrink: 0;"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+              <input placeholder="Buscar…" style="border: 0; outline: 0; background: transparent; font-size: 13px; font-family: Karla, sans-serif; color: #424242; width: 100%; min-width: 0;">
+            </div>
+            <button style="width: 36px; height: 36px; border-radius: 4px; border: 0; background: transparent; color: #4A5568; display: grid; place-items: center; cursor: pointer;" style-hover="background: #F3F4F6; color: #1D2751;" aria-label="Alertas">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+            </button>
+            <div style="display: flex; align-items: center; gap: 10px; padding: 5px 12px 5px 5px; border: 1px solid #E5E7EB; border-radius: 999px; background: #FFFFFF; flex-shrink: 0;">
+              <span style="display: grid; place-items: center; width: 30px; height: 30px; border-radius: 999px; background: #E8F6F7; color: #007F7A; font-family: Poppins, sans-serif; font-size: 12px; font-weight: 700;">{{ userInitials }}</span>
+              <div>
+                <div style="font-family: Poppins, sans-serif; font-weight: 600; font-size: 13px; color: #1D2751; line-height: 1.15;">{{ userName }}</div>
+                <div style="font-size: 11px; color: #4A5568;">{{ roleLabel }}</div>
+              </div>
+            </div>
+            <button onClick="{{ goLogin }}" style="border: 0; background: transparent; font-family: Poppins, sans-serif; font-size: 12px; font-weight: 600; color: #4A5568; cursor: pointer; padding: 8px; flex-shrink: 0;" style-hover="color: #1D2751;">Salir</button>
+          </div>
+        </header>
+
+        <main style="flex: 1; padding: 24px 26px 40px; display: flex; flex-direction: column; gap: 18px; min-width: 0;">
+
+          <sc-if value="{{ isPortfolio }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 18px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: rgba(0,0,0,.1) 0px 1px 3px, rgba(0,0,0,.06) 0px 1px 2px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Presupuesto total</span>
+                  <span style="font-family: Poppins, sans-serif; font-size: 28px; font-weight: 700; color: #1D2751; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;">313.000</span>
+                  <span style="font-size: 12px; color: #9CA3AF;">BAC sumado · 7 proyectos con actividades</span>
+                </div>
+                <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: rgba(0,0,0,.1) 0px 1px 3px, rgba(0,0,0,.06) 0px 1px 2px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Valor ganado</span>
+                  <span style="font-family: Poppins, sans-serif; font-size: 28px; font-weight: 700; color: #1D2751; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;">165.750</span>
+                  <span style="font-size: 12px; color: #9CA3AF;">EV consolidado a la fecha de corte</span>
+                </div>
+                <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: rgba(0,0,0,.1) 0px 1px 3px, rgba(0,0,0,.06) 0px 1px 2px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Proyectos en rojo</span>
+                  <span style="font-family: Poppins, sans-serif; font-size: 28px; font-weight: 700; color: #A64242; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;">3</span>
+                  <span style="font-size: 12px; color: #9CA3AF;">Sobre presupuesto o atrasados</span>
+                </div>
+                <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: rgba(0,0,0,.1) 0px 1px 3px, rgba(0,0,0,.06) 0px 1px 2px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Desviación proyectada</span>
+                  <span style="font-family: Poppins, sans-serif; font-size: 28px; font-weight: 700; color: #15803D; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;">+9.973</span>
+                  <span style="font-size: 12px; color: #9CA3AF;">VAC sumado · dominado por un solo proyecto</span>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 14px; align-items: start;">
+                <section style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.08); padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                  <header style="display: flex; flex-direction: column; gap: 3px;">
+                    <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Cuadrante</span>
+                    <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 17px; font-weight: 600; color: #1D2751; letter-spacing: -0.01em;">CPI frente a SPI, proyecto por proyecto</h3>
+                    <p style="margin: 0; font-size: 13px; color: #424242; line-height: 1.5;">El tamaño de la burbuja es el presupuesto. Arriba a la derecha es barato y a tiempo; abajo a la izquierda, caro y atrasado.</p>
+                  </header>
+                  <svg viewBox="0 0 460 360" style="width: 100%; height: auto;" role="img" aria-label="Dispersión de CPI contra SPI por proyecto">
+                    <rect x="60" y="30" width="380" height="140" fill="#DFF0D8" opacity=".35"></rect>
+                    <rect x="60" y="170" width="380" height="140" fill="#F2DEDE" opacity=".28"></rect>
+                    <line x1="60" y1="30" x2="60" y2="310" stroke="#E5E7EB" stroke-width="1"></line>
+                    <line x1="60" y1="310" x2="440" y2="310" stroke="#E5E7EB" stroke-width="1"></line>
+                    <line x1="60" y1="170" x2="440" y2="170" stroke="#1D2751" stroke-width="1" stroke-dasharray="4 4"></line>
+                    <line x1="212" y1="30" x2="212" y2="310" stroke="#1D2751" stroke-width="1" stroke-dasharray="4 4"></line>
+                    <text x="434" y="302" text-anchor="end" font-family="Poppins" font-size="10" font-weight="700" letter-spacing="1" fill="#A64242">CARO</text>
+                    <text x="434" y="46" text-anchor="end" font-family="Poppins" font-size="10" font-weight="700" letter-spacing="1" fill="#15803D">BARATO</text>
+                    <text x="216" y="26" font-family="Karla" font-size="11" fill="#9CA3AF">SPI 1,0</text>
+                    <text x="66" y="165" font-family="Karla" font-size="11" fill="#9CA3AF">CPI 1,0</text>
+                    <text x="250" y="338" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="600" fill="#4A5568">SPI · cronograma</text>
+                    <text x="20" y="175" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="600" fill="#4A5568" transform="rotate(-90 20 175)">CPI · costo</text>
+                    <circle cx="212" cy="170" r="10" fill="#FFFFFF"></circle>
+                    <circle cx="212" cy="188" r="10" fill="#FFFFFF"></circle>
+                    <circle cx="190" cy="184" r="11" fill="rgba(166,66,66,.2)" stroke="#A64242" stroke-width="1.5"></circle>
+                    <text x="190" y="188" text-anchor="middle" font-family="Poppins" font-size="9" font-weight="700" fill="#A64242">01</text>
+                    <circle cx="238" cy="142" r="9" fill="rgba(21,128,61,.18)" stroke="#15803D" stroke-width="1.5"></circle>
+                    <text x="238" y="146" text-anchor="middle" font-family="Poppins" font-size="9" font-weight="700" fill="#15803D">02</text>
+                    <circle cx="282" cy="209" r="10" fill="rgba(166,66,66,.2)" stroke="#A64242" stroke-width="1.5"></circle>
+                    <text x="282" y="213" text-anchor="middle" font-family="Poppins" font-size="9" font-weight="700" fill="#A64242">03</text>
+                    <circle cx="151" cy="133" r="8" fill="rgba(180,83,9,.18)" stroke="#B45309" stroke-width="1.5"></circle>
+                    <text x="151" y="137" text-anchor="middle" font-family="Poppins" font-size="9" font-weight="700" fill="#B45309">04</text>
+                    <circle cx="212" cy="170" r="9" fill="rgba(0,161,154,.2)" stroke="#007F7A" stroke-width="1.5"></circle>
+                    <text x="212" y="174" text-anchor="middle" font-family="Poppins" font-size="9" font-weight="700" fill="#007F7A">05</text>
+                    <circle cx="72" cy="44" r="9" fill="rgba(180,83,9,.18)" stroke="#B45309" stroke-width="1.5" stroke-dasharray="3 3"></circle>
+                    <text x="72" y="48" text-anchor="middle" font-family="Poppins" font-size="9" font-weight="700" fill="#B45309">06</text>
+                    <circle cx="212" cy="188" r="10" fill="rgba(166,66,66,.2)" stroke="#A64242" stroke-width="1.5"></circle>
+                    <text x="212" y="192" text-anchor="middle" font-family="Poppins" font-size="9" font-weight="700" fill="#A64242">07</text>
+                  </svg>
+                  <p style="margin: 0; font-size: 12px; color: #9CA3AF; line-height: 1.5;">Banda verde: CPI sobre 1,0, el trabajo cuesta menos de lo presupuestado; banda roja, lo contrario. A la derecha de la línea punteada el proyecto va adelantado. El número corresponde al listado de la derecha.</p>
+                  <p style="margin: 0; font-size: 12px; color: #9CA3AF; line-height: 1.5;">06 · App móvil de campo va con borde punteado: su CPI de 1,81 sale alto porque casi no tiene costos cargados, no porque vaya bien.</p>
+                </section>
+
+                <section style="display: flex; flex-direction: column; gap: 12px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                    <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 17px; font-weight: 600; color: #1D2751; letter-spacing: -0.01em;">8 proyectos</h3>
+                    <button style="border: 0; border-radius: 999px; background: linear-gradient(135deg, #06C8BE 0%, #009490 100%); color: #FFFFFF; font-family: Poppins, sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 10px 18px; cursor: pointer;" style-hover="box-shadow: 0 5px 16px rgba(0,161,154,.42);">Nuevo proyecto</button>
+                  </div>
+                  <sc-for list="{{ portfolio }}" as="p" hint-placeholder-count="8">
+                    <article onClick="{{ goDashboard }}" style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: rgba(0,0,0,.1) 0px 1px 3px, rgba(0,0,0,.06) 0px 1px 2px; padding: 14px 16px; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 14px; align-items: center; cursor: pointer;" style-hover="box-shadow: 0 4px 12px rgba(0,0,0,.08); transform: translateY(-1px);">
+                      <span style="font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; color: #9CA3AF; text-align: right;">{{ p.n }}</span>
+                      <div style="min-width: 0; display: flex; flex-direction: column; gap: 5px;">
+                        <span style="font-family: Poppins, sans-serif; font-size: 14.5px; font-weight: 600; color: #1D2751;">{{ p.name }}</span>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                          <span style="font-family: Poppins, sans-serif; font-size: 10.5px; font-weight: 600; letter-spacing: .4px; border-radius: 999px; padding: 3px 9px; background: {{ p.costSoft }}; color: {{ p.costInk }};">{{ p.costLabel }}</span>
+                          <span style="font-family: Poppins, sans-serif; font-size: 10.5px; font-weight: 600; letter-spacing: .4px; border-radius: 999px; padding: 3px 9px; background: {{ p.schedSoft }}; color: {{ p.schedInk }};">{{ p.schedLabel }}</span>
+                          <span style="font-size: 11px; color: #9CA3AF; padding: 3px 0;">{{ p.count }}</span>
+                        </div>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="text-align: right;">
+                          <div style="font-size: 10px; font-family: Poppins, sans-serif; font-weight: 700; letter-spacing: 1px; color: #9CA3AF;">CPI</div>
+                          <div style="font-family: Poppins, sans-serif; font-size: 16px; font-weight: 700; color: {{ p.costInk }}; font-variant-numeric: tabular-nums;">{{ p.cpi }}</div>
+                        </div>
+                        <div style="text-align: right;">
+                          <div style="font-size: 10px; font-family: Poppins, sans-serif; font-weight: 700; letter-spacing: 1px; color: #9CA3AF;">SPI</div>
+                          <div style="font-family: Poppins, sans-serif; font-size: 16px; font-weight: 700; color: {{ p.schedInk }}; font-variant-numeric: tabular-nums;">{{ p.spi }}</div>
+                        </div>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#9CA3AF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                      </div>
+                    </article>
+                  </sc-for>
+                </section>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+
+              <div style="background: linear-gradient(175deg, #1D2751 0%, #111C42 100%); border-radius: 6px; padding: 20px 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 20px; align-items: center; position: relative; overflow: hidden;">
+                <svg viewBox="0 0 300 300" style="position: absolute; right: -60px; top: -90px; width: 300px; height: 300px; opacity: .35;" aria-hidden="true">
+                  <circle cx="150" cy="150" r="140" fill="none" stroke="rgba(100,194,200,.25)" stroke-width="1"></circle>
+                  <circle cx="150" cy="150" r="100" fill="none" stroke="rgba(100,194,200,.18)" stroke-width="1" stroke-dasharray="3 6"></circle>
+                  <circle cx="290" cy="150" r="4" fill="#00CCC2"></circle>
+                </svg>
+                <div style="position: relative; display: flex; flex-direction: column; gap: 8px;">
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #7FDCD8;">Lectura del corte</span>
+                  <p style="margin: 0; font-family: Poppins, sans-serif; font-size: 21px; font-weight: 600; line-height: 1.3; color: #FFFFFF; letter-spacing: -0.01em;">Gasta más de lo que avanza, y el atraso es lo que empuja el sobrecosto.</p>
+                  <p style="margin: 0; font-size: 13px; line-height: 1.55; color: rgba(255,255,255,.68);">Desarrollo concentra el 100 % de la desviación: sin esa actividad el proyecto cerraría bajo presupuesto.</p>
+                </div>
+                <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                  <svg viewBox="0 0 200 118" style="width: 100%; max-width: 190px;" aria-hidden="true">
+                    <path d="M 14 108 A 86 86 0 0 1 186 108" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="10" stroke-linecap="round"></path>
+                    <path d="M 14 108 A 86 86 0 0 1 186 108" fill="none" stroke="#F08585" stroke-width="10" stroke-linecap="round" pathLength="1" stroke-dasharray="0.4603 1"></path>
+                    <line x1="100" y1="30" x2="100" y2="16" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round"></line>
+                    <text x="100" y="12" text-anchor="middle" font-family="Karla" font-size="9" fill="rgba(255,255,255,.55)">1,0</text>
+                    <text x="100" y="100" text-anchor="middle" font-family="Poppins" font-size="30" font-weight="700" fill="#FFFFFF" letter-spacing="-1">0,9206</text>
+                  </svg>
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #7FDCD8;">CPI · sobre presupuesto</span>
+                </div>
+                <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                  <svg viewBox="0 0 200 118" style="width: 100%; max-width: 190px;" aria-hidden="true">
+                    <path d="M 14 108 A 86 86 0 0 1 186 108" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="10" stroke-linecap="round"></path>
+                    <path d="M 14 108 A 86 86 0 0 1 186 108" fill="none" stroke="#F08585" stroke-width="10" stroke-linecap="round" pathLength="1" stroke-dasharray="0.4532 1"></path>
+                    <line x1="100" y1="30" x2="100" y2="16" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round"></line>
+                    <text x="100" y="12" text-anchor="middle" font-family="Karla" font-size="9" fill="rgba(255,255,255,.55)">1,0</text>
+                    <text x="100" y="100" text-anchor="middle" font-family="Poppins" font-size="30" font-weight="700" fill="#FFFFFF" letter-spacing="-1">0,9063</text>
+                  </svg>
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #7FDCD8;">SPI · atrasado</span>
+                </div>
+                <div style="position: relative; display: flex; flex-direction: column; gap: 10px; border-left: 1px solid rgba(255,255,255,.14); padding-left: 20px;">
+                  <div>
+                    <div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: rgba(255,255,255,.5);">EAC · costo al terminar</div>
+                    <div style="font-family: Poppins, sans-serif; font-size: 24px; font-weight: 700; color: #FFFFFF; font-variant-numeric: tabular-nums; letter-spacing: -0.02em;">65.172,41</div>
+                  </div>
+                  <div>
+                    <div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: rgba(255,255,255,.5);">VAC · desviación al cierre</div>
+                    <div style="font-family: Poppins, sans-serif; font-size: 24px; font-weight: 700; color: #F08585; font-variant-numeric: tabular-nums; letter-spacing: -0.02em;">−5.172,41</div>
+                  </div>
+                </div>
+              </div>
+
+              <section style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.08); padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                <header style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                  <div style="display: flex; flex-direction: column; gap: 3px;">
+                    <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Curva S acumulada</span>
+                    <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 17px; font-weight: 600; color: #1D2751; letter-spacing: -0.01em;">Plan, avance y gasto a lo largo del proyecto</h3>
+                    <p style="margin: 0; font-size: 13px; color: #424242; line-height: 1.5;">Las tres curvas empiezan juntas y se separan en el periodo 3. Desde el corte, la proyección extiende el gasto al ritmo actual.</p>
+                  </div>
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #B45309; background: #FCF8E3; border-radius: 999px; padding: 5px 11px;">Propuesta · requiere histórico de cortes</span>
+                </header>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px 20px;">
+                  <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #4A5568;"><span style="width: 16px; height: 3px; border-radius: 2px; background: #4A5568;"></span>Valor planificado (PV)</span>
+                  <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #4A5568;"><span style="width: 16px; height: 3px; border-radius: 2px; background: #00A19A;"></span>Valor ganado (EV)</span>
+                  <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #4A5568;"><span style="width: 16px; height: 3px; border-radius: 2px; background: #B45309;"></span>Costo real (AC)</span>
+                  <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #4A5568;"><span style="width: 16px; height: 3px; border-radius: 2px; background: repeating-linear-gradient(90deg, #A64242 0 5px, transparent 5px 9px);"></span>Proyección al cierre (EAC)</span>
+                </div>
+                <svg viewBox="0 0 740 300" style="width: 100%; height: auto;" role="img" aria-label="Curva S acumulada de PV, EV y AC con proyección al cierre">
+                  <line x1="56" y1="250" x2="716" y2="250" stroke="#E5E7EB"></line>
+                  <line x1="56" y1="187.1" x2="716" y2="187.1" stroke="#F3F4F6"></line>
+                  <line x1="56" y1="124.3" x2="716" y2="124.3" stroke="#F3F4F6"></line>
+                  <line x1="56" y1="61.4" x2="716" y2="61.4" stroke="#F3F4F6"></line>
+                  <text x="48" y="254" text-anchor="end" font-family="Karla" font-size="11" fill="#9CA3AF">0</text>
+                  <text x="48" y="191" text-anchor="end" font-family="Karla" font-size="11" fill="#9CA3AF">20 mil</text>
+                  <text x="48" y="128" text-anchor="end" font-family="Karla" font-size="11" fill="#9CA3AF">40 mil</text>
+                  <text x="48" y="65" text-anchor="end" font-family="Karla" font-size="11" fill="#9CA3AF">60 mil</text>
+                  <line x1="56" y1="61.4" x2="716" y2="61.4" stroke="#1D2751" stroke-width="1" stroke-dasharray="2 5"></line>
+                  <text x="240" y="55" font-family="Poppins" font-size="10" font-weight="700" letter-spacing=".8" fill="#1D2751">BAC 60.000</text>
+
+                  <sc-if value="{{ showForecast }}" hint-placeholder-val="{{ true }}">
+                    <g>
+                      <path d="M 424 151 L 516 108 L 608 68 L 700 33.1 L 700 55.1 L 608 88 L 516 118 L 424 151 Z" fill="rgba(166,66,66,.12)"></path>
+                      <path d="M 424 151 L 516 113.3 L 608 77.8 L 700 45.2" fill="none" stroke="#A64242" stroke-width="2.5" stroke-dasharray="6 5" stroke-linecap="round"></path>
+                      <circle cx="700" cy="45.2" r="4" fill="#A64242"></circle>
+                      <text x="694" y="34" text-anchor="end" font-family="Poppins" font-size="11" font-weight="700" fill="#A64242">EAC 65.172</text>
+                    </g>
+                  </sc-if>
+
+                  <rect x="424" y="30" width="292" height="220" fill="rgba(29,39,81,.03)"></rect>
+                  <line x1="424" y1="30" x2="424" y2="258" stroke="#1D2751" stroke-width="1.5"></line>
+                  <text x="430" y="42" font-family="Poppins" font-size="10" font-weight="700" letter-spacing="1" fill="#1D2751">CORTE · PERIODO 5</text>
+
+                  <path d="M 56 240.6 L 148 221.7 L 240 193.4 L 332 168.3 L 424 149.4 L 516 114.9 L 608 83.4 L 700 61.4" fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1400" style="animation: striker-draw 1.1s cubic-bezier(.4,0,.2,1) forwards;"></path>
+                  <path d="M 56 240.6 L 148 220.1 L 240 196.6 L 332 173 L 424 151" fill="none" stroke="#B45309" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1400" style="animation: striker-draw 1.1s cubic-bezier(.4,0,.2,1) .1s forwards;"></path>
+                  <path d="M 56 242.1 L 148 224.9 L 240 202.9 L 332 180.9 L 424 158.9" fill="none" stroke="#00A19A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1400" style="animation: striker-draw 1.1s cubic-bezier(.4,0,.2,1) .2s forwards;"></path>
+
+                  <circle cx="424" cy="149.4" r="4" fill="#4A5568"></circle>
+                  <circle cx="424" cy="151" r="4" fill="#B45309"></circle>
+                  <circle cx="424" cy="158.9" r="5" fill="#00A19A" stroke="#FFFFFF" stroke-width="2"></circle>
+
+                  <text x="56" y="272" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">May</text>
+                  <text x="148" y="272" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">Jun</text>
+                  <text x="240" y="272" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">Jul</text>
+                  <text x="332" y="272" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">Ago</text>
+                  <text x="424" y="272" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="700" fill="#1D2751">Sep</text>
+                  <text x="516" y="272" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">Oct</text>
+                  <text x="608" y="272" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">Nov</text>
+                  <text x="700" y="272" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">Dic</text>
+                </svg>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; border-top: 1px solid #E5E7EB; padding-top: 14px;">
+                  <div><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">PV al corte</div><div style="font-family: Poppins, sans-serif; font-size: 19px; font-weight: 700; color: #1D2751; font-variant-numeric: tabular-nums;">32.000,00</div></div>
+                  <div><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">EV al corte</div><div style="font-family: Poppins, sans-serif; font-size: 19px; font-weight: 700; color: #1D2751; font-variant-numeric: tabular-nums;">29.000,00</div></div>
+                  <div><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">AC al corte</div><div style="font-family: Poppins, sans-serif; font-size: 19px; font-weight: 700; color: #1D2751; font-variant-numeric: tabular-nums;">31.500,00</div></div>
+                  <div><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">BAC</div><div style="font-family: Poppins, sans-serif; font-size: 19px; font-weight: 700; color: #1D2751; font-variant-numeric: tabular-nums;">60.000,00</div></div>
+                </div>
+              </section>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; align-items: start;">
+
+                <section style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.08); padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                  <header style="display: flex; flex-direction: column; gap: 3px;">
+                    <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Puente de varianzas</span>
+                    <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 17px; font-weight: 600; color: #1D2751; letter-spacing: -0.01em;">De lo planificado a lo gastado</h3>
+                    <p style="margin: 0; font-size: 13px; color: #424242; line-height: 1.5;">Dos saltos separan el plan del gasto: lo que no se hizo (SV) y lo que se pagó de más por lo que sí se hizo (CV).</p>
+                  </header>
+                  <svg viewBox="0 0 600 250" style="width: 100%; height: auto;" role="img" aria-label="Puente de PV a AC pasando por SV, EV y CV">
+                    <line x1="30" y1="200" x2="580" y2="200" stroke="#E5E7EB"></line>
+                    <rect x="46" y="50" width="72" height="150" rx="2" fill="#4A5568"></rect>
+                    <text x="82" y="42" text-anchor="middle" font-family="Poppins" font-size="12" font-weight="700" fill="#1D2751">32.000</text>
+                    <text x="82" y="220" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="600" fill="#4A5568">PV</text>
+                    <text x="82" y="236" text-anchor="middle" font-family="Karla" font-size="10.5" fill="#9CA3AF">planificado</text>
+                    <line x1="118" y1="50" x2="164" y2="50" stroke="#D1D5DB" stroke-dasharray="3 3"></line>
+                    <rect x="164" y="50" width="72" height="14.1" rx="2" fill="#A64242"></rect>
+                    <text x="200" y="42" text-anchor="middle" font-family="Poppins" font-size="12" font-weight="700" fill="#A64242">−3.000</text>
+                    <text x="200" y="220" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="600" fill="#4A5568">SV</text>
+                    <text x="200" y="236" text-anchor="middle" font-family="Karla" font-size="10.5" fill="#9CA3AF">trabajo no hecho</text>
+                    <line x1="236" y1="64.1" x2="282" y2="64.1" stroke="#D1D5DB" stroke-dasharray="3 3"></line>
+                    <rect x="282" y="64.1" width="72" height="135.9" rx="2" fill="#00A19A"></rect>
+                    <text x="318" y="56" text-anchor="middle" font-family="Poppins" font-size="12" font-weight="700" fill="#007F7A">29.000</text>
+                    <text x="318" y="220" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="600" fill="#4A5568">EV</text>
+                    <text x="318" y="236" text-anchor="middle" font-family="Karla" font-size="10.5" fill="#9CA3AF">trabajo hecho</text>
+                    <line x1="354" y1="64.1" x2="400" y2="64.1" stroke="#D1D5DB" stroke-dasharray="3 3"></line>
+                    <rect x="400" y="52.4" width="72" height="11.7" rx="2" fill="#A64242"></rect>
+                    <text x="436" y="44" text-anchor="middle" font-family="Poppins" font-size="12" font-weight="700" fill="#A64242">−2.500</text>
+                    <text x="436" y="220" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="600" fill="#4A5568">CV</text>
+                    <text x="436" y="236" text-anchor="middle" font-family="Karla" font-size="10.5" fill="#9CA3AF">sobrecosto</text>
+                    <line x1="472" y1="52.4" x2="518" y2="52.4" stroke="#D1D5DB" stroke-dasharray="3 3"></line>
+                    <rect x="518" y="52.4" width="72" height="147.6" rx="2" fill="#B45309"></rect>
+                    <text x="554" y="44" text-anchor="middle" font-family="Poppins" font-size="12" font-weight="700" fill="#B45309">31.500</text>
+                    <text x="554" y="220" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="600" fill="#4A5568">AC</text>
+                    <text x="554" y="236" text-anchor="middle" font-family="Karla" font-size="10.5" fill="#9CA3AF">gastado</text>
+                  </svg>
+                </section>
+
+                <section style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.08); padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                  <header style="display: flex; flex-direction: column; gap: 3px;">
+                    <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Comparación</span>
+                    <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 17px; font-weight: 600; color: #1D2751; letter-spacing: -0.01em;">PV, EV y AC por actividad</h3>
+                    <p style="margin: 0; font-size: 13px; color: #424242; line-height: 1.5;">Barras a la misma escala de dinero. La marca vertical señala el presupuesto total de cada actividad.</p>
+                  </header>
+                  <svg viewBox="0 0 540 250" style="width: 100%; height: auto;" role="img" aria-label="Barras de PV, EV y AC por actividad">
+                    <line x1="70" y1="40" x2="70" y2="220" stroke="#E5E7EB"></line>
+                    <line x1="180" y1="30" x2="180" y2="220" stroke="#F3F4F6"></line>
+                    <line x1="290" y1="30" x2="290" y2="220" stroke="#F3F4F6"></line>
+                    <line x1="400" y1="30" x2="400" y2="220" stroke="#F3F4F6"></line>
+                    <line x1="510" y1="30" x2="510" y2="220" stroke="#F3F4F6"></line>
+                    <text x="180" y="240" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">10 mil</text>
+                    <text x="290" y="240" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">20 mil</text>
+                    <text x="400" y="240" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">30 mil</text>
+                    <text x="510" y="240" text-anchor="middle" font-family="Karla" font-size="11" fill="#9CA3AF">40 mil</text>
+
+                    <text x="62" y="55" text-anchor="end" font-family="Poppins" font-size="12" font-weight="600" fill="#1D2751">Diseño</text>
+                    <rect x="70" y="40" width="110" height="9" rx="2" fill="#4A5568"></rect>
+                    <rect x="70" y="52" width="110" height="9" rx="2" fill="#00A19A"></rect>
+                    <rect x="70" y="64" width="99" height="9" rx="2" fill="#B45309"></rect>
+                    <line x1="180" y1="36" x2="180" y2="78" stroke="#1D2751" stroke-width="1.5" stroke-dasharray="3 2"></line>
+
+                    <text x="62" y="115" text-anchor="end" font-family="Poppins" font-size="12" font-weight="600" fill="#1D2751">Desarrollo</text>
+                    <rect x="70" y="100" width="220" height="9" rx="2" fill="#4A5568"></rect>
+                    <rect x="70" y="112" width="176" height="9" rx="2" fill="#00A19A"></rect>
+                    <rect x="70" y="124" width="220" height="9" rx="2" fill="#B45309"></rect>
+                    <line x1="510" y1="96" x2="510" y2="138" stroke="#1D2751" stroke-width="1.5" stroke-dasharray="3 2"></line>
+
+                    <text x="62" y="175" text-anchor="end" font-family="Poppins" font-size="12" font-weight="600" fill="#1D2751">Pruebas</text>
+                    <rect x="70" y="160" width="22" height="9" rx="2" fill="#4A5568"></rect>
+                    <rect x="70" y="172" width="33" height="9" rx="2" fill="#00A19A"></rect>
+                    <rect x="70" y="184" width="27.5" height="9" rx="2" fill="#B45309"></rect>
+                    <line x1="180" y1="156" x2="180" y2="198" stroke="#1D2751" stroke-width="1.5" stroke-dasharray="3 2"></line>
+                  </svg>
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px 18px; border-top: 1px solid #E5E7EB; padding-top: 12px;">
+                    <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #4A5568;"><span style="width: 12px; height: 8px; border-radius: 2px; background: #4A5568;"></span>PV</span>
+                    <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #4A5568;"><span style="width: 12px; height: 8px; border-radius: 2px; background: #00A19A;"></span>EV</span>
+                    <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #4A5568;"><span style="width: 12px; height: 8px; border-radius: 2px; background: #B45309;"></span>AC</span>
+                    <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #4A5568;"><span style="width: 2px; height: 12px; background: #1D2751;"></span>BAC</span>
+                  </div>
+                </section>
+
+                <section style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.08); padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                  <header style="display: flex; flex-direction: column; gap: 3px;">
+                    <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Cuadrante por actividad</span>
+                    <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 17px; font-weight: 600; color: #1D2751; letter-spacing: -0.01em;">Dónde está el problema</h3>
+                    <p style="margin: 0; font-size: 13px; color: #424242; line-height: 1.5;">Cada burbuja es una actividad; el diámetro es su presupuesto. Desarrollo es grande y está en el cuadrante equivocado.</p>
+                  </header>
+                  <svg viewBox="0 0 440 340" style="width: 100%; height: auto;" role="img" aria-label="CPI contra SPI por actividad">
+                    <rect x="50" y="40" width="350" height="107" fill="#DFF0D8" opacity=".3"></rect>
+                    <rect x="50" y="147" width="350" height="143" fill="#F2DEDE" opacity=".24"></rect>
+                    <line x1="50" y1="290" x2="400" y2="290" stroke="#E5E7EB"></line>
+                    <line x1="50" y1="40" x2="50" y2="290" stroke="#E5E7EB"></line>
+                    <line x1="50" y1="147" x2="400" y2="147" stroke="#1D2751" stroke-dasharray="4 4"></line>
+                    <line x1="190" y1="40" x2="190" y2="290" stroke="#1D2751" stroke-dasharray="4 4"></line>
+                    <text x="194" y="36" font-family="Karla" font-size="11" fill="#9CA3AF">SPI 1,0</text>
+                    <text x="56" y="142" font-family="Karla" font-size="11" fill="#9CA3AF">CPI 1,0</text>
+                    <text x="225" y="320" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="600" fill="#4A5568">SPI · cronograma</text>
+                    <text x="16" y="165" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="600" fill="#4A5568" transform="rotate(-90 16 165)">CPI · costo</text>
+                    <circle cx="114" cy="242" r="24" fill="rgba(166,66,66,.2)" stroke="#A64242" stroke-width="1.5"></circle>
+                    <text x="114" y="246" text-anchor="middle" font-family="Poppins" font-size="10" font-weight="700" fill="#A64242">40 mil</text>
+                    <text x="114" y="210" text-anchor="middle" font-family="Poppins" font-size="11.5" font-weight="700" fill="#A64242">Desarrollo</text>
+                    <circle cx="190" cy="94" r="13.5" fill="#FFFFFF"></circle>
+                    <circle cx="190" cy="94" r="13.5" fill="rgba(21,128,61,.18)" stroke="#15803D" stroke-width="1.5"></circle>
+                    <text x="190" y="97" text-anchor="middle" font-family="Poppins" font-size="8" font-weight="700" fill="#15803D">10k</text>
+                    <text x="190" y="72" text-anchor="middle" font-family="Poppins" font-size="11.5" font-weight="700" fill="#15803D">Diseño</text>
+                    <circle cx="380" cy="52" r="13.5" fill="rgba(21,128,61,.18)" stroke="#15803D" stroke-width="1.5"></circle>
+                    <text x="380" y="55" text-anchor="middle" font-family="Poppins" font-size="8" font-weight="700" fill="#15803D">10k</text>
+                    <text x="380" y="30" text-anchor="middle" font-family="Poppins" font-size="11.5" font-weight="700" fill="#15803D">Pruebas</text>
+                  </svg>
+                </section>
+
+                <sc-if value="{{ showRisk }}" hint-placeholder-val="{{ true }}">
+                  <section style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.08); padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                    <header style="display: flex; flex-direction: column; gap: 3px;">
+                      <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Mapa de calor</span>
+                      <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 17px; font-weight: 600; color: #1D2751; letter-spacing: -0.01em;">Riesgo por actividad y dimensión</h3>
+                      <p style="margin: 0; font-size: 13px; color: #424242; line-height: 1.5;">Una fila por actividad, una columna por lo que puede fallar. Sirve para decidir dónde intervenir primero.</p>
+                    </header>
+                    <div style="display: grid; grid-template-columns: minmax(90px, 1.2fr) repeat(4, minmax(64px, 1fr)); gap: 4px; font-family: Poppins, sans-serif;">
+                      <span></span>
+                      <span style="font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #9CA3AF; text-align: center; padding-bottom: 4px;">Costo</span>
+                      <span style="font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #9CA3AF; text-align: center; padding-bottom: 4px;">Plazo</span>
+                      <span style="font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #9CA3AF; text-align: center; padding-bottom: 4px;">Cierre</span>
+                      <span style="font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #9CA3AF; text-align: center; padding-bottom: 4px;">Peso</span>
+
+                      <span style="font-size: 12.5px; font-weight: 600; color: #1D2751; display: flex; align-items: center;">Diseño</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #DFF0D8; color: #15803D;">1,11</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #FCF8E3; color: #B45309;">1,00</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #DFF0D8; color: #15803D;">+1.000</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #F3F4F6; color: #4A5568;">17 %</span>
+
+                      <span style="font-size: 12.5px; font-weight: 600; color: #1D2751; display: flex; align-items: center;">Desarrollo</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #F2DEDE; color: #A64242;">0,80</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #F2DEDE; color: #A64242;">0,80</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #F2DEDE; color: #A64242;">−10.000</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #E5E7EB; color: #1D2751;">67 %</span>
+
+                      <span style="font-size: 12.5px; font-weight: 600; color: #1D2751; display: flex; align-items: center;">Pruebas</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #DFF0D8; color: #15803D;">1,20</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #DFF0D8; color: #15803D;">1,50</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #DFF0D8; color: #15803D;">+1.667</span>
+                      <span style="border-radius: 4px; padding: 12px 6px; text-align: center; font-size: 12px; font-weight: 700; background: #F3F4F6; color: #4A5568;">17 %</span>
+                    </div>
+                    <p style="margin: 0; font-size: 12px; color: #9CA3AF; line-height: 1.5;">Peso = participación de la actividad en el presupuesto total. Un rojo con peso alto es lo único que mueve el consolidado.</p>
+                  </section>
+                </sc-if>
+              </div>
+
+              <section style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.08); padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                <header style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                  <div style="display: flex; flex-direction: column; gap: 3px;">
+                    <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Detalle</span>
+                    <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 17px; font-weight: 600; color: #1D2751; letter-spacing: -0.01em;">Actividades</h3>
+                  </div>
+                  <button style="border: 0; border-radius: 999px; background: linear-gradient(135deg, #06C8BE 0%, #009490 100%); color: #FFFFFF; font-family: Poppins, sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 10px 18px; cursor: pointer;" style-hover="box-shadow: 0 5px 16px rgba(0,161,154,.42);">Nueva actividad</button>
+                </header>
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; min-width: 900px; border-collapse: collapse; font-family: Karla, sans-serif; font-size: 13px;">
+                    <thead>
+                      <tr>
+                        <th style="text-align: left; font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF; padding: 0 10px 10px; border-bottom: 1px solid #E5E7EB;">Actividad</th>
+                        <th style="text-align: left; font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF; padding: 0 10px 10px; border-bottom: 1px solid #E5E7EB;">Tendencia</th>
+                        <th style="text-align: left; font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF; padding: 0 10px 10px; border-bottom: 1px solid #E5E7EB;">Avance</th>
+                        <th style="text-align: right; font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF; padding: 0 10px 10px; border-bottom: 1px solid #E5E7EB;">EV</th>
+                        <th style="text-align: right; font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF; padding: 0 10px 10px; border-bottom: 1px solid #E5E7EB;">AC</th>
+                        <th style="text-align: right; font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF; padding: 0 10px 10px; border-bottom: 1px solid #E5E7EB;">CPI</th>
+                        <th style="text-align: right; font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF; padding: 0 10px 10px; border-bottom: 1px solid #E5E7EB;">SPI</th>
+                        <th style="text-align: right; font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF; padding: 0 10px 10px; border-bottom: 1px solid #E5E7EB;">EAC</th>
+                        <th style="text-align: right; font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF; padding: 0 10px 10px; border-bottom: 1px solid #E5E7EB;"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <sc-for list="{{ activities }}" as="a" hint-placeholder-count="3">
+                        <tr onClick="{{ goActivity }}" style="border-bottom: 1px solid #F3F4F6; cursor: pointer;" style-hover="background: #F9F9F9;">
+                          <td style="padding: 12px 10px;">
+                            <div style="font-family: Poppins, sans-serif; font-size: 13.5px; font-weight: 600; color: #1D2751;">{{ a.name }}</div>
+                            <div style="font-size: 11.5px; color: #9CA3AF;">{{ a.owner }}</div>
+                          </td>
+                          <td style="padding: 12px 10px;">
+                            <svg viewBox="0 0 72 24" width="72" height="24" fill="none" aria-hidden="true">
+                              <polyline points="{{ a.spark }}" stroke="{{ a.sparkInk }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                            </svg>
+                          </td>
+                          <td style="padding: 12px 10px; min-width: 130px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                              <span style="position: relative; flex: 1; height: 6px; border-radius: 999px; background: #F3F4F6; overflow: hidden; min-width: 60px;">
+                                <span style="position: absolute; inset: 0 auto 0 0; width: {{ a.plannedW }}; background: #D1D5DB;"></span>
+                                <span style="position: absolute; inset: 0 auto 0 0; width: {{ a.actualW }}; background: #00A19A;"></span>
+                              </span>
+                              <span style="font-variant-numeric: tabular-nums; font-size: 12px; color: #4A5568; white-space: nowrap;">{{ a.actual }}</span>
+                            </div>
+                          </td>
+                          <td style="padding: 12px 10px; text-align: right; font-variant-numeric: tabular-nums; color: #1D2751;">{{ a.ev }}</td>
+                          <td style="padding: 12px 10px; text-align: right; font-variant-numeric: tabular-nums; color: #1D2751;">{{ a.ac }}</td>
+                          <td style="padding: 12px 10px; text-align: right;"><span style="font-family: Poppins, sans-serif; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 9px; background: {{ a.costSoft }}; color: {{ a.costInk }};">{{ a.cpi }}</span></td>
+                          <td style="padding: 12px 10px; text-align: right;"><span style="font-family: Poppins, sans-serif; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 9px; background: {{ a.schedSoft }}; color: {{ a.schedInk }};">{{ a.spi }}</span></td>
+                          <td style="padding: 12px 10px; text-align: right; font-variant-numeric: tabular-nums; color: #1D2751;">{{ a.eac }}</td>
+                          <td style="padding: 12px 10px; text-align: right;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9CA3AF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></td>
+                        </tr>
+                      </sc-for>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isActivity }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <button onClick="{{ goDashboard }}" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; border: 0; background: transparent; font-family: Poppins, sans-serif; font-size: 12px; font-weight: 600; color: #007F7A; cursor: pointer; padding: 0;">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+                Volver al tablero
+              </button>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start;">
+                <section style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.08); padding: 18px; display: flex; flex-direction: column; gap: 16px;">
+                  <header style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Actividad · Portal de clientes</span>
+                    <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 22px; font-weight: 700; color: #1D2751; letter-spacing: -0.01em;">Desarrollo</h3>
+                    <p style="margin: 0; font-size: 13px; color: #424242;">Responsable: Ana Registradora · BAC 40.000,00</p>
+                  </header>
+                  <div style="background: #F2DEDE; border-radius: 4px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#A64242" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+                    <div>
+                      <p style="margin: 0; font-family: Poppins, sans-serif; font-size: 13.5px; font-weight: 600; color: #A64242;">Esta actividad explica toda la desviación del proyecto</p>
+                      <p style="margin: 4px 0 0; font-size: 12.5px; color: #A64242; line-height: 1.5;">Con CPI 0,80 y SPI 0,80, terminará en 50.000,00: 10.000,00 por encima de su presupuesto.</p>
+                    </div>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
+                    <div style="background: #F9F9F9; border-radius: 4px; padding: 12px;"><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">PV</div><div style="font-family: Poppins, sans-serif; font-size: 18px; font-weight: 700; color: #1D2751; font-variant-numeric: tabular-nums;">20.000,00</div></div>
+                    <div style="background: #F9F9F9; border-radius: 4px; padding: 12px;"><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">EV</div><div style="font-family: Poppins, sans-serif; font-size: 18px; font-weight: 700; color: #1D2751; font-variant-numeric: tabular-nums;">16.000,00</div></div>
+                    <div style="background: #F9F9F9; border-radius: 4px; padding: 12px;"><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">AC</div><div style="font-family: Poppins, sans-serif; font-size: 18px; font-weight: 700; color: #1D2751; font-variant-numeric: tabular-nums;">20.000,00</div></div>
+                    <div style="background: #F9F9F9; border-radius: 4px; padding: 12px;"><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">EAC</div><div style="font-family: Poppins, sans-serif; font-size: 18px; font-weight: 700; color: #A64242; font-variant-numeric: tabular-nums;">50.000,00</div></div>
+                  </div>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #4A5568; margin-bottom: 6px;"><span>Avance planificado 50 %</span><span>Avance real 40 %</span></div>
+                    <div style="position: relative; height: 10px; border-radius: 999px; background: #F3F4F6; overflow: hidden;">
+                      <span style="position: absolute; inset: 0 auto 0 0; width: 50%; background: #D1D5DB;"></span>
+                      <span style="position: absolute; inset: 0 auto 0 0; width: 40%; background: #00A19A;"></span>
+                    </div>
+                  </div>
+                  <button onClick="{{ openRegister }}" style="align-self: flex-start; border: 0; border-radius: 999px; background: linear-gradient(135deg, #06C8BE 0%, #009490 100%); color: #FFFFFF; font-family: Poppins, sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 11px 20px; cursor: pointer;" style-hover="box-shadow: 0 5px 16px rgba(0,161,154,.42);">Registrar avance</button>
+                </section>
+
+                <section style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.08); padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                  <header style="display: flex; flex-direction: column; gap: 3px;">
+                    <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Historia de la actividad</span>
+                    <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 17px; font-weight: 600; color: #1D2751; letter-spacing: -0.01em;">Curva de la actividad y registros</h3>
+                  </header>
+                  <svg viewBox="0 0 480 220" style="width: 100%; height: auto;" role="img" aria-label="Curva de PV, EV y AC de la actividad Desarrollo">
+                    <line x1="40" y1="180" x2="460" y2="180" stroke="#E5E7EB"></line>
+                    <line x1="40" y1="120" x2="460" y2="120" stroke="#F3F4F6"></line>
+                    <line x1="40" y1="60" x2="460" y2="60" stroke="#F3F4F6"></line>
+                    <text x="34" y="184" text-anchor="end" font-family="Karla" font-size="10" fill="#9CA3AF">0</text>
+                    <text x="34" y="124" text-anchor="end" font-family="Karla" font-size="10" fill="#9CA3AF">10 mil</text>
+                    <text x="34" y="64" text-anchor="end" font-family="Karla" font-size="10" fill="#9CA3AF">20 mil</text>
+                    <path d="M 60 180 L 160 156 L 260 126 L 360 102 L 440 60" fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round"></path>
+                    <path d="M 60 180 L 160 162 L 260 138 L 360 114 L 440 84" fill="none" stroke="#00A19A" stroke-width="3" stroke-linecap="round"></path>
+                    <path d="M 60 180 L 160 153 L 260 123 L 360 96 L 440 60" fill="none" stroke="#B45309" stroke-width="2.5" stroke-linecap="round"></path>
+                    <circle cx="440" cy="84" r="4.5" fill="#00A19A" stroke="#FFFFFF" stroke-width="2"></circle>
+                    <text x="60" y="202" text-anchor="middle" font-family="Karla" font-size="10" fill="#9CA3AF">May</text>
+                    <text x="160" y="202" text-anchor="middle" font-family="Karla" font-size="10" fill="#9CA3AF">Jun</text>
+                    <text x="260" y="202" text-anchor="middle" font-family="Karla" font-size="10" fill="#9CA3AF">Jul</text>
+                    <text x="360" y="202" text-anchor="middle" font-family="Karla" font-size="10" fill="#9CA3AF">Ago</text>
+                    <text x="440" y="202" text-anchor="middle" font-family="Poppins" font-size="10" font-weight="700" fill="#1D2751">Sep</text>
+                  </svg>
+                  <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; border-top: 1px solid #E5E7EB;">
+                    <li style="display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid #F3F4F6;">
+                      <span style="font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; color: #9CA3AF; width: 74px; flex-shrink: 0;">30 Sep</span>
+                      <span style="font-size: 13px; color: #424242;">Ana Registradora subió el avance real de 32 % a <strong style="color: #1D2751;">40 %</strong> y el costo a 20.000,00.</span>
+                    </li>
+                    <li style="display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid #F3F4F6;">
+                      <span style="font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; color: #9CA3AF; width: 74px; flex-shrink: 0;">31 Ago</span>
+                      <span style="font-size: 13px; color: #424242;">Avance real 32 %, costo 17.000,00. Primer corte con CPI por debajo de 1.</span>
+                    </li>
+                    <li style="display: flex; gap: 12px; padding: 11px 0;">
+                      <span style="font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; color: #9CA3AF; width: 74px; flex-shrink: 0;">31 Jul</span>
+                      <span style="font-size: 13px; color: #424242;">Avance real 24 %, costo 12.000,00.</span>
+                    </li>
+                  </ul>
+                </section>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isMine }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+                <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: rgba(0,0,0,.1) 0px 1px 3px, rgba(0,0,0,.06) 0px 1px 2px; padding: 16px 18px;">
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">A mi cargo</span>
+                  <div style="font-family: Poppins, sans-serif; font-size: 28px; font-weight: 700; color: #1D2751; letter-spacing: -0.03em;">2</div>
+                  <span style="font-size: 12px; color: #9CA3AF;">actividades en 1 proyecto</span>
+                </div>
+                <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: rgba(0,0,0,.1) 0px 1px 3px, rgba(0,0,0,.06) 0px 1px 2px; padding: 16px 18px;">
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Sin actualizar</span>
+                  <div style="font-family: Poppins, sans-serif; font-size: 28px; font-weight: 700; color: #B45309; letter-spacing: -0.03em;">1</div>
+                  <span style="font-size: 12px; color: #9CA3AF;">Pruebas · último registro hace 21 días</span>
+                </div>
+                <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: rgba(0,0,0,.1) 0px 1px 3px, rgba(0,0,0,.06) 0px 1px 2px; padding: 16px 18px;">
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Mi aporte al EV</span>
+                  <div style="font-family: Poppins, sans-serif; font-size: 28px; font-weight: 700; color: #1D2751; letter-spacing: -0.03em;">13.000</div>
+                  <span style="font-size: 12px; color: #9CA3AF;">de 29.000 del proyecto</span>
+                </div>
+              </div>
+
+              <section style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.08); padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                <header style="display: flex; flex-direction: column; gap: 3px;">
+                  <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Asignadas</span>
+                  <h3 style="margin: 0; font-family: Poppins, sans-serif; font-size: 17px; font-weight: 600; color: #1D2751; letter-spacing: -0.01em;">Actividades a mi cargo</h3>
+                  <p style="margin: 0; font-size: 13px; color: #424242; line-height: 1.5;">Actualiza el avance real y el costo. Los indicadores los recalcula el servidor al guardar.</p>
+                </header>
+                <sc-for list="{{ mine }}" as="a" hint-placeholder-count="2">
+                  <article style="border: 1px solid #E5E7EB; border-radius: 6px; padding: 14px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; align-items: center;">
+                    <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                      <span style="font-family: Poppins, sans-serif; font-size: 14.5px; font-weight: 600; color: #1D2751;">{{ a.name }}</span>
+                      <span style="font-size: 12px; color: #9CA3AF;">Portal de clientes</span>
+                    </div>
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #4A5568; margin-bottom: 5px;"><span>Plan {{ a.planned }}</span><span>Real {{ a.actual }}</span></div>
+                      <div style="position: relative; height: 8px; border-radius: 999px; background: #F3F4F6; overflow: hidden;">
+                        <span style="position: absolute; inset: 0 auto 0 0; width: {{ a.plannedW }}; background: #D1D5DB;"></span>
+                        <span style="position: absolute; inset: 0 auto 0 0; width: {{ a.actualW }}; background: #00A19A;"></span>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                      <span style="font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 4px 10px; background: {{ a.costSoft }}; color: {{ a.costInk }};">CPI {{ a.cpi }}</span>
+                      <span style="font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 4px 10px; background: {{ a.schedSoft }}; color: {{ a.schedInk }};">SPI {{ a.spi }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end;">
+                      <button onClick="{{ openRegister }}" style="border: 1.5px solid #1D2751; border-radius: 999px; background: transparent; color: #1D2751; font-family: Poppins, sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 9px 16px; cursor: pointer;" style-hover="background: #E8F6F7;">Registrar</button>
+                    </div>
+                  </article>
+                </sc-for>
+              </section>
+            </div>
+          </sc-if>
+
+        </main>
+      </div>
+    </div>
+
+    <sc-if value="{{ registerOpen }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="position: fixed; inset: 0; background: rgba(10,16,40,.6); z-index: 80;" onClick="{{ closeRegister }}"></div>
+        <div style="position: fixed; top: 0; right: 0; bottom: 0; z-index: 81; width: min(520px, 100%); background: #FFFFFF; overflow-y: auto; box-shadow: 0 12px 32px rgba(0,0,0,.14); display: flex; flex-direction: column;">
+          <div style="border-top: 3px solid #00A19A; padding: 20px 24px 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+            <div>
+              <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Portal de clientes · Desarrollo</span>
+              <h3 style="margin: 4px 0 0; font-family: Poppins, sans-serif; font-size: 20px; font-weight: 700; color: #1D2751; letter-spacing: -0.01em;">Registrar avance</h3>
+            </div>
+            <button onClick="{{ closeRegister }}" style="border: 0; background: transparent; color: #9CA3AF; cursor: pointer; padding: 4px;" aria-label="Cerrar">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </button>
+          </div>
+
+          <div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 18px;">
+            <div style="background: #E8F6F7; border-radius: 4px; padding: 14px 16px;">
+              <p style="margin: 0; font-size: 13px; color: #1D2751; line-height: 1.55;">Solo se registran datos crudos: avance real y costo. El cálculo del valor ganado ocurre en el servidor, así que lo que veas abajo es la lectura que quedará en el tablero.</p>
+            </div>
+
+            <label style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="font-family: Poppins, sans-serif; font-size: 12px; font-weight: 600; color: #4A5568;">Avance real (%)</span>
+              <input type="range" min="0" max="100" value="{{ progress }}" onInput="{{ setProgress }}" style="accent-color: #00A19A; width: 100%;">
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-family: Poppins, sans-serif; font-size: 30px; font-weight: 700; color: #1D2751; font-variant-numeric: tabular-nums; letter-spacing: -0.03em;">{{ progress }}</span>
+                <span style="font-family: Poppins, sans-serif; font-size: 15px; font-weight: 600; color: #9CA3AF;">%</span>
+                <span style="font-size: 12px; color: #9CA3AF; margin-left: auto;">Planificado a la fecha: 50 %</span>
+              </div>
+            </label>
+
+            <label style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="font-family: Poppins, sans-serif; font-size: 12px; font-weight: 600; color: #4A5568;">Costo real acumulado (AC)</span>
+              <input type="number" value="{{ cost }}" onInput="{{ setCost }}" style="font-family: Karla, sans-serif; font-size: 15px; color: #424242; background: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 4px; padding: 10px 12px;" style-focus="border-color: #00A19A; box-shadow: 0 0 0 3px rgba(100,194,200,.35); outline: none;">
+              <span style="font-size: 12px; color: #9CA3AF;">Dinero ya gastado en la actividad. Presupuesto total: 40.000,00</span>
+            </label>
+
+            <div style="border-top: 1px solid #E5E7EB; padding-top: 16px; display: flex; flex-direction: column; gap: 12px;">
+              <span style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #007F7A;">Cómo queda la actividad</span>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px;">
+                <div style="background: #F9F9F9; border-radius: 4px; padding: 12px;"><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">EV</div><div style="font-family: Poppins, sans-serif; font-size: 18px; font-weight: 700; color: #1D2751; font-variant-numeric: tabular-nums;">{{ previewEv }}</div></div>
+                <div style="background: #F9F9F9; border-radius: 4px; padding: 12px;"><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">CPI</div><div style="font-family: Poppins, sans-serif; font-size: 18px; font-weight: 700; color: {{ previewCpiInk }}; font-variant-numeric: tabular-nums;">{{ previewCpi }}</div></div>
+                <div style="background: #F9F9F9; border-radius: 4px; padding: 12px;"><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">SPI</div><div style="font-family: Poppins, sans-serif; font-size: 18px; font-weight: 700; color: {{ previewSpiInk }}; font-variant-numeric: tabular-nums;">{{ previewSpi }}</div></div>
+                <div style="background: #F9F9F9; border-radius: 4px; padding: 12px;"><div style="font-family: Poppins, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9CA3AF;">EAC</div><div style="font-family: Poppins, sans-serif; font-size: 18px; font-weight: 700; color: #1D2751; font-variant-numeric: tabular-nums;">{{ previewEac }}</div></div>
+              </div>
+              <p style="margin: 0; font-size: 12.5px; color: #424242; line-height: 1.55;">{{ previewReading }}</p>
+            </div>
+          </div>
+
+          <div style="margin-top: auto; border-top: 1px solid #E5E7EB; padding: 16px 24px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button onClick="{{ closeRegister }}" style="border: 1.5px solid #D1D5DB; border-radius: 999px; background: transparent; color: #4A5568; font-family: Poppins, sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 11px 20px; cursor: pointer;">Cancelar</button>
+            <button onClick="{{ closeRegister }}" style="border: 0; border-radius: 999px; background: linear-gradient(135deg, #06C8BE 0%, #009490 100%); color: #FFFFFF; font-family: Poppins, sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 11px 22px; cursor: pointer;" style-hover="box-shadow: 0 5px 16px rgba(0,161,154,.42);">Guardar avance</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultRole&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Revisor&quot;,&quot;Registrador&quot;],&quot;default&quot;:&quot;Revisor&quot;,&quot;tsType&quot;:&quot;'Revisor' | 'Registrador'&quot;,&quot;section&quot;:&quot;Sesión&quot;},&quot;showForecast&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Tablero&quot;},&quot;showRiskHeatmap&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Tablero&quot;}}">
+const TONE = {
+  good: { ink: '#15803D', soft: '#DFF0D8' },
+  neutral: { ink: '#B45309', soft: '#FCF8E3' },
+  bad: { ink: '#A64242', soft: '#F2DEDE' },
+  na: { ink: '#4A5568', soft: '#F3F4F6' },
+};
+const COST = {
+  UNDER_BUDGET: ['good', 'Bajo presupuesto'],
+  ON_BUDGET: ['neutral', 'En presupuesto'],
+  OVER_BUDGET: ['bad', 'Sobre presupuesto'],
+  NOT_APPLICABLE: ['na', 'No aplica'],
+};
+const SCHED = {
+  AHEAD_OF_SCHEDULE: ['good', 'Adelantado'],
+  ON_SCHEDULE: ['neutral', 'En cronograma'],
+  BEHIND_SCHEDULE: ['bad', 'Atrasado'],
+  NOT_APPLICABLE: ['na', 'No aplica'],
+};
+
+function num(v, d) {
+  return v === null ? '—' : v.toLocaleString('es-CO', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function status(c, s) {
+  const a = COST[c], b = SCHED[s];
+  return {
+    costLabel: a[1], costInk: TONE[a[0]].ink, costSoft: TONE[a[0]].soft,
+    schedLabel: b[1], schedInk: TONE[b[0]].ink, schedSoft: TONE[b[0]].soft,
+  };
+}
+
+const PROJECTS = [
+  ['Portal de clientes', 3, 0.9206, 0.9063, 'OVER_BUDGET', 'BEHIND_SCHEDULE'],
+  ['Migración a la nube', 3, 1.1636, 1.113, 'UNDER_BUDGET', 'AHEAD_OF_SCHEDULE'],
+  ['Integración de pagos', 3, 0.7712, 1.3, 'OVER_BUDGET', 'AHEAD_OF_SCHEDULE'],
+  ['Rediseño del intranet', 3, 1.2136, 0.7353, 'UNDER_BUDGET', 'BEHIND_SCHEDULE'],
+  ['Cumplimiento normativo', 3, 1, 1, 'ON_BUDGET', 'ON_SCHEDULE'],
+  ['App móvil de campo', 4, 1.8125, 0.3452, 'UNDER_BUDGET', 'BEHIND_SCHEDULE'],
+  ['Certificación ISO 27001', 3, 0.8929, 1, 'OVER_BUDGET', 'ON_SCHEDULE'],
+  ['Tablero de indicadores', 0, null, null, 'NOT_APPLICABLE', 'NOT_APPLICABLE'],
+];
+
+const ACTIVITIES = [
+  { name: 'Diseño', owner: 'Carlos Registrador', planned: 100, actual: 100, ev: 10000, ac: 9000, cpi: 1.1111, spi: 1, eac: 9000, c: 'UNDER_BUDGET', s: 'ON_SCHEDULE', spark: '2,18 20,15 38,12 56,8 70,6' },
+  { name: 'Desarrollo', owner: 'Ana Registradora', planned: 50, actual: 40, ev: 16000, ac: 20000, cpi: 0.8, spi: 0.8, eac: 50000, c: 'OVER_BUDGET', s: 'BEHIND_SCHEDULE', spark: '2,8 20,10 38,14 56,17 70,20' },
+  { name: 'Pruebas', owner: 'Carlos Registrador', planned: 20, actual: 30, ev: 3000, ac: 2500, cpi: 1.2, spi: 1.5, eac: 8333.33, c: 'UNDER_BUDGET', s: 'AHEAD_OF_SCHEDULE', spark: '2,20 20,16 38,13 56,9 70,4' },
+];
+
+function row(a) {
+  const st = status(a.c, a.s);
+  return Object.assign({
+    name: a.name, owner: a.owner,
+    planned: a.planned + ' %', actual: a.actual + ' %',
+    plannedW: a.planned + '%', actualW: a.actual + '%',
+    ev: num(a.ev, 2), ac: num(a.ac, 2),
+    cpi: num(a.cpi, 2), spi: num(a.spi, 2), eac: num(a.eac, 2),
+    spark: a.spark, sparkInk: st.costInk,
+  }, st);
+}
+
+const TITLES = {
+  portfolio: ['Portafolio', 'Todos los proyectos'],
+  dashboard: ['Portafolio · Portal de clientes', 'Portal de clientes'],
+  activity: ['Portal de clientes · Actividad', 'Desarrollo'],
+  mine: ['Mi trabajo', 'Mis actividades'],
+};
+
+class Component extends DCLogic {
+  state = { screen: null, role: null, register: false, progress: 40, cost: 20000 };
+
+  set(patch) {
+    return (e) => { if (e && e.preventDefault) e.preventDefault(); if (e && e.stopPropagation) e.stopPropagation(); this.setState(patch); };
+  }
+
+  renderVals() {
+    const p = this.props;
+    const role = this.state.role ?? (p.defaultRole === 'Registrador' ? 'registrar' : 'reviewer');
+    const screen = this.state.screen ?? 'login';
+    const isRegistrar = role === 'registrar';
+    const t = TITLES[screen] ?? TITLES.portfolio;
+
+    const on = { bg: 'rgba(100,194,200,.16)', ink: '#7FDCD8', ring: 'inset 0 0 0 1px rgba(100,194,200,.22), 0 2px 8px rgba(0,161,154,.18)' };
+    const off = { bg: 'transparent', ink: 'rgba(255,255,255,.68)', ring: 'none' };
+    const nav = (k) => (screen === k ? on : off);
+    const np = nav('portfolio'), nd = (screen === 'dashboard' || screen === 'activity') ? on : off, nm = nav('mine');
+
+    const prog = Number(this.state.progress);
+    const cost = Number(this.state.cost) || 0;
+    const bac = 40000, pv = 20000;
+    const ev = bac * prog / 100;
+    const cpi = cost === 0 ? null : ev / cost;
+    const spi = ev / pv;
+    const eac = cpi === null ? null : bac / cpi;
+    const cpiTone = cpi === null ? TONE.na : (cpi > 1.0001 ? TONE.good : cpi < 0.9999 ? TONE.bad : TONE.neutral);
+    const spiTone = spi > 1.0001 ? TONE.good : spi < 0.9999 ? TONE.bad : TONE.neutral;
+    const reading = cpi === null
+      ? 'Sin costo registrado el CPI no es calculable: el sistema lo marca como no aplica en vez de mostrar cero.'
+      : (cpi < 1 && spi < 1) ? 'Con estos datos la actividad queda cara y atrasada: cada peso gastado produce menos de un peso de trabajo y el avance va por detrás del plan.'
+      : (cpi >= 1 && spi >= 1) ? 'Con estos datos la actividad queda bajo presupuesto y al día. Es el único escenario en que ambos semáforos quedan en verde.'
+      : (cpi >= 1) ? 'Barata pero atrasada: el ahorro viene de trabajo que todavía no se ha hecho, no de eficiencia.'
+      : 'Adelantada pero cara: avanzar rápido no significa avanzar bien.';
+
+    return {
+      isLogin: screen === 'login',
+      isApp: screen !== 'login',
+      isPortfolio: screen === 'portfolio',
+      isDashboard: screen === 'dashboard',
+      isActivity: screen === 'activity',
+      isMine: screen === 'mine',
+      crumb: t[0],
+      pageTitle: t[1],
+      showForecast: p.showForecast ?? true,
+      showRisk: p.showRiskHeatmap ?? true,
+      loginReviewer: this.set({ role: 'reviewer', screen: 'portfolio' }),
+      loginRegistrar: this.set({ role: 'registrar', screen: 'mine' }),
+      goLogin: this.set({ screen: 'login', register: false }),
+      goPortfolio: this.set({ screen: 'portfolio' }),
+      goDashboard: this.set({ screen: 'dashboard' }),
+      goActivity: this.set({ screen: 'activity' }),
+      goMine: this.set({ screen: 'mine' }),
+      openRegister: this.set({ register: true }),
+      closeRegister: this.set({ register: false }),
+      registerOpen: this.state.register,
+      stopClick: (e) => e.stopPropagation(),
+      navPortfolioBg: np.bg, navPortfolioInk: np.ink, navPortfolioRing: np.ring,
+      navDashboardBg: nd.bg, navDashboardInk: nd.ink, navDashboardRing: nd.ring,
+      navMineBg: nm.bg, navMineInk: nm.ink, navMineRing: nm.ring,
+      userName: isRegistrar ? 'Carlos Registrador' : 'Laura Revisora',
+      userInitials: isRegistrar ? 'CR' : 'LR',
+      roleLabel: isRegistrar ? 'Registrador' : 'Revisor',
+      portfolio: PROJECTS.map((x, i) => Object.assign({
+        n: String(i + 1).padStart(2, '0'),
+        name: x[0],
+        count: x[1] === 0 ? 'sin actividades' : x[1] + ' actividades',
+        cpi: num(x[2], 4), spi: num(x[3], 4),
+      }, status(x[4], x[5]))),
+      activities: ACTIVITIES.map(row),
+      mine: [ACTIVITIES[0], ACTIVITIES[2]].map(row),
+      progress: prog,
+      cost: this.state.cost,
+      setProgress: (e) => this.setState({ progress: Number(e.target.value) }),
+      setCost: (e) => this.setState({ cost: e.target.value }),
+      previewEv: num(ev, 2),
+      previewCpi: num(cpi === null ? null : Math.round(cpi * 10000) / 10000, 4),
+      previewSpi: num(Math.round(spi * 10000) / 10000, 4),
+      previewEac: num(eac === null ? null : Math.round(eac * 100) / 100, 2),
+      previewCpiInk: cpiTone.ink,
+      previewSpiInk: spiTone.ink,
+      previewReading: reading,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

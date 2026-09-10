@@ -1,0 +1,51 @@
+/* ════════════════════════════════════════════════
+   Trycore · Capa de comunicación (web pública, social, insights)
+   El producto (TrySynergy) usa la paleta sobria de colors.css.
+   La comunicación de marca añade acentos vivos + degradados de fondo.
+   Muestreado de las piezas reales en assets/samples/.
+
+   NOTA DE JERARQUÍA: estos valores se dedujeron de piezas publicadas.
+   Donde discrepen con tokens/identity.css — la paleta oficial del board
+   de identidad 2026 — manda identity.css (`--tci-*`).
+   ════════════════════════════════════════════════ */
+:root {
+  /* ── Acentos vivos (solo comunicación) ── */
+  --tcm-cyan:        #00E5DC;   /* aqua de marca — halos, rims, fondos */
+  --tcm-cyan-soft:   #B8F5F0;   /* píldora de overline (“⚡ PEOPLE SERVICES”) */
+  --tcm-mint:        #34E37E;   /* CTA “Agenda una llamada” */
+  --tcm-mint-light:  #7BF3A9;
+  --tcm-blue-cta:    #1B2FD0;   /* CTA azul (“Lee la sala de prensa”) */
+  --tcm-navy-deep:   #0B1F5C;   /* CTA sólido / titulares web */
+  --tcm-violet:      #5B21D6;   /* Insights: chips y cifras */
+  --tcm-lime:        #EFEA55;   /* Insights: banda de titular */
+  --tcm-orange:      #FF5A0F;   /* Insights: tarjetas de contraste */
+
+  /* ── Fondos de pieza ── */
+  --tcm-bg-page:     #F4F5F8;   /* gris-lavanda casi blanco */
+  --tcm-bg-aqua:     #D7F6F5;   /* aqua pálido (Insights) */
+  --tcm-grad-canvas: linear-gradient(140deg, #F4F5F8 0%, #E8EAF7 32%, #DDF6F2 62%, #5FEADF 100%);   /* @kind other */
+  --tcm-grad-editorial: linear-gradient(160deg, #F5F6F8 0%, #EAF7F7 55%, #B9EFE9 100%);   /* @kind other */
+  --tcm-grad-mint-cta: linear-gradient(90deg, #34E37E 0%, #7BF3A9 100%);   /* @kind other */
+  --tcm-grad-blue-cta: linear-gradient(90deg, #1B2FD0 0%, #0B1F5C 65%);   /* @kind other */
+  --tcm-grad-headline: linear-gradient(90deg, #0B1F5C 0%, #0B1F5C 45%, #24A0B4 100%);   /* @kind other */
+
+  /* ── Motivo orbital (anillos concéntricos tras retratos) ── */
+  --tcm-ring: rgba(92,130,242,.28);   /* línea de anillo */
+  --tcm-ring-node: #C7CEDD;           /* nodo/punto sobre el anillo */
+
+  /* ── Tipografía de comunicación ──
+     Poppins 700 para titulares grandes (mucho mayor que en producto),
+     Poppins 400/500 para subtítulos. Karla no se usa en social. */
+  --tcm-fs-display: 64px;   /* titular de pieza 1:1 / hero web */
+  --tcm-fs-hero:    52px;
+  --tcm-fs-sub:     22px;
+  --tcm-fs-overline: 13px;
+  --tcm-ls-overline: 1.6px;   /* @kind font */
+
+  /* ── Píldoras y radios de comunicación ── */
+  --tcm-r-pill: 999px;
+  --tcm-r-card: 6px;   /* tarjetas-etiqueta blancas con borde azul fino */
+  --tcm-card-border: rgba(43,74,215,.45);
+  --tcm-sh-float: 0 10px 30px rgba(11,31,92,.10);
+  --tcm-sh-pill:  0 6px 18px rgba(11,31,92,.14);
+}

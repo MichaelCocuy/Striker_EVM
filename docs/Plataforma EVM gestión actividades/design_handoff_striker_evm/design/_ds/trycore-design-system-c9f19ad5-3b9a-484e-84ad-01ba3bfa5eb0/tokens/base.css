@@ -1,0 +1,36 @@
+/* ════════════════════════════════════════════════
+   Trycore · Base element styles
+   Tipografía y reset mínimo aplicado al documento
+   ════════════════════════════════════════════════ */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--tc-font-body);
+  font-size: var(--tc-fs-body);
+  line-height: var(--tc-lh-body);
+  color: var(--tc-text-b);
+  background: var(--tc-bg-canvas);
+  -webkit-font-smoothing: antialiased;   /* obligatorio para Karla en HiDPI */
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--tc-font-heading);
+  color: var(--tc-text-h);
+  letter-spacing: var(--tc-ls-heading);
+  font-weight: var(--tc-fw-bold);
+  margin: 0 0 .4em;
+}
+
+h1 { font-size: var(--tc-fs-h1); line-height: var(--tc-lh-h1); }
+h2 { font-size: var(--tc-fs-h2); line-height: var(--tc-lh-h2); }
+h3 { font-size: var(--tc-fs-h3); line-height: var(--tc-lh-h3); color: var(--tc-blue); font-weight: var(--tc-fw-semibold); }
+
+p { margin: 0 0 1em; }
+
+a { color: var(--tc-blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb { background: var(--tc-border-s); border-radius: 6px; }
