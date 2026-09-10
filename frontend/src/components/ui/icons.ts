@@ -27,6 +27,8 @@ export {
   X,
 } from 'lucide-react';
 
+export type { LucideIcon } from 'lucide-react';
+
 /** 16px in the sidebar, 18px in content, as the handoff's iconography section states. */
 export const ICON_SIZE = {
   SIDEBAR: 16,
