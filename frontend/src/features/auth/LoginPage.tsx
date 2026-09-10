@@ -2,8 +2,19 @@ import { lazy, Suspense, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { isApiError } from '@/api/errors';
+import {
+  BRAND_MARK_TONE,
+  BRAND_MARK_VARIANT,
+  BRAND_TILE_SIZE,
+} from '@/components/ui/brand-variants';
 import { BrandMark } from '@/components/ui/BrandMark';
 import { Button } from '@/components/ui/Button';
+import { BUTTON_SIZE } from '@/components/ui/button-variants';
+import { Chip } from '@/components/ui/Chip';
+import { CHIP_TONE } from '@/components/ui/chip-tones';
+import { ICON_BUTTON_TONE } from '@/components/ui/icon-button-tones';
+import { ICON_SIZE, ICON_STROKE, TriangleAlert } from '@/components/ui/icons';
+import { OrbitalFigure } from '@/components/ui/OrbitalFigure';
 import { TextField } from '@/components/ui/TextField';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { env } from '@/config/env';
@@ -22,9 +33,13 @@ import type { ChangeEvent, FormEvent } from 'react';
 const MockCredentialsHint = lazy(() => import('./MockCredentialsHint'));
 
 const COPY = {
-  EYEBROW: 'Bienvenido',
+  HEADLINE: '¿Sabes hoy si el proyecto va bien, o solo cuánto llevas gastado?',
+  SUBCOPY:
+    'Valor ganado calculado sobre lo que registran tus líderes. Costo y cronograma en la misma lectura, sin hojas de cálculo intermedias.',
+  STANDARD_CHIP: 'PMI · Earned Value',
+  INDICATORS_CHIP: 'CPI · SPI · EAC · VAC',
+  EYEBROW: 'Acceso',
   TITLE: 'Inicia sesión',
-  SUBTITLE: 'Consulta el valor ganado de tus proyectos y registra el avance de tus actividades.',
   EMAIL_LABEL: 'Correo electrónico',
   PASSWORD_LABEL: 'Contraseña',
   SUBMIT: 'Entrar',
@@ -49,6 +64,13 @@ function describeLoginError(error: unknown): string {
   return COPY.GENERIC_ERROR;
 }
 
+/**
+ * View 1 of the redesign: the brand claim on the navy gradient beside the access card.
+ *
+ * The two columns are an auto-fit grid, so they stack on their own when the viewport cannot
+ * hold two 340px tracks. Production ships a single «Entrar»; the demo shortcuts that let an
+ * evaluator sign in as either role live in the mock-only credentials hint.
+ */
 export function LoginPage() {
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
@@ -67,6 +89,12 @@ export function LoginPage() {
   const updateField = (field: keyof LoginRequest) => (event: ChangeEvent<HTMLInputElement>) => {
     setValues((previous) => ({ ...previous, [field]: event.target.value }));
     setFieldErrors((previous) => ({ ...previous, [field]: undefined }));
+  };
+
+  const useCredentials = (credentials: LoginRequest) => {
+    setValues(credentials);
+    setFieldErrors({});
+    setSubmitError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -89,17 +117,20 @@ export function LoginPage() {
   };
 
   return (
-    <div className="grid min-h-dvh place-items-center px-4 py-10">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
+    <div className="relative min-h-dvh bg-[image:var(--tc-grad-sidebar)]">
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle tone={ICON_BUTTON_TONE.ON_NAVY} />
       </div>
-      <div ref={pageRef} className="flex w-full max-w-md flex-col gap-8">
-        <BrandMark />
-        <section className="card flex flex-col gap-6 p-8 shadow-raised">
-          <header className="flex flex-col gap-2">
+      <div
+        ref={pageRef}
+        className="mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(340px,1fr))] items-center gap-12 px-12 py-14"
+      >
+        <BrandPitch />
+
+        <section className="card flex flex-col gap-5 p-8 shadow-raised">
+          <header className="flex flex-col gap-1.5">
             <p className="eyebrow">{COPY.EYEBROW}</p>
-            <h1 className="text-2xl font-semibold text-ink">{COPY.TITLE}</h1>
-            <p className="text-sm text-ink-muted">{COPY.SUBTITLE}</p>
+            <h2 className="text-h2 font-bold text-ink">{COPY.TITLE}</h2>
           </header>
 
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
@@ -123,26 +154,71 @@ export function LoginPage() {
               error={fieldErrors.password}
               required
             />
-            {submitError && (
-              <p
-                role="alert"
-                className="rounded-md bg-danger-soft px-3.5 py-2.5 text-sm text-danger"
-              >
-                {submitError}
-              </p>
-            )}
-            <Button type="submit" loading={submitting} className="mt-1 w-full">
+            {submitError !== null && <SubmitError message={submitError} />}
+            <Button
+              type="submit"
+              size={BUTTON_SIZE.LG}
+              loading={submitting}
+              className="mt-1 w-full"
+            >
               {COPY.SUBMIT}
             </Button>
           </form>
-        </section>
 
-        {env.useMocks && (
-          <Suspense fallback={null}>
-            <MockCredentialsHint />
-          </Suspense>
-        )}
+          {env.useMocks && (
+            <Suspense fallback={null}>
+              <MockCredentialsHint onUseCredentials={useCredentials} />
+            </Suspense>
+          )}
+        </section>
       </div>
+    </div>
+  );
+}
+
+/** Left column: the question the product answers, over the orbital geometry of the brand. */
+function BrandPitch() {
+  return (
+    <div className="relative flex flex-col gap-7">
+      <OrbitalFigure className="absolute -top-[70px] -left-[110px] size-[420px] opacity-50" />
+      <span className="relative">
+        <BrandMark
+          variant={BRAND_MARK_VARIANT.WORDMARK}
+          tone={BRAND_MARK_TONE.ON_NAVY}
+          size={BRAND_TILE_SIZE.MD}
+        />
+      </span>
+      <h1 className="relative max-w-[15ch] font-heading text-[44px] leading-[1.12] font-bold tracking-figure text-white">
+        {COPY.HEADLINE}
+      </h1>
+      <p className="relative max-w-[44ch] font-heading text-[17px] leading-normal font-normal text-white/72">
+        {COPY.SUBCOPY}
+      </p>
+      <div className="relative flex flex-wrap gap-2.5">
+        <Chip tone={CHIP_TONE.BRAND_ON_NAVY}>{COPY.STANDARD_CHIP}</Chip>
+        <Chip tone={CHIP_TONE.OUTLINE_ON_NAVY}>{COPY.INDICATORS_CHIP}</Chip>
+      </div>
+    </div>
+  );
+}
+
+interface SubmitErrorProps {
+  message: string;
+}
+
+function SubmitError({ message }: SubmitErrorProps) {
+  return (
+    <div
+      role="alert"
+      className="flex items-start gap-3 rounded-md bg-danger-soft px-4 py-[14px] text-danger"
+    >
+      <TriangleAlert
+        aria-hidden="true"
+        size={ICON_SIZE.CONTENT}
+        strokeWidth={ICON_STROKE.ALERT}
+        className="mt-px shrink-0"
+      />
+      <p className="text-small">{message}</p>
     </div>
   );
 }
