@@ -15,7 +15,12 @@ import { useAuth } from '@/features/auth/useAuth';
 import { REVEAL_ATTRIBUTE } from '@/motion/constants';
 import { useStaggerReveal } from '@/motion/useStaggerReveal';
 
-import { ACTIVITY_COLUMN_LABELS, ACTIVITIES_REVEAL_SELECTOR, TABLE_CLASS } from './activity-table';
+import {
+  ACTIVITIES_REVEAL_SELECTOR,
+  ACTIVITY_COLUMN_LABELS,
+  TABLE_CLASS,
+  TABLE_ROLE,
+} from './activity-table';
 import { ActivityFormDialog } from './ActivityFormDialog';
 import { ActivityTableHead } from './ActivityTableHead';
 import { OwnedActivityRow } from './OwnedActivityRow';
@@ -30,7 +35,7 @@ const COPY = {
   ASSIGNED: {
     EYEBROW: 'Asignadas',
     TITLE: 'Actividades a mi cargo',
-    DESCRIPTION: 'Avance planificado vs. real, costo registrado e indicadores del reporte.',
+    DESCRIPTION: 'Desviación frente al plan, avance real e indicadores del reporte.',
     CAPTION: 'Actividades de las que soy responsable, con el proyecto al que pertenecen.',
     EMPTY: 'No tienes actividades asignadas.',
   },
@@ -103,10 +108,10 @@ export function MyActivitiesPage() {
             <p className="text-sm text-ink-muted">{COPY.ASSIGNED.EMPTY}</p>
           ) : (
             <div className={TABLE_CLASS.SCROLL_CONTAINER}>
-              <table className={TABLE_CLASS.TABLE}>
+              <table role={TABLE_ROLE.TABLE} className={TABLE_CLASS.TABLE}>
                 <caption className={TABLE_CLASS.CAPTION}>{COPY.ASSIGNED.CAPTION}</caption>
                 <ActivityTableHead contextColumnLabel={ACTIVITY_COLUMN_LABELS.PROJECT} />
-                <tbody ref={bodyRef}>
+                <tbody ref={bodyRef} role={TABLE_ROLE.ROW_GROUP} className={TABLE_CLASS.BODY}>
                   {owned.map((row) => (
                     <OwnedActivityRow key={row.activity.id} owned={row} onEdit={setEditing} />
                   ))}
