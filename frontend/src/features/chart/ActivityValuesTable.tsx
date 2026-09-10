@@ -1,28 +1,31 @@
+import { INDICATORS } from '@/features/evm-report/indicator-copy';
 import { formatIndex, formatMoney } from '@/lib/format';
 
 import { SERIES_KEYS } from './chart-config';
 
-import type { ChartRow } from './chart-rows';
+import type { ActivityBarRow } from './activity-bars';
 
 const COPY = {
-  CAPTION: 'PV, EV y AC por actividad',
-  COLUMNS: {
-    ACTIVITY: 'Actividad',
-    PLANNED_VALUE: 'PV',
-    EARNED_VALUE: 'EV',
-    ACTUAL_COST: 'AC',
-    CPI: 'CPI',
-    SPI: 'SPI',
-  },
+  CAPTION: 'PV, EV, AC y BAC por actividad',
+  ACTIVITY_COLUMN: 'Actividad',
 } as const;
 
+const COLUMNS = [
+  INDICATORS.PLANNED_VALUE,
+  INDICATORS.EARNED_VALUE,
+  INDICATORS.ACTUAL_COST,
+  INDICATORS.BUDGET_AT_COMPLETION,
+  INDICATORS.COST_PERFORMANCE_INDEX,
+  INDICATORS.SCHEDULE_PERFORMANCE_INDEX,
+] as const;
+
 interface ActivityValuesTableProps {
-  rows: readonly ChartRow[];
+  rows: readonly ActivityBarRow[];
 }
 
 /**
- * Accessible equivalent of the chart: an SVG plot says nothing to a screen reader, so the
- * same numbers are exposed as a visually hidden table with headers.
+ * Accessible equivalent of the bars: an SVG plot says nothing to a screen reader, so the
+ * same numbers are exposed as a visually hidden table whose headers name each indicator.
  */
 export function ActivityValuesTable({ rows }: ActivityValuesTableProps) {
   return (
@@ -30,12 +33,12 @@ export function ActivityValuesTable({ rows }: ActivityValuesTableProps) {
       <caption>{COPY.CAPTION}</caption>
       <thead>
         <tr>
-          <th scope="col">{COPY.COLUMNS.ACTIVITY}</th>
-          <th scope="col">{COPY.COLUMNS.PLANNED_VALUE}</th>
-          <th scope="col">{COPY.COLUMNS.EARNED_VALUE}</th>
-          <th scope="col">{COPY.COLUMNS.ACTUAL_COST}</th>
-          <th scope="col">{COPY.COLUMNS.CPI}</th>
-          <th scope="col">{COPY.COLUMNS.SPI}</th>
+          <th scope="col">{COPY.ACTIVITY_COLUMN}</th>
+          {COLUMNS.map((column) => (
+            <th key={column.acronym} scope="col">
+              {`${column.acronym} — ${column.name}`}
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
@@ -45,6 +48,7 @@ export function ActivityValuesTable({ rows }: ActivityValuesTableProps) {
             <td>{formatMoney(row[SERIES_KEYS.PLANNED_VALUE])}</td>
             <td>{formatMoney(row[SERIES_KEYS.EARNED_VALUE])}</td>
             <td>{formatMoney(row[SERIES_KEYS.ACTUAL_COST])}</td>
+            <td>{formatMoney(row.budgetAtCompletion)}</td>
             <td>{formatIndex(row.costPerformanceIndex)}</td>
             <td>{formatIndex(row.schedulePerformanceIndex)}</td>
           </tr>
