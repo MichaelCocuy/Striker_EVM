@@ -374,28 +374,51 @@ de una verificación independiente, y no me habría servido para nada. Lo otro q
 congelar el contrato del API antes de abrir las ramas: es lo que permitió que backend y frontend
 avanzaran a la vez sin rehacer nada al integrar.
 
-**Lo que haría diferente.**
+**Lo que haría diferente.** Dos cosas grandes, y las dos las dejé fuera por tiempo, no porque
+no supiera que faltaban.
 
-1. **Fijar los contratos entre módulos antes de lanzarlos, no después.** El andamiaje del
+1. **La arquitectura, para poder guardar histórico.** Hoy el sistema solo conoce el último
+   estado de cada actividad: los indicadores se calculan al leer y no se persisten. Eso está
+   bien para responder «cómo va el proyecto hoy», pero deja fuera la pregunta que un líder hace
+   enseguida: «¿vamos mejorando o empeorando?». Para contestarla hace falta una tabla de cortes
+   —un `activity_snapshot` con su fecha— y un endpoint que devuelva el consolidado por fecha
+   reutilizando las mismas reglas del dominio, sin duplicar la fórmula. Con eso se activan la
+   curva S acumulada, los _sparklines_ de tendencia y la historia de cada actividad, que hoy no
+   están precisamente porque no quise inventar datos que el modelo no soporta. En la misma
+   línea, el portafolio pide hoy un reporte por proyecto (N+1 peticiones): con más tiempo
+   habría un endpoint que devuelva el consolidado de todos de una vez.
+2. **El sistema de notificaciones.** Es lo que le falta para que el software esté completo, y no
+   es un adorno: cierra el ciclo que justifica los roles. Diseñé la plataforma para que el
+   equipo registre y el revisor analice **y se comunique con el equipo** para corregir el rumbo.
+   Ese último paso hoy no existe. La campana está en la barra superior y el panel dice
+   «aquí aparecerán las actividades críticas de los proyectos que sigues», pero detrás no hay
+   nada: el contrato no tiene un endpoint de alertas. Lo dejé así a propósito, diciendo la
+   verdad en pantalla en lugar de fingir avisos. Con más tiempo, un CPI que cruza el umbral o
+   una actividad que se atrasa dispararía un aviso al responsable y al revisor, y la
+   conversación empezaría sola en vez de esperar a que alguien mire el tablero.
+
+Y cinco lecciones más pequeñas, de proceso:
+
+3. **Fijar los contratos entre módulos antes de lanzarlos, no después.** El andamiaje del
    frontend se construyó sin el contrato OpenAPI disponible, porque iban en paralelo, así que
    sus tipos se escribieron a mano y después hubo que reconciliarlos: `Project.createdBy` era un
    string y el contrato decía objeto, faltaba `expiresIn`, `EvmReport` no tenía `generatedAt`.
    Media hora de trabajo evitable. La lección la apliqué más adelante con las props del tablero:
    ahí fijé el contrato primero y los tres módulos de UI no se pisaron.
-2. **Definir desde el principio dónde vive el texto que ve el usuario.** Las notas de los
+4. **Definir desde el principio dónde vive el texto que ve el usuario.** Las notas de los
    indicadores que no se pueden calcular se escribieron dos veces, con redacciones distintas, y
    hubo que alinearlas. Con una regla explícita desde el arranque —el dominio es el dueño de
    esos textos— no habría pasado.
-3. **Entregar las piezas compartidas de UI antes de repartir los módulos.** Tres módulos
+5. **Entregar las piezas compartidas de UI antes de repartir los módulos.** Tres módulos
    escribieron su propio diálogo modal, su propio campo de formulario y su propio ayudante de
    sesión para las pruebas. Eso costó una pasada de consolidación completa que me habría
    ahorrado un `components/ui` más armado en el andamiaje.
-4. **Usar la aplicación de verdad antes, no al final.** Dos errores solo aparecieron al mirar la
+6. **Usar la aplicación de verdad antes, no al final.** Dos errores solo aparecieron al mirar la
    pantalla: la animación escalonada que nunca se aplicaba porque un componente descartaba el
    atributo que la dispara, y los semáforos que conservaban los colores del tema anterior al
    cambiar de tema. Ninguno lo atrapó una prueba unitaria, y los dos se veían en cinco segundos
    de uso real.
-5. **No poner fechas fijas en pruebas que validan expiración.** Una prueba congelaba el reloj a
+7. **No poner fechas fijas en pruebas que validan expiración.** Una prueba congelaba el reloj a
    las 12:00 UTC y luego decodificaba el token verificando la expiración: pasó toda la mañana y
    empezó a fallar por la tarde, cuando la hora real cruzó las 20:00. Verde no es lo mismo que
    correcto.
