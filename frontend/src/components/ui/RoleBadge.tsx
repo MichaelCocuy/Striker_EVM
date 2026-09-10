@@ -16,7 +16,7 @@ interface RoleBadgeProps {
 export function RoleBadge({ role }: RoleBadgeProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-pill px-2 py-0.5 text-xs font-semibold tracking-wide uppercase ${ROLE_CLASSES[role]}`}
+      className={`inline-flex items-center rounded-pill px-2 py-0.5 font-heading text-badge font-bold tracking-wide uppercase ${ROLE_CLASSES[role]}`}
     >
       {ROLE_LABEL[role]}
     </span>
