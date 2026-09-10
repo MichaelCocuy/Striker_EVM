@@ -1,0 +1,30 @@
+/* ════════════════════════════════════════════════
+   Trycore · Shadows, easing & effects
+   Sombras neutrales — sin tinte de color
+   ════════════════════════════════════════════════ */
+:root {
+  /* ── Sombras (elevación) ── */
+  --tc-sh-1: rgba(0,0,0,.1) 0px 1px 3px, rgba(0,0,0,.06) 0px 1px 2px;  /* KPI / baja */
+  --tc-sh-2: 0 4px 12px rgba(0,0,0,.08);                               /* card / media */
+  --tc-sh-3: 0 12px 32px rgba(0,0,0,.14);                              /* modal / alta */
+  --tc-sh-focus: 0 0 0 3px rgba(100,194,200,.35);                      /* ring teal en inputs */
+
+  /* ── Halo / glow de marca ── */
+  --tc-glow-brand: 0 2px 8px rgba(0,161,154,.45);   /* brand mark */
+  --tc-glow-cta:   0 5px 16px rgba(0,161,154,.42);  /* CTA hover */
+
+  /* ── Easing canónico ── */
+  --tc-ease: cubic-bezier(.4, 0, .2, 1);   /* @kind other */
+
+  /* ── Duraciones ── */
+  --tc-dur-fast: .12s;   /* @kind other */
+  --tc-dur:      .15s;   /* @kind other */
+  --tc-dur-slow: .25s;   /* @kind other */
+}
+
+/* ── Dark mode: sombras más profundas ── */
+[data-theme="dark"] {
+  --tc-sh-1: 0 1px 2px rgba(0,0,0,.4);
+  --tc-sh-2: 0 4px 12px rgba(0,0,0,.5);
+  --tc-sh-3: 0 12px 32px rgba(0,0,0,.6);
+}

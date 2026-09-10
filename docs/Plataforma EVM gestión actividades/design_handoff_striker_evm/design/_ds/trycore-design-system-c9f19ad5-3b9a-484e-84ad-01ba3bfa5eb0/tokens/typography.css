@@ -1,0 +1,36 @@
+/* ════════════════════════════════════════════════
+   Trycore · Typography tokens
+   Poppins (headings) · Karla (body)
+   ════════════════════════════════════════════════ */
+:root {
+  /* ── Familias ── */
+  --tc-font-heading: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+  --tc-font-body:    'Karla', 'Helvetica Neue', Arial, sans-serif;
+
+  /* ── Pesos ── */
+  --tc-fw-regular:  400;   /* @kind font */
+  --tc-fw-medium:   500;   /* @kind font */
+  --tc-fw-semibold: 600;   /* @kind font */
+  --tc-fw-bold:     700;   /* @kind font */
+
+  /* ── Escala (px) ──
+     H1 28–32 · H2 20–24 · H3 16–18 · Body 15 · Small 12–13 · Badge 10–11 */
+  --tc-fs-h1:    30px;
+  --tc-fs-h2:    22px;
+  --tc-fs-h3:    17px;
+  --tc-fs-body:  15px;
+  --tc-fs-small: 13px;
+  --tc-fs-caption: 12px;
+  --tc-fs-badge: 10px;
+
+  /* ── Line-height ── */
+  --tc-lh-h1:   1.25;   /* @kind font */
+  --tc-lh-h2:   1.30;   /* @kind font */
+  --tc-lh-h3:   1.35;   /* @kind font */
+  --tc-lh-body: 1.60;   /* @kind font */
+  --tc-lh-tight: 1.20;   /* @kind font */
+
+  /* ── Letter-spacing ── */
+  --tc-ls-heading: -0.01em;   /* @kind font */
+  --tc-ls-label:    0.55px;   /* @kind font */
+}
