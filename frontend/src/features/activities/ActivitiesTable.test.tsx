@@ -272,9 +272,7 @@ describe('ActivitiesTable', () => {
     const row = rowOf('Sin iniciar');
     const notComputable = within(row).getAllByText(NOT_COMPUTABLE);
     expect(notComputable).toHaveLength(3);
-    expect(
-      notComputable.filter((element) => element.dataset.tone === EVM_TONE.NA),
-    ).toHaveLength(2);
+    expect(notComputable.filter((element) => element.dataset.tone === EVM_TONE.NA)).toHaveLength(2);
     expect(within(row).getAllByText('No aplica')).toHaveLength(2);
     expect(within(row).getByText('CPI no calculable: AC = 0')).toBeInTheDocument();
   });

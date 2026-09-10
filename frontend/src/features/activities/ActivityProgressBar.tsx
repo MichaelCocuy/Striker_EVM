@@ -72,7 +72,7 @@ export function ActivityProgressBar({ input, indicators }: ActivityProgressBarPr
   }, []);
 
   return (
-    <span className="flex items-center gap-3">
+    <span className="flex flex-1 items-center gap-3">
       <span className="sr-only">{reading}</span>
       <span
         aria-hidden="true"
