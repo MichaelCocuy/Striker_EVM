@@ -36,7 +36,6 @@ export const GAUGE_ARC = {
   /** The value is read inside the arc, not under it. */
   VALUE_Y: 100,
   VALUE_FONT_SIZE: 30,
-  VALUE_TRACKING: '-1px',
 } as const;
 
 /** The reference reads as a scale mark ("1,0"), not as an indicator value. */

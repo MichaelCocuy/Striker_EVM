@@ -1,9 +1,9 @@
-import { BAND_INK } from './band-tokens';
-
 /**
- * "Frecuencia Orbitacional": the brand geometry that sits behind the reading band
- * (handoff §3.1). Two 1px rings and a node — never decoration on its own, it orbits the
- * content of the band. Purely presentational, so it is hidden from assistive technology.
+ * "Frecuencia Orbitacional" behind the reading band: two 1px rings and a node (handoff
+ * §3.1). It is the 300px, two-ring variant of `components/ui/OrbitalFigure`, which the login
+ * draws at 420px with three rings; a `size` and a ring list on that primitive would let the
+ * two merge. Never decoration on its own — it orbits the content of the band — and purely
+ * presentational, so it is hidden from assistive technology.
  */
 
 const ORBIT = {
@@ -28,23 +28,23 @@ export function BandOrbit() {
         cy={ORBIT.CENTER}
         r={ORBIT.OUTER_RADIUS}
         fill="none"
-        stroke={BAND_INK.ORBIT_OUTER}
         strokeWidth={ORBIT.RING_WIDTH}
+        className="stroke-accent-on-navy/25"
       />
       <circle
         cx={ORBIT.CENTER}
         cy={ORBIT.CENTER}
         r={ORBIT.INNER_RADIUS}
         fill="none"
-        stroke={BAND_INK.ORBIT_INNER}
         strokeWidth={ORBIT.RING_WIDTH}
         strokeDasharray={ORBIT.INNER_DASH}
+        className="stroke-accent-on-navy/[0.18]"
       />
       <circle
         cx={ORBIT.NODE_X}
         cy={ORBIT.CENTER}
         r={ORBIT.NODE_RADIUS}
-        fill={BAND_INK.ORBIT_NODE}
+        className="fill-[var(--tc-orbit-node)]"
       />
     </svg>
   );

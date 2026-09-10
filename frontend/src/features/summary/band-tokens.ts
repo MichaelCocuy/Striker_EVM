@@ -1,38 +1,44 @@
 import { EVM_TONE } from '@/evm/tone';
 
+import './band-tokens.css';
+
 import type { EvmTone } from '@/evm/tone';
 
 /**
- * Colours of the reading band.
+ * Colours of the reading band, as CSS values rather than literals.
  *
- * The band is the navy plane of the design system (`--tc-grad-band`) in both themes, so it
- * cannot borrow the `--evm-*` inks: those are tuned for a white card and `#A64242` on navy
- * is unreadable. The handoff therefore fixes a lighter ink per tone for this one surface,
- * plus the white alphas its furniture uses. This module is the single place those values
- * live; they belong in `styles/tokens.css`, which the shared tokens module owns.
+ * The four traffic-light inks of this surface are declared in `band-tokens.css`, next to the
+ * reason they cannot be the shared `--evm-*` ones. Everything else here is expressible with
+ * what the design system already carries: `white` at an alpha for the band's own furniture,
+ * and the shell's `--tc-nav-ink-active` and `--tc-orbit-node` for its two teals.
  */
 
 /** Traffic-light ink of the band, legible on navy (handoff §3.1). */
 export const BAND_TONE_INK: Record<EvmTone, string> = {
-  [EVM_TONE.GOOD]: '#86d45f',
-  [EVM_TONE.NEUTRAL]: '#f2d24a',
-  [EVM_TONE.BAD]: '#f08585',
-  [EVM_TONE.NA]: '#9ba4c7',
+  [EVM_TONE.GOOD]: 'var(--evm-good-on-navy)',
+  [EVM_TONE.NEUTRAL]: 'var(--evm-neutral-on-navy)',
+  [EVM_TONE.BAD]: 'var(--evm-bad-on-navy)',
+  [EVM_TONE.NA]: 'var(--evm-na-on-navy)',
 };
 
-/** Furniture of the band: the light teal of its overlines and the white alphas. */
+/**
+ * The same four inks as Tailwind stroke utilities: an SVG presentation attribute does not
+ * accept a `var()`, so the gauge arc wears its tone as a class instead.
+ */
+export const BAND_TONE_STROKE_CLASS: Record<EvmTone, string> = {
+  [EVM_TONE.GOOD]: 'stroke-[var(--evm-good-on-navy)]',
+  [EVM_TONE.NEUTRAL]: 'stroke-[var(--evm-neutral-on-navy)]',
+  [EVM_TONE.BAD]: 'stroke-[var(--evm-bad-on-navy)]',
+  [EVM_TONE.NA]: 'stroke-[var(--evm-na-on-navy)]',
+};
+
+/** Furniture of the band: the light teal of its overlines and white at the handoff's alphas. */
 export const BAND_INK = {
-  OVERLINE: '#7fdcd8',
-  HEADLINE: '#ffffff',
+  OVERLINE: 'var(--tc-nav-ink-active)',
+  HEADLINE: 'var(--color-white)',
   BODY: 'rgb(255 255 255 / 0.68)',
   LABEL: 'rgb(255 255 255 / 0.5)',
   DIVIDER: 'rgb(255 255 255 / 0.14)',
-  GAUGE_TRACK: 'rgb(255 255 255 / 0.14)',
-  GAUGE_MARK: 'rgb(255 255 255 / 0.6)',
-  GAUGE_MARK_LABEL: 'rgb(255 255 255 / 0.55)',
-  ORBIT_OUTER: 'rgb(100 194 200 / 0.25)',
-  ORBIT_INNER: 'rgb(100 194 200 / 0.18)',
-  ORBIT_NODE: '#00ccc2',
 } as const;
 
 /** The band's own background, the one gradient the design system reserves for it. */

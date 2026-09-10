@@ -4,7 +4,7 @@ import { useCountUp } from '@/motion/useCountUp';
 import { useFractionSweep } from '@/motion/useFractionSweep';
 
 import { BAND_LABEL_SEPARATOR } from './band-copy';
-import { BAND_INK, BAND_TONE_INK } from './band-tokens';
+import { BAND_INK, BAND_TONE_STROKE_CLASS } from './band-tokens';
 import {
   EMPTY_ARC,
   GAUGE_ARC,
@@ -27,15 +27,12 @@ const markLabel = pointOnArc(REFERENCE_FRACTION, GAUGE_ARC.MARK_LABEL_RADIUS);
 
 const CELL_CLASS = 'relative flex flex-col items-center gap-1.5';
 const SVG_CLASS = 'w-full max-w-[190px]';
-
+/** White at the alphas the handoff gives the gauge furniture on navy. */
+const TRACK_CLASS = 'stroke-white/[0.14]';
+const MARK_CLASS = 'stroke-white/[0.6]';
+const MARK_LABEL_CLASS = 'fill-white/[0.55]';
 /** The figure inside the arc is Poppins with tabular digits, as every figure of the system. */
-const VALUE_STYLE = {
-  fontFamily: 'var(--font-heading)',
-  fontWeight: 700,
-  fontVariantNumeric: 'tabular-nums lining-nums',
-  letterSpacing: GAUGE_ARC.VALUE_TRACKING,
-  fill: BAND_INK.HEADLINE,
-} as const;
+const VALUE_CLASS = 'numeric fill-white';
 
 export interface BandGaugeProps {
   /** Acronym of the index, e.g. `CPI`. */
@@ -49,14 +46,14 @@ export interface BandGaugeProps {
 }
 
 /**
- * Semicircular gauge for a performance index on the navy band, with 1.0 marked as the EVM
+ * Semicircular gauge for a performance index on the navy band, with 1,0 marked as the EVM
  * reference and the value read inside the arc (handoff §3.1).
  *
  * Hand-rolled SVG rather than a Recharts `RadialBarChart`: the reference mark, the clamped
  * 0-2 scale and the "not computable" state are three things the radial chart cannot express
  * without fighting its polar axis.
  *
- * The plot is hidden from assistive technology; `BandIndicatorList` carries the same figures
+ * The plot is hidden from assistive technology; `BandIndexTable` carries the same figures
  * as text.
  */
 export function BandGauge({ name, value, tone, statusLabel }: BandGaugeProps) {
@@ -73,19 +70,19 @@ export function BandGauge({ name, value, tone, statusLabel }: BandGaugeProps) {
         <path
           d={GAUGE_ARC_PATH}
           fill="none"
-          stroke={BAND_INK.GAUGE_TRACK}
           strokeWidth={GAUGE_ARC.TRACK_WIDTH}
           strokeLinecap="round"
+          className={TRACK_CLASS}
         />
         {sweptFraction > EMPTY_ARC && (
           <path
             d={GAUGE_ARC_PATH}
             fill="none"
-            stroke={BAND_TONE_INK[gaugeTone]}
             strokeWidth={GAUGE_ARC.TRACK_WIDTH}
             strokeLinecap="round"
             pathLength={NORMALISED_PATH_LENGTH}
             strokeDasharray={`${String(sweptFraction)} ${String(NORMALISED_PATH_LENGTH)}`}
+            className={BAND_TONE_STROKE_CLASS[gaugeTone]}
           />
         )}
         <line
@@ -93,16 +90,16 @@ export function BandGauge({ name, value, tone, statusLabel }: BandGaugeProps) {
           y1={markInner.y}
           x2={markOuter.x}
           y2={markOuter.y}
-          stroke={BAND_INK.GAUGE_MARK}
           strokeWidth={GAUGE_ARC.MARK_WIDTH}
           strokeLinecap="round"
+          className={MARK_CLASS}
         />
         <text
           x={markLabel.x}
           y={markLabel.y}
           textAnchor="middle"
           fontSize={GAUGE_ARC.MARK_LABEL_FONT_SIZE}
-          fill={BAND_INK.GAUGE_MARK_LABEL}
+          className={MARK_LABEL_CLASS}
         >
           {GAUGE_REFERENCE_LABEL}
         </text>
@@ -111,7 +108,7 @@ export function BandGauge({ name, value, tone, statusLabel }: BandGaugeProps) {
           y={GAUGE_ARC.VALUE_Y}
           textAnchor="middle"
           fontSize={GAUGE_ARC.VALUE_FONT_SIZE}
-          style={VALUE_STYLE}
+          className={VALUE_CLASS}
         >
           {formatIndex(displayValue)}
         </text>
