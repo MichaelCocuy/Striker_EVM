@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { AXIS_NAME_MAX_CHARS } from './chart-config';
+import { LABEL_MAX_CHARS } from './chart-config';
 import { formatCompactMoney, truncateName } from './chart-format';
 
 describe('formatCompactMoney', () => {
@@ -16,11 +16,11 @@ describe('formatCompactMoney', () => {
 });
 
 describe('truncateName', () => {
-  it('keeps names that fit the axis', () => {
-    expect(truncateName('Desarrollo', AXIS_NAME_MAX_CHARS)).toBe('Desarrollo');
+  it('keeps names that fit the label', () => {
+    expect(truncateName('Desarrollo', LABEL_MAX_CHARS)).toBe('Desarrollo');
   });
 
   it('cuts longer names and marks the cut with an ellipsis', () => {
-    expect(truncateName('Pruebas de integración', AXIS_NAME_MAX_CHARS)).toBe('Pruebas de…');
+    expect(truncateName('Pruebas de integración', LABEL_MAX_CHARS)).toBe('Pruebas de…');
   });
 });

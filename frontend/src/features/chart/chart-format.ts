@@ -1,12 +1,16 @@
 /**
  * Chart-only formatting. Money and index values keep coming from `lib/format.ts`; this file
- * adds the two things an axis needs and nothing else.
+ * adds only what an axis, a bar label and a heat map cell need.
  */
 
-import { LOCALE } from '@/lib/format';
+import { formatNumber, LOCALE, NOT_COMPUTABLE } from '@/lib/format';
 
 const COMPACT_MAX_FRACTION_DIGITS = 1;
+const WHOLE_UNITS = 0;
 const ELLIPSIS = '…';
+
+/** Two decimals: a heat map cell reads the trend of an index, not its fourth decimal. */
+export const HEATMAP_INDEX_DECIMALS = 2;
 
 const compactMoneyFormatter = new Intl.NumberFormat(LOCALE, {
   notation: 'compact',
@@ -15,12 +19,28 @@ const compactMoneyFormatter = new Intl.NumberFormat(LOCALE, {
   maximumFractionDigits: COMPACT_MAX_FRACTION_DIGITS,
 });
 
-/** Axis ticks are compact ("40 mil") so the money scale fits a narrow column. */
+const signedAmountFormatter = new Intl.NumberFormat(LOCALE, {
+  maximumFractionDigits: WHOLE_UNITS,
+  /** A variance is read by its direction first, so the plus sign is written out. */
+  signDisplay: 'exceptZero',
+});
+
+/** Axis ticks and bubble labels are compact ("40 mil") so the scale fits a narrow column. */
 export function formatCompactMoney(value: number): string {
   return compactMoneyFormatter.format(value);
 }
 
-/** Shortens a label for an axis tick; the full text stays available in the tooltip. */
+/** Whole units with an explicit sign ("−10.000"); `null` becomes the not-computable mark. */
+export function formatSignedAmount(value: number | null): string {
+  return value === null ? NOT_COMPUTABLE : signedAmountFormatter.format(value);
+}
+
+/** An index at heat map precision; `null` becomes the not-computable mark. */
+export function formatHeatmapIndex(value: number | null): string {
+  return value === null ? NOT_COMPUTABLE : formatNumber(value, HEATMAP_INDEX_DECIMALS);
+}
+
+/** Shortens a label where space is scarce; the full text stays available as text elsewhere. */
 export function truncateName(name: string, maxChars: number): string {
   if (name.length <= maxChars) {
     return name;

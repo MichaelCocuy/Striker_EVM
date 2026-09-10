@@ -1,0 +1,20 @@
+/*
+ * Traffic-light inks of the reading band.
+ *
+ * The band is the navy plane of the design system (`--tc-grad-band`) in both themes, so it
+ * cannot borrow the `--evm-*` inks: those are tuned for a white card and `#A64242` on navy
+ * is unreadable. The handoff («3.1 Banda de lectura») fixes a lighter ink per tone for this
+ * one surface, and these four values are the only thing it needs that no shared token
+ * carries — the rest of the band is `white` and `--accent-on-navy` with an alpha modifier,
+ * plus `--tc-nav-ink-active` and `--tc-orbit-node` from the shell's own theme layer.
+ *
+ * They live with the module that owns them, following `src/theme/shell-tokens.css`: the
+ * shared token layer in `src/styles/tokens.css` is depended on by every module, and these
+ * belong to one. There is no dark variant on purpose — the surface is navy either way.
+ */
+:root {
+  --evm-good-on-navy: #86d45f;
+  --evm-neutral-on-navy: #f2d24a;
+  --evm-bad-on-navy: #f08585;
+  --evm-na-on-navy: #9ba4c7;
+}
