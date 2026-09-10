@@ -6,13 +6,11 @@ import { useFractionSweep } from './useFractionSweep';
 
 import type { ComparisonRow } from './comparison-rows';
 
-/**
- * The mark overshoots the track above and below so it reads as a scale tick, and the track
- * therefore does not clip: a reference sitting at the 100 % of the scale stays visible.
- */
+/** The track does not clip, so a reference sitting at the 100 % of the scale stays visible. */
 const TRACK_CLASS = 'relative h-4 min-w-0 flex-1 rounded-pill bg-surface-sunken';
 const FILL_CLASS = 'absolute inset-y-0 left-0 rounded-pill';
 const GAP_BAND_CLASS = 'absolute inset-y-0 rounded-pill';
+/** The mark overshoots the track above and below so it reads as a scale tick. */
 const REFERENCE_MARK_CLASS = 'absolute -top-1 -bottom-1 w-0.5 -translate-x-1/2 rounded-pill';
 /** Fixed money column so the three tracks start and end at the same place. */
 const MONEY_CLASS = 'numeric w-28 shrink-0 text-right text-sm font-semibold text-ink';
