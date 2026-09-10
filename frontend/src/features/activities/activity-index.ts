@@ -4,6 +4,7 @@ import {
   costStatusTone,
   scheduleStatusTone,
 } from '@/evm/tone';
+import { formatIndex } from '@/lib/format';
 
 import type { EvmIndicators } from '@/api/types';
 import type { EvmTone } from '@/evm/tone';
@@ -50,14 +51,6 @@ export const ACTIVITY_INDEX_COLUMNS: readonly ActivityIndexDescriptor[] = [
   },
 ];
 
-/** Chip of the table row (12 px, where the column header names the index) and of a card (11 px). */
-export const INDEX_CHIP_SIZE = {
-  ROW: 'text-caption',
-  CARD: 'text-badge',
-} as const;
-
-export type IndexChipSize = (typeof INDEX_CHIP_SIZE)[keyof typeof INDEX_CHIP_SIZE];
-
 export interface ActivityIndexReading {
   tone: EvmTone;
   /** The interpretation the report sent for that traffic light, in Spanish. */
@@ -84,4 +77,33 @@ export function indexStatusReading(
   statusKey: ActivityIndexStatus,
 ): ActivityIndexReading {
   return INDEX_STATUS_READING[statusKey](indicators);
+}
+
+interface ActivityIndexChipOptions {
+  /** Prefixes the chip with the name of the index, where no column header carries it. */
+  withName?: boolean;
+}
+
+/** What a `StatusPill` needs to show one index of the report as a toned figure. */
+export interface ActivityIndexChip {
+  tone: EvmTone;
+  /** The four decimals of EVM_GUIA §7, or the em dash when the index is not computable. */
+  label: string;
+  /** The interpretation the report sent, since «0,8000» does not say it on its own. */
+  description: string;
+}
+
+export function activityIndexChip(
+  index: ActivityIndexDescriptor,
+  indicators: EvmIndicators,
+  { withName = false }: ActivityIndexChipOptions = {},
+): ActivityIndexChip {
+  const reading = indexStatusReading(indicators, index.statusKey);
+  const value = formatIndex(indicators[index.key]);
+
+  return {
+    tone: reading.tone,
+    label: withName ? `${index.label} ${value}` : value,
+    description: reading.label,
+  };
 }

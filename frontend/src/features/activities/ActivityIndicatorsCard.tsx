@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/Card';
+import { STATUS_PILL_SIZE } from '@/components/ui/status-pill-sizes';
 import { StatusPill } from '@/components/ui/StatusPill';
 import {
   COST_STATUS_LABEL,
@@ -8,8 +9,8 @@ import {
 } from '@/evm/tone';
 
 import { ACTIVITY_DETAIL_COPY } from './activity-detail';
+import { activityIndexChip } from './activity-index';
 import { DETAIL_INDICATORS, INDICATOR_KIND, indicatorValue } from './activity-indicators';
-import { ActivityIndexChip } from './ActivityIndexChip';
 
 import type { EvmIndicators } from '@/api/types';
 import type { HTMLAttributes } from 'react';
@@ -57,7 +58,10 @@ export function ActivityIndicatorsCard({ indicators, ...rest }: ActivityIndicato
             </dt>
             <dd>
               {indicator.kind === INDICATOR_KIND.INDEX ? (
-                <ActivityIndexChip index={indicator} indicators={indicators} />
+                <StatusPill
+                  {...activityIndexChip(indicator, indicators)}
+                  size={STATUS_PILL_SIZE.FIGURE}
+                />
               ) : (
                 <span className="numeric text-body text-ink">
                   {indicatorValue(indicator, indicators)}
