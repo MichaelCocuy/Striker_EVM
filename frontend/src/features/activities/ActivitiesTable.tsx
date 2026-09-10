@@ -8,7 +8,7 @@ import { PERMISSIONS } from '@/features/auth/permissions';
 import { useCan } from '@/features/auth/useCan';
 import { useStaggerReveal } from '@/motion/useStaggerReveal';
 
-import { ACTIVITY_COLUMN_LABELS, ACTIVITIES_REVEAL_SELECTOR, TABLE_CLASS } from './activity-table';
+import { ACTIVITIES_REVEAL_SELECTOR, TABLE_CLASS, TABLE_ROLE } from './activity-table';
 import { ActivityDeleteDialog } from './ActivityDeleteDialog';
 import { ActivityFormDialog } from './ActivityFormDialog';
 import { ActivityRow } from './ActivityRow';
@@ -34,7 +34,7 @@ export interface ActivitiesTableProps extends Omit<HTMLAttributes<HTMLElement>, 
 const COPY = {
   EYEBROW: 'Detalle',
   TITLE: 'Actividades',
-  DESCRIPTION: 'Avance planificado y real, costo registrado e indicadores por actividad.',
+  DESCRIPTION: 'Desviación frente al plan, avance real e indicadores por actividad.',
   CAPTION:
     'Actividades del proyecto con su avance, su costo y los indicadores EVM que devuelve el reporte.',
   EMPTY: 'Este proyecto todavía no tiene actividades.',
@@ -113,10 +113,10 @@ export function ActivitiesTable({
         </div>
       ) : (
         <div className={TABLE_CLASS.SCROLL_CONTAINER}>
-          <table className={TABLE_CLASS.TABLE}>
+          <table role={TABLE_ROLE.TABLE} className={TABLE_CLASS.TABLE}>
             <caption className={TABLE_CLASS.CAPTION}>{COPY.CAPTION}</caption>
-            <ActivityTableHead contextColumnLabel={ACTIVITY_COLUMN_LABELS.OWNER} />
-            <tbody ref={bodyRef}>
+            <ActivityTableHead />
+            <tbody ref={bodyRef} role={TABLE_ROLE.ROW_GROUP} className={TABLE_CLASS.BODY}>
               {activities.map((activity) => (
                 <ActivityRow
                   key={activity.id}

@@ -8,6 +8,7 @@ import { ERROR_CODE } from '@/api/errors';
 import { COST_STATUS, SCHEDULE_STATUS } from '@/api/types';
 import { env } from '@/config/env';
 import { HTTP_STATUS } from '@/constants/http';
+import { EVM_TONE } from '@/evm/tone';
 import { NOT_COMPUTABLE } from '@/lib/format';
 import { mockDb, resetMockDatabase } from '@/mocks/db';
 import { evmReportFixture } from '@/mocks/fixtures';
@@ -16,9 +17,30 @@ import { mockServer } from '@/mocks/server';
 import { SEED_USER_EMAIL, renderWithRouter, signInAsSeedUser } from '@/test/render';
 
 import { ActivitiesTable } from './ActivitiesTable';
+import { DEVIATION_DIRECTION } from './activity-deviation';
+import { ACTIVITY_INDICATOR_COLUMNS } from './activity-table';
 
 import type { EvmActivityReport } from '@/api/types';
 import type { RouteObject } from 'react-router-dom';
+
+/** Attributes the row's graphics use to state their tone and their direction. */
+const TONE_ATTRIBUTE = 'data-tone';
+const DIRECTION_ATTRIBUTE = 'data-direction';
+
+/** Hidden reading of the deviation glyph for each activity of the fixture. */
+const DEVIATION_READING = {
+  DESIGN: 'Igual al plan: avance real 100% frente al 100% planificado a la fecha de corte',
+  DEVELOPMENT: 'Por debajo del plan: avance real 40% frente al 50% planificado a la fecha de corte',
+  TESTING: 'Por encima del plan: avance real 30% frente al 20% planificado a la fecha de corte',
+} as const;
+
+/** Hidden reading of the progress bar, which is also where BAC and PV stay reachable. */
+const PROGRESS_READING = {
+  DEVELOPMENT:
+    'Avance real 40% · Avance planificado 50% · Presupuesto total (BAC) 40.000,00 · Valor planificado (PV) 20.000,00',
+  TESTING:
+    'Avance real 30% · Avance planificado 20% · Presupuesto total (BAC) 10.000,00 · Valor planificado (PV) 2.000,00',
+} as const;
 
 const LABEL = {
   NAME: 'Nombre',
@@ -113,10 +135,27 @@ function rowOf(activityName: string): HTMLElement {
   return row;
 }
 
-function cellTextsOf(activityName: string): (string | null)[] {
-  return within(rowOf(activityName))
-    .getAllByRole('cell')
-    .map((cell) => cell.textContent);
+/**
+ * Text of the indicator cells of a row, in the order of `ACTIVITY_INDICATOR_COLUMNS` and
+ * without the label each cell repeats for the stacked layout.
+ */
+function indicatorTextsOf(activityName: string): string[] {
+  const cells = within(rowOf(activityName)).getAllByRole('cell');
+  return ACTIVITY_INDICATOR_COLUMNS.map((column) => {
+    const cell = cells.find((candidate) => candidate.textContent?.startsWith(column.label));
+    if (cell === undefined) {
+      throw new Error(`The row of ${activityName} has no ${column.label} cell`);
+    }
+    return (cell.textContent ?? '').slice(column.label.length);
+  });
+}
+
+function deviationGlyphOf(activityName: string, reading: string): HTMLElement {
+  const glyph = within(rowOf(activityName)).getByText(reading).closest(`[${DIRECTION_ATTRIBUTE}]`);
+  if (!(glyph instanceof HTMLElement)) {
+    throw new Error(`The row of ${activityName} has no deviation glyph`);
+  }
+  return glyph;
 }
 
 async function fillNewActivityForm(dialog: HTMLElement): Promise<void> {
@@ -139,50 +178,101 @@ afterEach(() => mockServer.resetHandlers());
 afterAll(() => mockServer.close());
 
 describe('ActivitiesTable', () => {
-  it('renders one row per activity with the numbers the report brings', () => {
+  it('lays the columns out as the redesigned row reads', () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
+    renderTable();
+
+    expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
+      'Actividad',
+      'Desviación',
+      'Avance',
+      'EV',
+      'AC',
+      'CPI',
+      'SPI',
+      'EAC',
+      'Acciones',
+    ]);
+  });
+
+  it('renders one row per activity with its owner under the name', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable();
 
     expect(screen.getAllByRole('rowheader')).toHaveLength(evmReportFixture.activities.length);
-    /** docs/api/fixtures/evm-report.json, presented with the precision of EVM_GUIA §7. */
-    expect(cellTextsOf('Desarrollo').slice(0, 10)).toEqual([
-      'Ana Registradora',
-      '50%',
-      '40%',
-      '40.000,00',
-      '20.000,00',
-      '16.000,00',
-      '20.000,00',
-      '0,8000',
-      '0,8000',
-      '50.000,00',
-    ]);
-    expect(cellTextsOf('Diseño').slice(3, 10)).toEqual([
-      '10.000,00',
-      '10.000,00',
-      '10.000,00',
-      '9.000,00',
-      '1,1111',
-      '1,0000',
-      '9.000,00',
-    ]);
+    expect(within(rowOf('Desarrollo')).getByText('Ana Registradora')).toBeInTheDocument();
+    expect(within(rowOf('Diseño')).getByText('Carlos Registrador')).toBeInTheDocument();
+    expect(within(rowOf('Pruebas')).getByText('Carlos Registrador')).toBeInTheDocument();
   });
 
-  it('shows the consolidated traffic light of each activity', () => {
+  it('shows the money and each index inside the pill of its traffic light', () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
+    renderTable();
+
+    /** docs/api/fixtures/evm-report.json, presented with the precision of EVM_GUIA §7. */
+    expect(indicatorTextsOf('Desarrollo')).toEqual([
+      '16.000,00',
+      '20.000,00',
+      '0,8000Sobre presupuesto',
+      '0,8000Atrasado',
+      '50.000,00',
+    ]);
+    expect(indicatorTextsOf('Diseño')).toEqual([
+      '10.000,00',
+      '9.000,00',
+      '1,1111Bajo presupuesto',
+      '1,0000En cronograma',
+      '9.000,00',
+    ]);
+
+    const behindRow = rowOf('Desarrollo');
+    for (const pill of within(behindRow).getAllByText('0,8000')) {
+      expect(pill).toHaveAttribute(TONE_ATTRIBUTE, EVM_TONE.BAD);
+    }
+    expect(within(rowOf('Pruebas')).getByText('1,2000')).toHaveAttribute(
+      TONE_ATTRIBUTE,
+      EVM_TONE.GOOD,
+    );
+  });
+
+  it('draws the real progress against its planned marker and keeps BAC and PV readable', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable();
 
     const row = rowOf('Desarrollo');
-    expect(within(row).getByText('Sobre presupuesto')).toBeInTheDocument();
-    expect(within(row).getByText('Atrasado')).toBeInTheDocument();
+    expect(within(row).getByText('40%')).toBeInTheDocument();
+    /** BAC and PV have no column of their own: the bar carries them as text and as a tooltip. */
+    expect(within(row).getByText(PROGRESS_READING.DEVELOPMENT)).toBeInTheDocument();
+    expect(within(row).getByTitle(PROGRESS_READING.DEVELOPMENT)).toBeInTheDocument();
+    expect(within(rowOf('Pruebas')).getByText(PROGRESS_READING.TESTING)).toBeInTheDocument();
   });
 
-  it('renders an em dash for indicators that are not computable', () => {
+  it('says as text which side of the plan each activity is on', () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
+    renderTable();
+
+    expect(deviationGlyphOf('Desarrollo', DEVIATION_READING.DEVELOPMENT)).toHaveAttribute(
+      DIRECTION_ATTRIBUTE,
+      DEVIATION_DIRECTION.BELOW,
+    );
+    expect(deviationGlyphOf('Pruebas', DEVIATION_READING.TESTING)).toHaveAttribute(
+      DIRECTION_ATTRIBUTE,
+      DEVIATION_DIRECTION.ABOVE,
+    );
+    expect(deviationGlyphOf('Diseño', DEVIATION_READING.DESIGN)).toHaveAttribute(
+      DIRECTION_ATTRIBUTE,
+      DEVIATION_DIRECTION.ON_PLAN,
+    );
+  });
+
+  it('renders an em dash in the no-aplica tone for indicators that are not computable', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable({ activities: [notApplicableActivity] });
 
     const row = rowOf('Sin iniciar');
-    expect(within(row).getAllByText(NOT_COMPUTABLE)).toHaveLength(3);
+    const notComputable = within(row).getAllByText(NOT_COMPUTABLE);
+    expect(notComputable).toHaveLength(3);
+    expect(notComputable.filter((element) => element.dataset.tone === EVM_TONE.NA)).toHaveLength(2);
     expect(within(row).getAllByText('No aplica')).toHaveLength(2);
     expect(within(row).getByText('CPI no calculable: AC = 0')).toBeInTheDocument();
   });
