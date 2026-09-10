@@ -17,10 +17,26 @@ Secciones exigidas por el enunciado:
 
 ## 1. Herramientas de IA y por qué
 
-| Herramienta | Uso | Por qué |
-|---|---|---|
-| **Claude Code** (CLI; modelos Claude Fable 5.1 y Claude Opus 5) | Asistente principal: lectura del enunciado, aprendizaje de EVM, propuesta de arquitectura, configuración del repositorio, generación y revisión de código, verificación del stack. | Trabaja directamente sobre el sistema de archivos y la terminal, así que cada prompt se traduce en archivos y commits verificables, y el proceso queda registrado tal como ocurrió en vez de reconstruido. |
-| **Subagentes de Claude Code**, uno por módulo | Construcción en paralelo: cada módulo se desarrolló en su propia rama `feature/*` dentro de un *git worktree* independiente, con instrucciones que fijaban su alcance de archivos, su contrato de interfaz y sus criterios de verificación. | Es lo que permitió que el plan de olas de `docs/ARQUITECTURA.md §8` fuera real: hasta cinco módulos avanzando a la vez. Yo actué como integrador: revisar el código, mergear los PR, resolver los cruces entre módulos y decidir qué aceptar. |
+
+| Herramienta                                                     | Uso                                                                                                                                                                                                                                         | Por qué                                                                                                                                                                                                                                       |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Claude Code** (CLI; modelos Claude Fable 5.1 y Claude Opus 5) | Asistente principal: lectura del enunciado, aprendizaje de EVM, propuesta de arquitectura, configuración del repositorio, generación y revisión de código, verificación del stack.                                                          | Trabaja directamente sobre el sistema de archivos y la terminal, así que cada prompt se traduce en archivos y commits verificables, y el proceso queda registrado tal como ocurrió en vez de reconstruido.                                    |
+| **Subagentes de Claude Code**, uno por módulo                   | Construcción en paralelo: cada módulo se desarrolló en su propia rama `feature/*` dentro de un *git worktree* independiente, con instrucciones que fijaban su alcance de archivos, su contrato de interfaz y sus criterios de verificación. | Es lo que permitió que el plan de olas de `docs/ARQUITECTURA.md §8` fuera real: hasta cinco módulos avanzando a la vez. Yo actué como integrador: revisar el código, mergear los PR, resolver los cruces entre módulos y decidir qué aceptar. |
+| **Claude Design**                                               | Diseño de la interfaz: el sistema visual Trycore (navy + teal, Poppins + Karla), las seis vistas de la plataforma y las siete visualizaciones del tablero. El resultado se exportó como *handoff* y quedó en el repositorio, en `docs/Plataforma EVM gestión actividades`. | Necesitaba decidir la interfaz **antes** de implementarla, y decidirla viéndola. Diseñar en código habría mezclado dos discusiones distintas —cómo se ve y cómo se construye— y habría hecho más caro cambiar de opinión. El *handoff* fija tokens, geometría y comportamiento, así que la implementación se pudo repartir en paralelo contra una referencia única. |
+
+
+**Sobre el diseño.** El enunciado no pide un diseño elaborado, y por eso mismo quise hacerlo:
+la herramienta la va a usar un líder de proyecto que no es técnico, así que la interfaz **es**
+parte de la solución, no su decoración. El diseño completo, con sus tokens, sus assets y su
+propio orden de implementación, está en
+[`docs/Plataforma EVM gestión actividades`](docs/Plataforma%20EVM%20gesti%C3%B3n%20actividades/design_handoff_striker_evm/README.md);
+dejé también la recreación del estado anterior del frontend, para poder comparar qué cambió.
+
+Al implementarlo aparecieron cuatro cifras del prototipo que no se podían derivar de los datos
+reales, y una contradicción interna del propio diseño (el degradado del CTA incumplía la regla de
+contraste que el mismo documento enuncia). Todo eso quedó corregido y documentado en su commit,
+que es justo la clase de decisión que quería poder mostrar: seguir un diseño no es copiarlo sin
+mirar.
 
 **Cómo se repartió el trabajo.** Los subagentes escribieron el volumen de código; las decisiones
 de diseño, la definición de los contratos entre módulos, la revisión y la integración fueron
@@ -41,43 +57,43 @@ y qué archivos produjo. Las sesiones se numeran para mantener la cronología.
 
 ```text
 Empieza por leer el PDF y el md que estan en la carpeta /docs y dime con
-  tus palabras qué piden exactamente:
-  qué se construye, qué estándares son obligatorios, cuáles son los
-  entregables y cómo se evalúan.
+tus palabras qué piden exactamente:
+qué se construye, qué estándares son obligatorios, cuáles son los
+entregables y cómo se evalúan.
 
-  enséñame Earned Value Management, generame un .md. No lo conozco y tengo
-  que
-  poder explicarlo en video sin leer, así que no me des solo las fórmulas:
-  dime qué significa cada indicador, por qué EV no es lo mismo que el
-  dinero gastado, y qué pasa en los casos raros (coste cero, sin avance,
-  sin actividades). ponme un ejemplos con tres
-  actividades y resuélvelo paso a paso para que yo verificar los test que se
-  construyan en un futuro.
+enséñame Earned Value Management, generame un .md. No lo conozco y tengo
+que
+poder explicarlo en video sin leer, así que no me des solo las fórmulas:
+dime qué significa cada indicador, por qué EV no es lo mismo que el
+dinero gastado, y qué pasa en los casos raros (coste cero, sin avance,
+sin actividades). ponme un ejemplos con tres
+actividades y resuélvelo paso a paso para que yo verificar los test que se
+construyan en un futuro.
 
-  adicionalmente debemos proponer la arquitectura y la descomposición en
-  módulos. Quiero ver
-  las dependencias entre ellos, qué se puede hacer en paralelo y que no, ya
-  que la idea es hacer una construccion en paralelo para tener el mayor
-  tiempo posible.
+adicionalmente debemos proponer la arquitectura y la descomposición en
+módulos. Quiero ver
+las dependencias entre ellos, qué se puede hacer en paralelo y que no, ya
+que la idea es hacer una construccion en paralelo para tener el mayor
+tiempo posible.
 
 Configura gitflow desde el primer commit: main, develop, feature/* por módulo y Pull Request a develop aunque trabaje solo. Nada de commits sueltos en main. este es el link al repo que cree en github, esta vacio https://github.com/MichaelCocuy/Striker_EVM
 
-  Ve registrando mis prompts textualmente en AI_PROCESS.md, en orden y sin resumirlos.
+Ve registrando mis prompts textualmente en AI_PROCESS.md, en orden y sin resumirlos.
 ```
 
 **Qué hizo la IA:**
 
 - Leyó `docs/reto.md` y extrajo el texto del PDF con `pdftotext` para confirmar que la
-  transcripción coincide con el original. Resumió el enunciado en el chat.
+transcripción coincide con el original. Resumió el enunciado en el chat.
 - Creó el repositorio local con Gitflow: commit inicial en `main` (README, `.gitignore`,
-  `.gitattributes`, `docs/GITFLOW.md`, plantilla de PR y este archivo), rama `develop`
-  como rama por defecto en GitHub y protección de `main` para exigir Pull Request.
+`.gitattributes`, `docs/GITFLOW.md`, plantilla de PR y este archivo), rama `develop`
+como rama por defecto en GitHub y protección de `main` para exigir Pull Request.
 - Escribió `docs/EVM_GUIA.md` (explicación de EVM, casos borde, ejemplo con tres
-  actividades resuelto paso a paso) y `docs/ARQUITECTURA.md` (módulos, dependencias y
-  plan de construcción en paralelo) en la rama `feature/docs-evm-guide-and-architecture`,
-  integrada a `develop` mediante Pull Request.
+actividades resuelto paso a paso) y `docs/ARQUITECTURA.md` (módulos, dependencias y
+plan de construcción en paralelo) en la rama `feature/docs-evm-guide-and-architecture`,
+integrada a `develop` mediante Pull Request.
 - La sesión se cerró de forma inesperada después del commit inicial local (antes de
-  publicar en GitHub). Se retomó con el Prompt 2.
+publicar en GitHub). Se retomó con el Prompt 2.
 
 ### Prompt 2 — 2026-09-08 — Claude Code
 
@@ -88,12 +104,12 @@ Orca cerro la sesion, continuemos
 **Qué hizo la IA:**
 
 - Revisó el estado del directorio: el commit inicial existía en `main` local pero no había
-  remoto configurado. Conectó `origin`, publicó `main`, creó y publicó `develop`, la fijó
-  como rama por defecto en GitHub y protegió `main` (requiere Pull Request).
+remoto configurado. Conectó `origin`, publicó `main`, creó y publicó `develop`, la fijó
+como rama por defecto en GitHub y protegió `main` (requiere Pull Request).
 - Creó la rama `feature/docs-evm-guide-and-architecture`, escribió `docs/EVM_GUIA.md` y
-  `docs/ARQUITECTURA.md`, verificó con un script en Python (`Decimal`, redondeo *half up*)
-  que todos los números del ejemplo y de los casos borde de la guía son correctos, abrió el
-  PR hacia `develop` y lo integró.
+`docs/ARQUITECTURA.md`, verificó con un script en Python (`Decimal`, redondeo *half up*)
+que todos los números del ejemplo y de los casos borde de la guía son correctos, abrió el
+PR hacia `develop` y lo integró.
 
 ### Prompt 3 — 2026-09-08 — Claude Code
 
@@ -104,11 +120,11 @@ Vamo a usar el Stack FastAPI con PostgreSQL y React con Vite por velocidad, vamo
 **Qué hizo la IA:**
 
 - Registró la decisión de stack (FastAPI + PostgreSQL + React/Vite) y la decisión propia del
-  autor de incorporar roles (ver sección 6), y actualizó `docs/ARQUITECTURA.md` con el
-  módulo de autenticación y roles, los lineamientos de diseño del frontend (GSAP, gráficas)
-  y el grafo de dependencias ajustado.
+autor de incorporar roles (ver sección 6), y actualizó `docs/ARQUITECTURA.md` con el
+módulo de autenticación y roles, los lineamientos de diseño del frontend (GSAP, gráficas)
+y el grafo de dependencias ajustado.
 - Lanzó la ola 1 de construcción en paralelo, cada módulo en su propio *git worktree* y rama
-  `feature/*`: contrato OpenAPI + fixtures, dominio EVM con tests, andamiaje del frontend.
+`feature/*`: contrato OpenAPI + fixtures, dominio EVM con tests, andamiaje del frontend.
 
 ### Prompt 4 — 2026-09-08 — Claude Code
 
@@ -171,6 +187,41 @@ esperados anotados en comentarios, recreó la base desde cero en Docker y verifi
 contra el API, comprobó la idempotencia del script y documentó el conjunto en el README y en
 `docs/EVM_GUIA.md §9`.
 
+### Prompt 9 — 2026-09-09 — Claude Code
+
+```text
+Entregame el acceso login de cada uno de los usuarios diseñados para la plataforma, en paralelo debemo hacer que el dashboard del revisor tenga una mejor experiencia de uduario, esto con el objetivo de que a primera vista entienda como va el proyecto bien o mal, es el objetivo del ejercicio [Image #1] enesta imagen te presento una idea de lo que diseñe para entender de manera rapida, en cuanto a graficas y de mas presentame una propuesta util que ayude a entender de manera sencilla estos calculos y mejoremos la distyribucion del dashboard
+```
+
+*(El prompt venía acompañado de una imagen: un diseño de la tabla de actividades con columnas
+Actividad, Tendencia, Avance, EV, AC, CPI, SPI y EAC, con barra de progreso y los índices en
+pastillas de color.)*
+
+**Qué hizo la IA:** verificó los tres accesos contra el stack y los entregó; propuso y
+construyó una nueva distribución del dashboard en cuatro bandas (veredicto → la foto →
+dónde está el problema → detalle) para que el estado del proyecto se entienda de un vistazo.
+Señaló que la columna "Tendencia" del diseño implica una serie de tiempo que el modelo de
+datos no tiene (una sola fecha de corte), así que la implementó como desviación plan→real en
+lugar de inventar un histórico.
+
+---
+
+### Prompt 10 — 2026-09-09 — Claude Code
+
+```text
+en la carpeta docs en la carpeta plataforma evm gestion actividades te deje un diseño realizado con claude design de lo que quiero implementar y como quiero que funcione la interfaz grafica, menu colores, tienes ahi los assets, asi que vamos a realizar dicha implementacion
+```
+
+**Qué hizo la IA:** leyó el *handoff* de diseño (`docs/Plataforma EVM gestión actividades`), que
+especifica el sistema Trycore (navy + teal, Poppins + Karla), seis vistas y siete
+visualizaciones, con su propio orden de implementación. Empezó por la capa que lo habilita todo
+—tokens, tema y tipografía— repuntando los nombres semánticos existentes a los valores Trycore
+para no romper ninguna utilidad, y siguió con el resto de las vistas en paralelo. La curva S
+queda fuera de esta entrega porque el propio diseño la marca como dependiente de un histórico de
+cortes que el modelo de datos no tiene.
+
+---
+
 ### Prompt 11 — 2026-09-09 — Claude Code
 
 ```text
@@ -194,40 +245,8 @@ sin estarlo— y que el valor literal del handoff, `minmax(340px, 1fr)`, sí des
 
 ---
 
-### Prompt 10 — 2026-09-09 — Claude Code
-
-```text
-en la carpeta docs en la carpeta plataforma evm gestion actividades te deje un diseño realizado con claude design de lo que quiero implementar y como quiero que funcione la interfaz grafica, menu colores, tienes ahi los assets, asi que vamos a realizar dicha implementacion
-```
-
-**Qué hizo la IA:** leyó el *handoff* de diseño (`docs/Plataforma EVM gestión actividades`), que
-especifica el sistema Trycore (navy + teal, Poppins + Karla), seis vistas y siete
-visualizaciones, con su propio orden de implementación. Empezó por la capa que lo habilita todo
-—tokens, tema y tipografía— repuntando los nombres semánticos existentes a los valores Trycore
-para no romper ninguna utilidad, y siguió con el resto de las vistas en paralelo. La curva S
-queda fuera de esta entrega porque el propio diseño la marca como dependiente de un histórico de
-cortes que el modelo de datos no tiene.
-
----
-
-### Prompt 9 — 2026-09-09 — Claude Code
-
-```text
-Entregame el acceso login de cada uno de los usuarios diseñados para la plataforma, en paralelo debemo hacer que el dashboard del revisor tenga una mejor experiencia de uduario, esto con el objetivo de que a primera vista entienda como va el proyecto bien o mal, es el objetivo del ejercicio [Image #1] enesta imagen te presento una idea de lo que diseñe para entender de manera rapida, en cuanto a graficas y de mas presentame una propuesta util que ayude a entender de manera sencilla estos calculos y mejoremos la distyribucion del dashboard
-```
-
-_(El prompt venía acompañado de una imagen: un diseño de la tabla de actividades con columnas
-Actividad, Tendencia, Avance, EV, AC, CPI, SPI y EAC, con barra de progreso y los índices en
-pastillas de color.)_
-
-**Qué hizo la IA:** verificó los tres accesos contra el stack y los entregó; propuso y
-construyó una nueva distribución del dashboard en cuatro bandas (veredicto → la foto →
-dónde está el problema → detalle) para que el estado del proyecto se entienda de un vistazo.
-Señaló que la columna "Tendencia" del diseño implica una serie de tiempo que el modelo de
-datos no tiene (una sola fecha de corte), así que la implementó como desviación plan→real en
-lugar de inventar un histórico.
-
----
+_Fin del registro de prompts. El autor cierra aquí la bitácora: las secciones que siguen las
+escribió él, y a partir de este punto el trabajo continuó sin añadir entradas nuevas._
 
 ## 3. Cómo aprendí EVM y cómo validé las fórmulas
 
@@ -240,19 +259,19 @@ video exige explicar EVM con mis palabras, y una lista de fórmulas no se puede 
 **Cómo validé que entendí antes de implementar.** Tres filtros, en este orden:
 
 1. **Prueba de intuición previa al cálculo.** En el ejemplo de `EVM_GUIA.md §6.1` primero
-   escribí qué debería pasar leyendo los datos (Diseño terminó y costó menos: bien;
-   Desarrollo debía ir al 50 % y va al 40 % habiendo gastado la mitad: atrasado y caro;
-   Pruebas arrancó antes y barato: bien). Después calculé. Los números coincidieron con la
-   intuición. Si no hubieran coincidido, el error estaría en mi entendimiento o en las
-   fórmulas, y había que parar.
+ escribí qué debería pasar leyendo los datos (Diseño terminó y costó menos: bien;
+ Desarrollo debía ir al 50 % y va al 40 % habiendo gastado la mitad: atrasado y caro;
+ Pruebas arrancó antes y barato: bien). Después calculé. Los números coincidieron con la
+ intuición. Si no hubieran coincidido, el error estaría en mi entendimiento o en las
+ fórmulas, y había que parar.
 2. **Recálculo independiente con `Decimal`.** Antes de escribir una línea de código de
-   producción, recalculé el ejemplo completo y los ocho casos borde con un script aparte
-   usando `decimal.Decimal` y redondeo *half up*, y comparé campo por campo con la tabla de
-   la guía. Todo coincidió.
+ producción, recalculé el ejemplo completo y los ocho casos borde con un script aparte
+ usando `decimal.Decimal` y redondeo *half up*, y comparé campo por campo con la tabla de
+ la guía. Todo coincidió.
 3. **Comprobación cruzada de EAC.** El reto fija `EAC = BAC / CPI`. Verifiqué que es
-   algebraicamente igual a `AC + (BAC − EV) / CPI`: ambas dan 65 172,41 para el proyecto de
-   ejemplo. Dos caminos distintos al mismo número es evidencia de que la fórmula se entendió,
-   no se copió.
+ algebraicamente igual a `AC + (BAC − EV) / CPI`: ambas dan 65 172,41 para el proyecto de
+ ejemplo. Dos caminos distintos al mismo número es evidencia de que la fórmula se entendió,
+ no se copió.
 
 **Dónde me equivocaría sin esto.** Dos confusiones que la guía desmonta y que eran mías al
 empezar: creer que EV es "lo que llevo gastado" (es lo producido valorado al precio del plan)
@@ -263,34 +282,11 @@ que el promedio da 1,0370 —"va bien"— cuando el consolidado real es 0,9206 �
 
 ## 4. Decisiones donde no seguí a la IA
 
-_El autor redacta esta sección con sus palabras. Estos son los desacuerdos reales que
-ocurrieron durante la sesión, anotados en el momento para que no haya que reconstruirlos
-después:_
+*Aquí fueron varias, la Guía me pedía netamente la herramienta y yo quise ir mas allá, una plataforma donde participen diferentes roles del equipo donde realmente sea el equipo el que registre sus actividades y el revisor o la persona a cargo de tomar las decisiones analice y se comunique con el equipo para mejorar la situación, eso realmente agrega valor y da a conocer que entiendes este tema y quieres hacer notar una implementación limpia pensando en la funcionalidad y en los resultados de esta solución.*  
+  
+*También entiendo que la prueba no exige el máximo diseño pero para mostrar mi habilidad necesito del mismo para demostrar dominio del tema, porque si se como mostrarlo, se como mostrarlo de una mejor manera e implementar mejoras y segundo para demostrar mis habilidades blandas sobre todo en la comunicación entendiendo como un usuario no técnico puede interactuar con mi plataforma y enseñarle la mejor solución para su producto*
 
-**Candidato 1 — Sin usuarios ni roles.** La propuesta de arquitectura de la IA modelaba
-proyectos y actividades sin ningún concepto de usuario: cualquiera podía editar cualquier
-cosa. El enunciado no pide autenticación, así que la IA la omitió por economía. Decidí
-incorporar roles `REGISTRAR` / `REVIEWER` porque el dato de avance necesita un dueño
-responsable y porque la herramienta que describe el enunciado tiene dos audiencias
-distintas. Costo asumido: un módulo extra (M3b) y más superficie de pruebas. Detalle en la
-sección 6.
-
-**Candidato 2 — Textos de las notas de indicadores no calculables.** El agente que escribió
-el contrato del API generó notas verbosas y autoexplicativas del tipo `"CPI no calculable:
-sin costo registrado (AC = 0). EAC y VAC no se pueden proyectar."`. El módulo de dominio, ya
-integrado, usaba las constantes cortas de `EVM_GUIA.md` (`"No aplica: sin costo
-registrado"`). En vez de aceptar la versión del contrato, se alinearon las *fixtures* con las
-constantes del dominio: el dominio es la fuente de verdad de un texto que es **dato de
-negocio**, no documentación, y tener dos redacciones del mismo estado habría hecho imposible
-que el test de integración comparara la respuesta completa.
-
-**Candidato 3 — `EmailStr` en el login.** La IA propuso validar el email con `EmailStr` de
-Pydantic. Se rechazó: `email-validator` rechaza el TLD reservado `.local` que usan los
-usuarios semilla, así que la validación "más correcta" habría roto el login de la demo. Se
-usó un `string` con longitud acotada.
-
----
-
+  
 ## 5. Cómo verifiqué que los cálculos son correctos
 
 La distinción que me importaba: **que el código corra no prueba que los números tengan
@@ -298,29 +294,29 @@ sentido**. Un test que solo verifica que una función retorna algo no verifica n
 hice:
 
 1. **Oráculo escrito antes del código.** `docs/EVM_GUIA.md §5` y `§6` contienen los valores
-   esperados de las tres actividades, del consolidado y de los ocho casos borde, resueltos a
-   mano y recalculados aparte con `Decimal`. Ese documento se escribió y se mergeó **antes**
-   de la rama del dominio. Los tests unitarios comparan contra esas cifras exactas, no contra
-   lo que devuelva la implementación.
+ esperados de las tres actividades, del consolidado y de los ocho casos borde, resueltos a
+ mano y recalculados aparte con `Decimal`. Ese documento se escribió y se mergeó **antes**
+ de la rama del dominio. Los tests unitarios comparan contra esas cifras exactas, no contra
+ lo que devuelva la implementación.
 2. **Cifras exactas, no aproximaciones.** Las pruebas comparan `Decimal` con la escala
-   definida (2 decimales en dinero, 4 en índices) y modo *half up* explícito. Esto atrapó una
-   decisión que un `assertAlmostEqual` habría escondido: `0.90625` redondea a `0.9063` con
-   *half up* y a `0.9062` con el modo por defecto de Python (*banker's rounding*).
+ definida (2 decimales en dinero, 4 en índices) y modo *half up* explícito. Esto atrapó una
+ decisión que un `assertAlmostEqual` habría escondido: `0.90625` redondea a `0.9063` con
+ *half up* y a `0.9062` con el modo por defecto de Python (*banker's rounding*).
 3. **Prueba de que no se promedian índices.** Hay un test dedicado a que el CPI del proyecto
-   sea `ΣEV / ΣAC = 0.9206` y **no** el promedio de los CPI de actividad (`1.0370`). Es el
-   error conceptual más fácil de cometer y el que más engaña al usuario, así que está fijado
-   por un test que falla si alguien "simplifica" el cálculo.
+ sea `ΣEV / ΣAC = 0.9206` y **no** el promedio de los CPI de actividad (`1.0370`). Es el
+ error conceptual más fácil de cometer y el que más engaña al usuario, así que está fijado
+ por un test que falla si alguien "simplifica" el cálculo.
 4. **Comprobación de cordura en casos límite.** En la actividad terminada al 100 % con
-   sobrecosto (`§5.7`), `EAC` debe dar exactamente el `AC` real (1 200): si ya terminó, lo que
-   costará al terminar es lo que costó. Que el número caiga solo, sin caso especial en el
-   código, es señal de que la fórmula es la correcta.
+ sobrecosto (`§5.7`), `EAC` debe dar exactamente el `AC` real (1 200): si ya terminó, lo que
+ costará al terminar es lo que costó. Que el número caiga solo, sin caso especial en el
+ código, es señal de que la fórmula es la correcta.
 5. **Precisión intermedia.** `EAC = BAC / CPI` se calcula con el CPI **sin redondear**. Con el
-   CPI redondeado a 4 decimales el proyecto daría 65 174,89 en vez de 65 172,41. Hay un test
-   que fija ese valor para que nadie mueva el redondeo hacia arriba en la cadena.
+ CPI redondeado a 4 decimales el proyecto daría 65 174,89 en vez de 65 172,41. Hay un test
+ que fija ese valor para que nadie mueva el redondeo hacia arriba en la cadena.
 6. **Contrato y dominio comparados entre sí.** Las *fixtures* del contrato
-   (`docs/api/fixtures/evm-report.json`) se validaron con un recálculo independiente y luego
-   se alinearon con las constantes de texto del dominio, de modo que el test de integración
-   pueda comparar la respuesta HTTP completa contra el mismo oráculo.
+ (`docs/api/fixtures/evm-report.json`) se validaron con un recálculo independiente y luego
+ se alinearon con las constantes de texto del dominio, de modo que el test de integración
+ pueda comparar la respuesta HTTP completa contra el mismo oráculo.
 
 Resultado en el momento de escribir esto: dominio EVM con 49 pruebas unitarias y 100 % de
 cobertura; capa de negocio del backend por encima del 80 % exigido.
@@ -333,26 +329,26 @@ cobertura; capa de negocio del backend por encima del 80 % exigido.
 que la IA lo propusiera (la propuesta de arquitectura inicial no tenía usuarios ni roles).
 
 - **Qué se decidió:** la herramienta distingue dos roles. El **registrador** (`REGISTRAR`)
-  es quien ejecuta el trabajo y reporta el avance real y el costo de *sus* actividades. El
-  **revisor** (`REVIEWER`) administra los proyectos, asigna responsables y revisa el estado
-  consolidado (indicadores EVM) para saber cómo va el proyecto.
+es quien ejecuta el trabajo y reporta el avance real y el costo de *sus* actividades. El
+**revisor** (`REVIEWER`) administra los proyectos, asigna responsables y revisa el estado
+consolidado (indicadores EVM) para saber cómo va el proyecto.
 - **Por qué:** en un proyecto real quien registra el avance y quien lo evalúa no son la
-  misma persona; separar los roles hace que el dato de avance tenga un dueño responsable y
-  que el reporte EVM llegue a quien toma decisiones. También refleja cómo funciona la
-  herramienta interna que describe el enunciado (líderes que registran, dirección que
-  revisa).
+misma persona; separar los roles hace que el dato de avance tenga un dueño responsable y
+que el reporte EVM llegue a quien toma decisiones. También refleja cómo funciona la
+herramienta interna que describe el enunciado (líderes que registran, dirección que
+revisa).
 - **Costo asumido:** un módulo adicional de autenticación (JWT) y autorización en el
-  backend, una pantalla de login y vistas por rol en el frontend, y usuarios semilla en el
-  script de base de datos. El detalle del diseño está en `docs/ARQUITECTURA.md §11`.
+backend, una pantalla de login y vistas por rol en el frontend, y usuarios semilla en el
+script de base de datos. El detalle del diseño está en `docs/ARQUITECTURA.md §11`.
 
-_El autor ampliará esta sección con sus propias palabras al cerrar el módulo._
+*El autor ampliará esta sección con sus propias palabras al cerrar el módulo.*
 
 ---
 
 ## 7. Reflexión: qué haría diferente
 
-_El autor reescribe esta sección con sus palabras. Estos son los hechos de la sesión que
-sirven de base, anotados sin adornos:_
+*El autor reescribe esta sección con sus palabras. Estos son los hechos de la sesión que
+sirven de base, anotados sin adornos:*
 
 **Lo que funcionó.** Escribir la guía de EVM y resolver el ejemplo a mano **antes** de tocar
 código. Ese documento fue el oráculo de los tests y el guion del video; si se hubiera escrito
@@ -363,28 +359,28 @@ que hizo posible que backend y frontend avanzaran a la vez sin rehacer nada al i
 **Lo que haría diferente.**
 
 1. **Fijar los contratos entre módulos antes de lanzarlos, no después.** El andamiaje del
-   frontend se construyó sin el contrato OpenAPI disponible (iban en paralelo), así que sus
-   tipos se escribieron a mano y hubo que reconciliarlos: `Project.createdBy` era un string y
-   el contrato decía objeto, faltaba `expiresIn`, `EvmReport` no tenía `generatedAt`. Media
-   hora de trabajo evitable. La lección se aplicó después con las props del dashboard: ahí sí
-   se fijó el contrato primero y los tres módulos de UI no se pisaron.
+ frontend se construyó sin el contrato OpenAPI disponible (iban en paralelo), así que sus
+ tipos se escribieron a mano y hubo que reconciliarlos: `Project.createdBy` era un string y
+ el contrato decía objeto, faltaba `expiresIn`, `EvmReport` no tenía `generatedAt`. Media
+ hora de trabajo evitable. La lección se aplicó después con las props del dashboard: ahí sí
+ se fijó el contrato primero y los tres módulos de UI no se pisaron.
 2. **Definir dónde vive el texto de negocio desde el principio.** Las notas de los indicadores
-   no calculables se escribieron dos veces con redacciones distintas (dominio y contrato), y
-   hubo que alinearlas. Con una regla explícita desde el inicio — "el dominio es dueño de los
-   textos que ve el usuario" — no habría pasado.
+ no calculables se escribieron dos veces con redacciones distintas (dominio y contrato), y
+ hubo que alinearlas. Con una regla explícita desde el inicio — "el dominio es dueño de los
+ textos que ve el usuario" — no habría pasado.
 3. **Poner las piezas compartidas de UI antes de repartir los módulos.** Tres módulos
-   escribieron su propio diálogo modal, su propio campo de formulario y su propio helper de
-   sesión para tests. Salió una pasada de consolidación completa que se habría evitado
-   entregando `components/ui` más completo en el andamiaje.
+ escribieron su propio diálogo modal, su propio campo de formulario y su propio helper de
+ sesión para tests. Salió una pasada de consolidación completa que se habría evitado
+ entregando `components/ui` más completo en el andamiaje.
 4. **Ejecutar la aplicación de verdad antes, no al final.** Dos bugs solo aparecieron al mirar
-   el resultado: el atributo `data-reveal` que `PlaceholderCard` descartaba (la animación
-   escalonada no se aplicaba nunca) y los semáforos conservando los colores del tema anterior.
-   Ninguno de los dos lo atrapó un test unitario, y ambos eran visibles en cinco segundos de
-   uso real.
+ el resultado: el atributo `data-reveal` que `PlaceholderCard` descartaba (la animación
+ escalonada no se aplicaba nunca) y los semáforos conservando los colores del tema anterior.
+ Ninguno de los dos lo atrapó un test unitario, y ambos eran visibles en cinco segundos de
+ uso real.
 5. **No usar fechas fijas en pruebas que validan expiración.** Una prueba congelaba el reloj a
-   las 12:00 UTC y decodificaba el token verificando la expiración: pasó toda la mañana y
-   empezó a fallar por la tarde, cuando la hora real cruzó las 20:00 UTC. Verde no es lo mismo
-   que correcto.
+ las 12:00 UTC y decodificaba el token verificando la expiración: pasó toda la mañana y
+ empezó a fallar por la tarde, cuando la hora real cruzó las 20:00 UTC. Verde no es lo mismo
+ que correcto.
 
 **Sobre el uso de IA.** Lo más útil no fue que escribiera código, sino que obligara a escribir
 el razonamiento primero: la guía de EVM, el contrato, el grafo de dependencias. Lo que más
