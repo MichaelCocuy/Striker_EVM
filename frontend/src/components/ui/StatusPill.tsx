@@ -22,19 +22,17 @@ const BASE_CLASSES = 'inline-flex items-center rounded-pill font-heading font-se
 
 const SIZE_CLASSES: Record<StatusPillSize, string> = {
   [STATUS_PILL_SIZE.MD]: 'gap-2 px-3 py-1 text-caption',
-  [STATUS_PILL_SIZE.SM]: 'gap-1.5 px-2 py-0.5 text-badge tracking-label uppercase',
+  [STATUS_PILL_SIZE.SM]: 'px-[9px] py-[3px] text-[10.5px] tracking-[0.4px]',
 };
 
-const DOT_SIZE_CLASSES: Record<StatusPillSize, string> = {
-  [STATUS_PILL_SIZE.MD]: 'size-2',
-  [STATUS_PILL_SIZE.SM]: 'size-1.5',
-};
+/** The dot is what the row has no space for, so only the card-sized chip carries it. */
+const SIZES_WITH_DOT: readonly StatusPillSize[] = [STATUS_PILL_SIZE.MD];
 
 /**
  * Traffic-light chip whose colors cross-fade when the tone changes.
  *
- * The label always travels with the dot: the handoff forbids the traffic light communicating
- * by colour alone.
+ * The label always travels with the tone — the handoff forbids the traffic light
+ * communicating by colour alone — which is why the dot is the part the compact size drops.
  */
 export function StatusPill({ tone, label, size = STATUS_PILL_SIZE.MD }: StatusPillProps) {
   const pillRef = useRef<HTMLSpanElement>(null);
@@ -50,11 +48,13 @@ export function StatusPill({ tone, label, size = STATUS_PILL_SIZE.MD }: StatusPi
         color: `var(${STATUS_COLOR_VARIABLE})`,
       }}
     >
-      <span
-        aria-hidden="true"
-        className={`rounded-pill ${DOT_SIZE_CLASSES[size]}`}
-        style={{ backgroundColor: `var(${STATUS_COLOR_VARIABLE})` }}
-      />
+      {SIZES_WITH_DOT.includes(size) && (
+        <span
+          aria-hidden="true"
+          className="size-2 rounded-pill"
+          style={{ backgroundColor: `var(${STATUS_COLOR_VARIABLE})` }}
+        />
+      )}
       {label}
     </span>
   );

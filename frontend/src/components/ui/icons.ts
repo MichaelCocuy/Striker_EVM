@@ -5,9 +5,10 @@
  * list instead of picking a look-alike: `layout-dashboard` is the portfolio, `bar-chart-2` the
  * project dashboard, `file-text` my activities, `plus` a new record, `arrow-right` the
  * affordance of a clickable row, `arrow-left` going back, `x` closing, `triangle-alert` a
- * critical activity. `menu`, `sun` and `moon` are not in the handoff's list: they serve the
- * responsive drawer and the theme toggle, which are behaviour the redesign keeps rather than
- * views it specifies.
+ * critical activity, and `pencil` / `trash-2` the two management actions of a row.
+ *
+ * `menu`, `sun` and `moon` are not in the handoff's list: they serve the responsive drawer and
+ * the theme toggle, which are behaviour the redesign keeps rather than views it specifies.
  *
  * Unicode glyphs and emoji are never icons here.
  */
@@ -20,9 +21,11 @@ export {
   LayoutDashboard,
   Menu,
   Moon,
+  Pencil,
   Plus,
   Search,
   Sun,
+  Trash2,
   TriangleAlert,
   X,
 } from 'lucide-react';

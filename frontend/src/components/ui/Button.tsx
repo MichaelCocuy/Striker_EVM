@@ -18,10 +18,10 @@ const BASE_CLASSES =
 /**
  * Shape, case and colour of each variant.
  *
- * The four emphatic variants are pills in uppercase with the tracking of the system; `ghost`
- * is the quiet one (logout, dismiss) and keeps sentence case on the 4px radius. `secondary`
- * outlines in `--ink`, which is the handoff's navy in the light theme and stays legible in the
- * dark one.
+ * The four emphatic variants are pills in uppercase with the tracking of the system; the three
+ * ghosts are the quiet ones (logout, dismiss, the actions of a row) and keep sentence case on
+ * the 4px radius. `secondary` outlines in `--ink`, which is the handoff's navy in the light
+ * theme and stays legible in the dark one.
  */
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   [BUTTON_VARIANT.PRIMARY]:
@@ -34,11 +34,16 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     'rounded-pill uppercase tracking-[1.2px] bg-danger-soft text-danger hover:enabled:bg-danger hover:enabled:text-white',
   [BUTTON_VARIANT.GHOST]:
     'rounded-md text-ink-muted hover:enabled:bg-surface-sunken hover:enabled:text-ink',
+  [BUTTON_VARIANT.GHOST_DANGER]: 'rounded-md text-danger hover:enabled:bg-danger-soft',
+  [BUTTON_VARIANT.GHOST_ON_NAVY]:
+    'rounded-md text-white/68 hover:enabled:bg-white/9 hover:enabled:text-white',
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
   [BUTTON_SIZE.MD]: 'px-[18px] py-[10px] text-[11.5px]',
   [BUTTON_SIZE.LG]: 'px-5 py-[13px] text-small',
+  [BUTTON_SIZE.ICON]: 'size-9 shrink-0 p-0',
+  [BUTTON_SIZE.ICON_SM]: 'size-8 shrink-0 p-0',
 };
 
 export function Button({

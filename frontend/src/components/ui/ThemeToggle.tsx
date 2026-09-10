@@ -15,7 +15,7 @@ interface ThemeToggleProps {
   tone?: IconButtonTone;
 }
 
-export function ThemeToggle({ tone = ICON_BUTTON_TONE.QUIET }: ThemeToggleProps) {
+export function ThemeToggle({ tone = ICON_BUTTON_TONE.NEUTRAL }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === THEMES.DARK;
   const label = isDark ? LABEL_TO_LIGHT : LABEL_TO_DARK;
