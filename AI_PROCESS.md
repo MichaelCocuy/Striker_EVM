@@ -171,6 +171,29 @@ esperados anotados en comentarios, recreó la base desde cero en Docker y verifi
 contra el API, comprobó la idempotencia del script y documentó el conjunto en el README y en
 `docs/EVM_GUIA.md §9`.
 
+### Prompt 11 — 2026-09-09 — Claude Code
+
+```text
+[Imagen del login] deberemos mejorar esta implementacion del login ya que como observas en imagen esta no se encuentra distrubuida de manera adecuada en la pantalla
+```
+
+**Qué hizo la IA:** la captura mostraba el contenido pegado al borde superior con la mitad
+inferior del degradado vacía. La causa: el contenedor exterior tenía alto de pantalla completa
+pero la rejilla interior solo ocupaba el alto de su contenido, así que quedaba anclada arriba
+(`items-center` centra los ítems dentro de su fila, no la rejilla dentro de la pantalla).
+
+Para verificarlo consiguió por fin medir el navegador: los flags de proxy (`--proxy-server=direct://`
+con `--proxy-bypass-list=*`) desbloquearon el navegador headless que hasta entonces devolvía
+`ERR_EMPTY_RESPONSE` en puertos locales. Con eso midió por el protocolo de DevTools el centrado
+(265 px arriba y 265 abajo a 1920×1058) y el desbordamiento horizontal a 360, 640, 900 y 1920 px.
+
+De paso descubrió dos cosas que solo aparecen al medir: que las capturas headless estrechas
+engañan —el navegador maqueta a ~800 px y recorta la imagen, así que el texto *parece* cortado
+sin estarlo— y que el valor literal del handoff, `minmax(340px, 1fr)`, sí desborda por debajo de
+~388 px de viewport, porque la pista nunca baja de 340 px.
+
+---
+
 ### Prompt 10 — 2026-09-09 — Claude Code
 
 ```text

@@ -67,9 +67,16 @@ function describeLoginError(error: unknown): string {
 /**
  * View 1 of the redesign: the brand claim on the navy gradient beside the access card.
  *
- * The two columns are an auto-fit grid, so they stack on their own when the viewport cannot
- * hold two 340px tracks. Production ships a single «Entrar»; the demo shortcuts that let an
- * evaluator sign in as either role live in the mock-only credentials hint.
+ * The screen is full height and the grid is centred inside it: the outer box carries both, or
+ * the composition anchors to the top and leaves the lower half of the gradient empty.
+ *
+ * The two columns are the handoff's auto-fit grid, so they stack on their own when the viewport
+ * cannot hold two 340px tracks — but only from `sm` up. Below that, `minmax(340px, 1fr)` would
+ * hold a track wider than the viewport itself (340px plus the padding exceeds a 360px screen)
+ * and the row would overflow sideways, so the narrowest screens get a plain single column.
+ *
+ * Production ships a single «Entrar»; the demo shortcuts that let an evaluator sign in as
+ * either role live in the mock-only credentials hint.
  */
 export function LoginPage() {
   const { isAuthenticated, login } = useAuth();
@@ -117,13 +124,13 @@ export function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-dvh bg-[image:var(--tc-grad-sidebar)]">
+    <div className="relative flex min-h-dvh items-center bg-[image:var(--tc-grad-sidebar)]">
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle tone={ICON_BUTTON_TONE.ON_NAVY} />
       </div>
       <div
         ref={pageRef}
-        className="mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(340px,1fr))] items-center gap-12 px-12 py-14"
+        className="mx-auto grid w-full max-w-[1180px] grid-cols-1 items-center gap-12 px-6 py-14 sm:grid-cols-[repeat(auto-fit,minmax(340px,1fr))] sm:px-12"
       >
         <BrandPitch />
 
