@@ -1,11 +1,10 @@
-import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
+import { ArrowRight, ICON_SIZE, ICON_STROKE } from '@/components/ui/icons';
 import { MONEY_DECIMALS } from '@/lib/format';
 
 import { activityDeviation } from './activity-deviation';
-import { ICON_SIZE, ICON_STROKE } from './activity-icons';
 import { INDICATOR_KIND, TABLE_INDICATORS } from './activity-indicators';
 import { ACTIVITY_COLUMN_LABELS, TABLE_CLASS, TABLE_ROLE } from './activity-table';
 import { ActivityDeviationGlyph } from './ActivityDeviationGlyph';
@@ -133,7 +132,7 @@ export function ActivityDetailArrowCell() {
     <td role={TABLE_ROLE.CELL} className={`${TABLE_CLASS.CELL} text-right max-[700px]:hidden`}>
       <ArrowRight
         aria-hidden="true"
-        size={ICON_SIZE.ROW}
+        size={ICON_SIZE.COMPACT}
         strokeWidth={ICON_STROKE.UI}
         className="inline-block text-ink-subtle"
       />

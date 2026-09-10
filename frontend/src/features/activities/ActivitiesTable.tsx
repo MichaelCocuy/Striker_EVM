@@ -1,15 +1,14 @@
-import { Plus } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { BUTTON_VARIANT } from '@/components/ui/button-variants';
 import { Card } from '@/components/ui/Card';
+import { ICON_SIZE, ICON_STROKE, Plus } from '@/components/ui/icons';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { PERMISSIONS } from '@/features/auth/permissions';
 import { useCan } from '@/features/auth/useCan';
 import { useStaggerReveal } from '@/motion/useStaggerReveal';
 
-import { ICON_SIZE, ICON_STROKE } from './activity-icons';
 import { ACTIVITIES_REVEAL_SELECTOR, TABLE_CLASS, TABLE_ROLE } from './activity-table';
 import { ActivityFormDialog } from './ActivityFormDialog';
 import { ActivityRow } from './ActivityRow';
@@ -94,7 +93,9 @@ export function ActivitiesTable({
             action: (
               <Button
                 onClick={openCreateDialog}
-                icon={<Plus aria-hidden="true" size={ICON_SIZE.ROW} strokeWidth={ICON_STROKE.UI} />}
+                icon={
+                  <Plus aria-hidden="true" size={ICON_SIZE.COMPACT} strokeWidth={ICON_STROKE.UI} />
+                }
               >
                 {COPY.CREATE}
               </Button>

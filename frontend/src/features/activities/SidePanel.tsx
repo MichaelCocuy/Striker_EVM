@@ -1,12 +1,10 @@
 import gsap from 'gsap';
-import { X } from 'lucide-react';
 import { useEffect, useId, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
+import { ICON_SIZE, ICON_STROKE, X } from '@/components/ui/icons';
 import { MOTION_DURATION_SECONDS, MOTION_EASE } from '@/motion/constants';
 import { prefersReducedMotion } from '@/motion/reduced-motion';
-
-import { ICON_SIZE, ICON_STROKE } from './activity-icons';
 
 import type { ReactNode, RefObject } from 'react';
 
@@ -87,7 +85,7 @@ export function SidePanel({ eyebrow, title, onClose, footer, children }: SidePan
             aria-label={COPY.CLOSE}
             className="-mr-1 shrink-0 rounded-md p-1 text-ink-subtle transition-colors duration-150 hover:text-ink"
           >
-            <X aria-hidden="true" size={ICON_SIZE.CLOSE} strokeWidth={ICON_STROKE.EMPHASIS} />
+            <X aria-hidden="true" size={ICON_SIZE.CONTENT} strokeWidth={ICON_STROKE.UI} />
           </button>
         </header>
         <div className={BODY_CLASS}>{children}</div>

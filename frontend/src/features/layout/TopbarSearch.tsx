@@ -31,7 +31,7 @@ export function TopbarSearch() {
     <div className="flex max-w-[220px] min-w-0 flex-[1_1_0] items-center gap-2 overflow-hidden rounded-md border border-line bg-surface px-3 py-[7px] transition-[border-color,box-shadow] duration-150 focus-within:border-accent-bright focus-within:shadow-focus">
       <Search
         aria-hidden="true"
-        size={ICON_SIZE.SIDEBAR}
+        size={ICON_SIZE.COMPACT}
         strokeWidth={ICON_STROKE.UI}
         className="shrink-0 text-ink-subtle"
       />

@@ -20,7 +20,7 @@ function renderIconButton(options: RenderOptions = {}) {
   return render(
     <IconButton
       label={LABEL}
-      icon={<Trash2 aria-hidden="true" size={ICON_SIZE.SIDEBAR} strokeWidth={ICON_STROKE.UI} />}
+      icon={<Trash2 aria-hidden="true" size={ICON_SIZE.COMPACT} strokeWidth={ICON_STROKE.UI} />}
       {...options}
     />,
   );
