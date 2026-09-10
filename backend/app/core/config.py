@@ -9,7 +9,7 @@ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 # The user-facing OpenAPI metadata (summary, description, tags, servers, contact) lives in
 # `app/api/openapi.py`; only the identity of the service belongs here.
 APP_TITLE = "Striker EVM API"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 
 DEFAULT_DATABASE_URL = "postgresql+psycopg://striker:striker@localhost:5432/striker"
 DEFAULT_FRONTEND_ORIGIN = "http://localhost:5173"

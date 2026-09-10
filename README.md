@@ -14,10 +14,16 @@ completo está en [`docs/reto.md`](docs/reto.md).
 - Cálculo automático de **PV, EV, CV, SV, CPI, SPI, EAC y VAC**, por actividad y consolidado
   por proyecto, con la **interpretación** de CPI y SPI (bajo/sobre presupuesto,
   adelantado/atrasado).
-- **Dashboard** con el resumen consolidado, semáforo de estado, gráfica que compara PV, EV y AC
-  por actividad, gauges de CPI y SPI con la referencia en 1.0, y la tabla de actividades con
-  sus indicadores.
+- **Tablero** que responde de un vistazo si el proyecto va bien o mal: el veredicto en lenguaje
+  llano, la comparación PV/EV/AC con sus brechas marcadas, el puente de varianzas, gauges de CPI
+  y SPI con la referencia en 1.0, el cuadrante y el mapa de calor por actividad, y la tabla de
+  actividades con sus indicadores.
+- **Portafolio** con la tira de KPIs y el cuadrante costo–cronograma, para ver todos los
+  proyectos a la vez, y **detalle por actividad** con sus diez indicadores.
 - **Roles**: quien registra el avance (`REGISTRAR`) y quien lo revisa (`REVIEWER`).
+- **Identidad Trycore**: navy y teal, Poppins y Karla, temas claro y oscuro. El diseño completo,
+  con sus tokens y sus assets, está en
+  [`docs/Plataforma EVM gestión actividades`](docs/Plataforma%20EVM%20gesti%C3%B3n%20actividades/design_handoff_striker_evm/README.md).
 
 Los indicadores **no se persisten**: se calculan al leer, así que editar una actividad actualiza
 todo el tablero. Un indicador que no es matemáticamente calculable se devuelve como `null` con
@@ -29,7 +35,7 @@ un estado `NOT_APPLICABLE` y el motivo, nunca como cero ni infinito.
 |---|---|
 | Backend | Python 3.12 · FastAPI · SQLAlchemy 2 · Alembic · Pydantic v2 · PyJWT · bcrypt |
 | Base de datos | PostgreSQL 16 |
-| Frontend | React 18 · TypeScript · Vite · Tailwind CSS 4 · GSAP · Recharts |
+| Frontend | React 18 · TypeScript · Vite · Tailwind CSS 4 · GSAP · Recharts · Lucide |
 | Pruebas | pytest + coverage (backend) · Vitest + Testing Library + MSW (frontend) |
 | Linters | ruff (backend) · ESLint + Prettier (frontend) |
 
@@ -87,9 +93,9 @@ real, crea `frontend/.env.development.local` con `VITE_USE_MOCKS=false`.
 ### Script de inicialización de la base de datos
 
 [`backend/db/init.sql`](backend/db/init.sql) crea el esquema completo, siembra los tres usuarios
-y carga el proyecto de ejemplo con sus tres actividades. Es idempotente y Docker Compose lo monta
-en el contenedor de PostgreSQL, así que se ejecuta solo en el primer arranque. Para aplicarlo a
-mano:
+y carga los ocho proyectos de demostración con sus 22 actividades. Es idempotente y Docker Compose
+lo monta en el contenedor de PostgreSQL, así que se ejecuta solo en el primer arranque. Para
+aplicarlo a mano:
 
 ```bash
 psql "postgresql://striker:striker@localhost:5432/striker" -f backend/db/init.sql
@@ -142,7 +148,7 @@ que cualquiera pueda contrastarlos contra lo que devuelve el API.
 # Backend: 306 pruebas, 100 % de cobertura (mínimo exigido: 80 % sobre la capa de negocio)
 cd backend && pytest --cov
 
-# Frontend: 117 pruebas
+# Frontend: 288 pruebas
 cd frontend && npm run test
 
 # Linters
