@@ -1,29 +1,43 @@
+import { Button } from '@/components/ui/Button';
+import { BUTTON_VARIANT } from '@/components/ui/button-variants';
 import { RoleBadge } from '@/components/ui/RoleBadge';
 import { SEED_PASSWORD, SEED_USERS } from '@/mocks/seed';
 
+import type { LoginRequest } from '@/api/types';
+
 const COPY = {
-  TITLE: 'Modo demo con datos simulados',
-  DESCRIPTION: 'El backend no está conectado; usa cualquiera de estas cuentas:',
-  PASSWORD_LABEL: 'Contraseña',
+  NOTE: `Entorno de demostración · contraseña ${SEED_PASSWORD}`,
+  USE: 'Usar',
+  USE_ACCOUNT: 'Usar la cuenta',
 } as const;
 
+interface MockCredentialsHintProps {
+  /** Fills the form with a seed account, so an evaluator can enter as either role. */
+  onUseCredentials: (credentials: LoginRequest) => void;
+}
+
 /** Only loaded when VITE_USE_MOCKS=true; lists the seed accounts for local demos. */
-export default function MockCredentialsHint() {
+export default function MockCredentialsHint({ onUseCredentials }: MockCredentialsHintProps) {
   return (
-    <aside className="card flex flex-col gap-3 p-5 text-sm" aria-label={COPY.TITLE}>
-      <p className="font-semibold text-ink">{COPY.TITLE}</p>
-      <p className="text-ink-muted">{COPY.DESCRIPTION}</p>
-      <ul className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 border-t border-line pt-4">
+      <p className="text-caption text-ink-subtle">{COPY.NOTE}</p>
+      <ul className="flex flex-col gap-1.5">
         {SEED_USERS.map((user) => (
           <li key={user.id} className="flex items-center justify-between gap-3">
-            <code className="font-mono text-xs text-ink">{user.email}</code>
-            <RoleBadge role={user.role} />
+            <span className="truncate text-caption text-ink-body">{user.email}</span>
+            <span className="flex shrink-0 items-center gap-2">
+              <RoleBadge role={user.role} />
+              <Button
+                variant={BUTTON_VARIANT.GHOST}
+                aria-label={`${COPY.USE_ACCOUNT} ${user.email}`}
+                onClick={() => onUseCredentials({ email: user.email, password: SEED_PASSWORD })}
+              >
+                {COPY.USE}
+              </Button>
+            </span>
           </li>
         ))}
       </ul>
-      <p className="text-ink-muted">
-        {COPY.PASSWORD_LABEL}: <code className="font-mono text-xs text-ink">{SEED_PASSWORD}</code>
-      </p>
-    </aside>
+    </div>
   );
 }

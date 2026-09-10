@@ -23,7 +23,15 @@
   --tc-navy: #1d2751;
 
   --tc-grad-brand: linear-gradient(180deg, #06c8be 0%, #00a19a 100%);
-  --tc-grad-cta: linear-gradient(135deg, #06c8be 0%, #009490 100%);
+  /*
+   * The handoff declares the CTA gradient as #06C8BE → #009490, but the same document states
+   * the system's one-line rule: anything with letters on it uses #007F7A. White text on that
+   * gradient measures 2,10:1 on the light stop and 3,72:1 on the dark one — below the 4,5:1 of
+   * AA, and below even the 3:1 for large text at the light end. The two statements conflict,
+   * so this resolves in favour of the rule: the same 135° teal gradient, shifted to the stops
+   * the rule allows, which measures 4,86:1 at its worst point.
+   */
+  --tc-grad-cta: linear-gradient(135deg, #007f7a 0%, #006b67 100%);
   --tc-grad-sidebar: linear-gradient(175deg, #1d2751 0%, #111c42 60%, #0d1835 100%);
   /* Reading band of the dashboard. */
   --tc-grad-band: linear-gradient(175deg, #1d2751 0%, #111c42 100%);
