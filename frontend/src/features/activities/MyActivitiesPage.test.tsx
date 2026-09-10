@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
@@ -18,16 +18,36 @@ const OWNED_ACTIVITIES = ['Diseño', 'Pruebas'] as const;
 const FOREIGN_ACTIVITY = 'Desarrollo';
 const EMPTY_MESSAGE = 'No tienes actividades asignadas.';
 const NEW_PROGRESS = '60';
-/** Reading of the "Diseño" row of docs/api/fixtures/evm-report.json. */
-const OWNER_NAME = 'Carlos Registrador';
-const DESIGN_DEVIATION_READING =
-  'Igual al plan: avance real 100% frente al 100% planificado a la fecha de corte';
-const DESIGN_COST_INDEX = '1,1111';
+
+/** Reading of the two activities Carlos owns in docs/api/fixtures/evm-report.json. */
+const KPI = {
+  ASSIGNED_COUNT: '2',
+  ASSIGNED_CAPTION: 'actividades en 1 proyecto',
+  BEHIND_COUNT: '0',
+  BEHIND_CAPTION: 'ninguna actividad va por detrás de su plan',
+  OWN_EARNED_VALUE: '13.000,00',
+  EARNED_VALUE_CAPTION: 'de 29.000,00 de mis proyectos',
+} as const;
+
+const DESIGN_COST_CHIP = 'CPI 1,1111';
+const DESIGN_SCHEDULE_CHIP = 'SPI 1,0000';
+const REGISTER_DESIGN = 'Registrar avance de Diseño';
+const PANEL_TITLE = 'Registrar avance';
+const SAVE = 'Guardar avance';
+const PROGRESS_FIELD = 'Avance real (%)';
 
 const routes: RouteObject[] = [{ path: ROUTES.MY_ACTIVITIES, element: <MyActivitiesPage /> }];
 
 function renderPage() {
   return renderWithRouter({ routes, initialPath: ROUTES.MY_ACTIVITIES });
+}
+
+function cardOf(activityName: string): HTMLElement {
+  const article = screen.getByText(activityName).closest('article');
+  if (article === null) {
+    throw new Error(`The activity ${activityName} is not rendered as a card`);
+  }
+  return article;
 }
 
 beforeAll(() => mockServer.listen({ onUnhandledRequest: 'error' }));
@@ -36,38 +56,39 @@ afterEach(() => mockServer.resetHandlers());
 afterAll(() => mockServer.close());
 
 describe('MyActivitiesPage', () => {
-  it('lists the activities the signed-in user owns with their project', async () => {
+  it('lists the activities the signed-in user owns as cards with their project', async () => {
     signInAsSeedUser(SEED_USER_EMAIL.REGISTRAR);
     renderPage();
 
     for (const name of OWNED_ACTIVITIES) {
-      const header = await screen.findByRole('rowheader', { name: new RegExp(name) });
-      const row = header.closest('tr');
-      expect(row).not.toBeNull();
-      expect(within(row ?? header).getByText(PROJECT_NAME)).toBeInTheDocument();
+      await screen.findByText(name);
+      expect(within(cardOf(name)).getByText(PROJECT_NAME)).toBeInTheDocument();
     }
-    expect(screen.queryByRole('rowheader', { name: FOREIGN_ACTIVITY })).toBeNull();
+    expect(screen.queryByText(FOREIGN_ACTIVITY)).toBeNull();
   });
 
-  it('gives its rows the same treatment as the project table', async () => {
+  it('sums the reported figures of the three KPIs', async () => {
     signInAsSeedUser(SEED_USER_EMAIL.REGISTRAR);
     renderPage();
 
-    const header = await screen.findByRole('rowheader', { name: new RegExp(OWNED_ACTIVITIES[0]) });
-    const row = within(header.closest('tr') ?? header);
-    expect(row.getByText(OWNER_NAME)).toBeInTheDocument();
-    expect(row.getByText(DESIGN_DEVIATION_READING)).toBeInTheDocument();
-    expect(row.getByText(DESIGN_COST_INDEX)).toHaveAttribute('data-tone', EVM_TONE.GOOD);
+    expect(await screen.findByText(KPI.ASSIGNED_COUNT)).toBeInTheDocument();
+    expect(screen.getByText(KPI.ASSIGNED_CAPTION)).toBeInTheDocument();
+    expect(screen.getByText(KPI.BEHIND_COUNT)).toBeInTheDocument();
+    expect(screen.getByText(KPI.BEHIND_CAPTION)).toBeInTheDocument();
+    expect(screen.getByText(KPI.OWN_EARNED_VALUE)).toBeInTheDocument();
+    expect(screen.getByText(KPI.EARNED_VALUE_CAPTION)).toBeInTheDocument();
   });
 
-  it('shows the consolidated status of each project as read-only context', async () => {
+  it('gives each card the plan against the real progress and both index chips', async () => {
     signInAsSeedUser(SEED_USER_EMAIL.REGISTRAR);
     renderPage();
 
-    await screen.findByRole('rowheader', { name: /Diseño/ });
-    /** Consolidated indicators of docs/api/fixtures/evm-report.json. */
-    expect(screen.getByText('Sobre presupuesto')).toBeInTheDocument();
-    expect(screen.getAllByText('Atrasado')).not.toHaveLength(0);
+    await screen.findByText(OWNED_ACTIVITIES[0]);
+    const card = within(cardOf(OWNED_ACTIVITIES[0]));
+    expect(card.getByText('Plan 100%')).toBeInTheDocument();
+    expect(card.getByText('Real 100%')).toBeInTheDocument();
+    expect(card.getByText(DESIGN_COST_CHIP)).toHaveAttribute('data-tone', EVM_TONE.GOOD);
+    expect(card.getByText(DESIGN_SCHEDULE_CHIP)).toHaveAttribute('data-tone', EVM_TONE.NEUTRAL);
   });
 
   it('explains that there is nothing assigned when the user owns no activity', async () => {
@@ -77,15 +98,17 @@ describe('MyActivitiesPage', () => {
     expect(await screen.findByText(EMPTY_MESSAGE)).toBeInTheDocument();
   });
 
-  it('edits an owned activity and refetches the reports', async () => {
+  it('registers progress from a card through the side panel and refetches', async () => {
     signInAsSeedUser(SEED_USER_EMAIL.REGISTRAR);
     renderPage();
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Editar Diseño' }));
-    const dialog = screen.getByRole('dialog');
-    await userEvent.clear(within(dialog).getByLabelText('% de avance real'));
-    await userEvent.type(within(dialog).getByLabelText('% de avance real'), NEW_PROGRESS);
-    await userEvent.click(within(dialog).getByRole('button', { name: 'Guardar cambios' }));
+    await userEvent.click(await screen.findByRole('button', { name: REGISTER_DESIGN }));
+
+    const panel = screen.getByRole('dialog', { name: PANEL_TITLE });
+    fireEvent.change(within(panel).getByLabelText(PROGRESS_FIELD), {
+      target: { value: NEW_PROGRESS },
+    });
+    await userEvent.click(screen.getByRole('button', { name: SAVE }));
 
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).toBeNull();

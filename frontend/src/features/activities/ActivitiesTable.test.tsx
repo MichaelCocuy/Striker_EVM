@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -8,6 +8,7 @@ import { ERROR_CODE } from '@/api/errors';
 import { COST_STATUS, SCHEDULE_STATUS } from '@/api/types';
 import { env } from '@/config/env';
 import { HTTP_STATUS } from '@/constants/http';
+import { activityDetailPath, projectDashboardPath, ROUTES } from '@/constants/routes';
 import { EVM_TONE } from '@/evm/tone';
 import { NOT_COMPUTABLE } from '@/lib/format';
 import { mockDb, resetMockDatabase } from '@/mocks/db';
@@ -18,7 +19,7 @@ import { SEED_USER_EMAIL, renderWithRouter, signInAsSeedUser } from '@/test/rend
 
 import { ActivitiesTable } from './ActivitiesTable';
 import { DEVIATION_DIRECTION } from './activity-deviation';
-import { ACTIVITY_INDICATOR_COLUMNS } from './activity-table';
+import { TABLE_INDICATORS } from './activity-indicators';
 
 import type { EvmActivityReport } from '@/api/types';
 import type { RouteObject } from 'react-router-dom';
@@ -53,10 +54,6 @@ const LABEL = {
 const BUTTON = {
   CREATE: 'Nueva actividad',
   SUBMIT_CREATE: 'Crear actividad',
-  CONFIRM_DELETE: 'Eliminar',
-  EDIT_DESIGN: 'Editar Diseño',
-  EDIT_DEVELOPMENT: 'Editar Desarrollo',
-  DELETE_DESIGN: 'Eliminar Diseño',
 } as const;
 
 const NEW_ACTIVITY = {
@@ -70,6 +67,12 @@ const NEW_ACTIVITY = {
 const SERVER_FIELD_MESSAGE = 'plannedProgressPercent must be between 0 and 100';
 
 const ACTIVITIES_PATTERN = `*${env.apiBaseUrl}${API_PATHS.PROJECTS}/:projectId/activities`;
+
+/** Stand-in for the activity detail, so navigation can be asserted without its page. */
+const DETAIL_MARKER = 'Detalle de la actividad';
+
+const DASHBOARD_PATH = projectDashboardPath(SEED_IDS.PROJECT);
+const DEVELOPMENT_DETAIL_PATH = activityDetailPath(SEED_IDS.PROJECT, SEED_IDS.ACTIVITY_DEVELOPMENT);
 
 /** An activity whose indicators are not computable, as EVM_GUIA §5 describes. */
 const notApplicableActivity: EvmActivityReport = {
@@ -111,7 +114,7 @@ function renderTable({
   const onDataChanged = vi.fn();
   const routes: RouteObject[] = [
     {
-      path: '/',
+      path: ROUTES.PROJECT_DASHBOARD,
       element: (
         <ActivitiesTable
           projectId={SEED_IDS.PROJECT}
@@ -121,9 +124,10 @@ function renderTable({
         />
       ),
     },
+    { path: ROUTES.ACTIVITY_DETAIL, element: <p>{DETAIL_MARKER}</p> },
   ];
-  renderWithRouter({ routes, initialPath: '/' });
-  return { onDataChanged };
+  const { router } = renderWithRouter({ routes, initialPath: DASHBOARD_PATH });
+  return { onDataChanged, router };
 }
 
 function rowOf(activityName: string): HTMLElement {
@@ -136,17 +140,17 @@ function rowOf(activityName: string): HTMLElement {
 }
 
 /**
- * Text of the indicator cells of a row, in the order of `ACTIVITY_INDICATOR_COLUMNS` and
- * without the label each cell repeats for the stacked layout.
+ * Text of the indicator cells of a row, in the order of `TABLE_INDICATORS` and without the
+ * label each cell repeats for the stacked layout.
  */
 function indicatorTextsOf(activityName: string): string[] {
   const cells = within(rowOf(activityName)).getAllByRole('cell');
-  return ACTIVITY_INDICATOR_COLUMNS.map((column) => {
-    const cell = cells.find((candidate) => candidate.textContent?.startsWith(column.label));
+  return TABLE_INDICATORS.map((indicator) => {
+    const cell = cells.find((candidate) => candidate.textContent?.startsWith(indicator.label));
     if (cell === undefined) {
-      throw new Error(`The row of ${activityName} has no ${column.label} cell`);
+      throw new Error(`The row of ${activityName} has no ${indicator.label} cell`);
     }
-    return (cell.textContent ?? '').slice(column.label.length);
+    return (cell.textContent ?? '').slice(indicator.label.length);
   });
 }
 
@@ -178,7 +182,7 @@ afterEach(() => mockServer.resetHandlers());
 afterAll(() => mockServer.close());
 
 describe('ActivitiesTable', () => {
-  it('lays the columns out as the redesigned row reads', () => {
+  it('lays the nine columns out as the redesigned row reads', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable();
 
@@ -191,7 +195,7 @@ describe('ActivitiesTable', () => {
       'CPI',
       'SPI',
       'EAC',
-      'Acciones',
+      'Detalle',
     ]);
   });
 
@@ -205,7 +209,7 @@ describe('ActivitiesTable', () => {
     expect(within(rowOf('Pruebas')).getByText('Carlos Registrador')).toBeInTheDocument();
   });
 
-  it('shows the money and each index inside the pill of its traffic light', () => {
+  it('shows the money and each index inside the chip of its traffic light', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable();
 
@@ -226,8 +230,8 @@ describe('ActivitiesTable', () => {
     ]);
 
     const behindRow = rowOf('Desarrollo');
-    for (const pill of within(behindRow).getAllByText('0,8000')) {
-      expect(pill).toHaveAttribute(TONE_ATTRIBUTE, EVM_TONE.BAD);
+    for (const chip of within(behindRow).getAllByText('0,8000')) {
+      expect(chip).toHaveAttribute(TONE_ATTRIBUTE, EVM_TONE.BAD);
     }
     expect(within(rowOf('Pruebas')).getByText('1,2000')).toHaveAttribute(
       TONE_ATTRIBUTE,
@@ -235,7 +239,7 @@ describe('ActivitiesTable', () => {
     );
   });
 
-  it('draws the real progress against its planned marker and keeps BAC and PV readable', () => {
+  it('stacks the real progress over the planned fill and keeps BAC and PV readable', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable();
 
@@ -284,20 +288,38 @@ describe('ActivitiesTable', () => {
     expect(screen.queryByRole('table')).toBeNull();
   });
 
-  it('hides the edit action of an activity the registrar does not own', () => {
-    signInAsSeedUser(SEED_USER_EMAIL.REGISTRAR);
-    renderTable();
-
-    expect(screen.getByRole('button', { name: BUTTON.EDIT_DESIGN })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: BUTTON.EDIT_DEVELOPMENT })).toBeNull();
-  });
-
-  it('lets a reviewer edit and delete any activity', () => {
+  it('links every activity name to its detail, so the row is reachable by keyboard', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable();
 
-    expect(screen.getByRole('button', { name: BUTTON.EDIT_DEVELOPMENT })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: BUTTON.DELETE_DESIGN })).toBeInTheDocument();
+    expect(within(rowOf('Desarrollo')).getByRole('link', { name: 'Desarrollo' })).toHaveAttribute(
+      'href',
+      DEVELOPMENT_DETAIL_PATH,
+    );
+  });
+
+  it('opens the activity detail when the row is clicked', async () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
+    const { router } = renderTable();
+
+    await userEvent.click(rowOf('Desarrollo'));
+
+    expect(await screen.findByText(DETAIL_MARKER)).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe(DEVELOPMENT_DETAIL_PATH);
+  });
+
+  it('pushes a single history entry when the name link itself is clicked', async () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
+    const { router } = renderTable();
+
+    await userEvent.click(within(rowOf('Desarrollo')).getByRole('link', { name: 'Desarrollo' }));
+    expect(router.state.location.pathname).toBe(DEVELOPMENT_DETAIL_PATH);
+
+    /** The link and the row must not both navigate, or going back would take two steps. */
+    await act(async () => {
+      await router.navigate(-1);
+    });
+    expect(router.state.location.pathname).toBe(DASHBOARD_PATH);
   });
 
   it('creates an activity and then asks the dashboard to refetch', async () => {
@@ -354,25 +376,10 @@ describe('ActivitiesTable', () => {
     expect(onDataChanged).not.toHaveBeenCalled();
   });
 
-  it('asks for confirmation before deleting an activity', async () => {
+  it('keeps editing and deleting out of the row, where the detail now owns them', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
-    const { onDataChanged } = renderTable();
+    renderTable();
 
-    await userEvent.click(screen.getByRole('button', { name: BUTTON.DELETE_DESIGN }));
-
-    const dialog = screen.getByRole('dialog');
-    expect(within(dialog).getByRole('heading', { name: 'Eliminar actividad' })).toBeInTheDocument();
-    expect(within(dialog).getByText('Diseño')).toBeInTheDocument();
-    expect(mockDb.activities).toHaveLength(evmReportFixture.activities.length);
-    expect(onDataChanged).not.toHaveBeenCalled();
-
-    await userEvent.click(within(dialog).getByRole('button', { name: BUTTON.CONFIRM_DELETE }));
-
-    await waitFor(() => {
-      expect(onDataChanged).toHaveBeenCalledTimes(1);
-    });
-    expect(mockDb.activities.map((activity) => activity.id)).not.toContain(
-      SEED_IDS.ACTIVITY_DESIGN,
-    );
+    expect(within(rowOf('Diseño')).queryByRole('button')).toBeNull();
   });
 });

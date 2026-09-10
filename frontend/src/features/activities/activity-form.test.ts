@@ -185,7 +185,7 @@ describe('activityErrorFeedback', () => {
     });
   });
 
-  it('keeps a general message when no detail matches a field', () => {
+  it('answers a 403 of the permission matrix with the sentence the design asks for', () => {
     const error = new ApiError(HTTP_STATUS.FORBIDDEN, {
       code: ERROR_CODE.FORBIDDEN,
       message: 'REGISTRAR users can only modify their own activities',
@@ -194,7 +194,20 @@ describe('activityErrorFeedback', () => {
 
     expect(activityErrorFeedback(error)).toEqual({
       fieldErrors: {},
-      message: 'REGISTRAR users can only modify their own activities',
+      message: ACTIVITY_FORM_MESSAGES.FORBIDDEN,
+    });
+  });
+
+  it('keeps a general message when no detail matches a field', () => {
+    const error = new ApiError(HTTP_STATUS.BAD_REQUEST, {
+      code: ERROR_CODE.VALIDATION_ERROR,
+      message: 'La solicitud contiene campos inválidos',
+      details: [{ field: 'unknownField', message: 'ignored' }],
+    });
+
+    expect(activityErrorFeedback(error)).toEqual({
+      fieldErrors: {},
+      message: 'La solicitud contiene campos inválidos',
     });
   });
 });

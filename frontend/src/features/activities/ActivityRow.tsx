@@ -1,10 +1,9 @@
-import { Button } from '@/components/ui/Button';
-import { BUTTON_VARIANT } from '@/components/ui/button-variants';
-import { PERMISSIONS } from '@/features/auth/permissions';
-import { useCan } from '@/features/auth/useCan';
+import { useNavigate } from 'react-router-dom';
+
+import { activityDetailPath } from '@/constants/routes';
 
 import {
-  ActivityActionsCell,
+  ActivityDetailArrowCell,
   ActivityIndicatorCells,
   ActivityMeasureCells,
   ActivityNameCell,
@@ -13,59 +12,40 @@ import { ACTIVITIES_REVEAL_ATTRIBUTE, TABLE_CLASS, TABLE_ROLE } from './activity
 
 import type { EvmActivityReport } from '@/api/types';
 
-const COPY = {
-  EDIT: 'Editar',
-  DELETE: 'Eliminar',
-} as const;
-
 interface ActivityRowProps {
+  projectId: string;
   activity: EvmActivityReport;
-  onEdit: (activity: EvmActivityReport) => void;
-  onDelete: (activity: EvmActivityReport) => void;
 }
 
 /**
- * One activity of the project table. Actions follow the permission matrix of ARQUITECTURA §11
- * (the backend still answers 403), so a registrar sees no action on someone else's activity.
+ * One activity of the project table. The whole row leads to the activity detail, which is
+ * where editing, deleting and registering progress now live: thirteen columns plus two
+ * buttons per row is what forced the old table to scroll on any screen.
  */
-export function ActivityRow({ activity, onEdit, onDelete }: ActivityRowProps) {
-  const can = useCan();
-  const canEdit = can(PERMISSIONS.ACTIVITY_EDIT, activity);
-  const canDelete = can(PERMISSIONS.ACTIVITY_DELETE, activity);
+export function ActivityRow({ projectId, activity }: ActivityRowProps) {
+  const navigate = useNavigate();
+  const detailPath = activityDetailPath(projectId, activity.id);
+
+  function openDetail() {
+    void navigate(detailPath);
+  }
 
   return (
     <tr
       {...{ [ACTIVITIES_REVEAL_ATTRIBUTE]: true }}
       role={TABLE_ROLE.ROW}
       className={TABLE_CLASS.ROW}
+      onClick={openDetail}
     >
       <ActivityNameCell
         name={activity.name}
         owner={activity.owner}
         notes={activity.indicators.notes}
+        detailPath={detailPath}
       />
       <ActivityMeasureCells input={activity.input} indicators={activity.indicators} />
       <ActivityIndicatorCells indicators={activity.indicators} />
-      <ActivityActionsCell>
-        {canEdit && (
-          <Button
-            variant={BUTTON_VARIANT.SECONDARY}
-            aria-label={`${COPY.EDIT} ${activity.name}`}
-            onClick={() => onEdit(activity)}
-          >
-            {COPY.EDIT}
-          </Button>
-        )}
-        {canDelete && (
-          <Button
-            variant={BUTTON_VARIANT.GHOST}
-            aria-label={`${COPY.DELETE} ${activity.name}`}
-            onClick={() => onDelete(activity)}
-          >
-            {COPY.DELETE}
-          </Button>
-        )}
-      </ActivityActionsCell>
+      <ActivityDetailArrowCell />
     </tr>
   );
 }
