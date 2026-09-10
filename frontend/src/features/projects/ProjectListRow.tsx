@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 
+import { ICON_BUTTON_SIZE, ICON_BUTTON_TONE } from '@/components/ui/icon-button-tones';
+import { IconButton } from '@/components/ui/IconButton';
 import { ArrowRight, ICON_SIZE, ICON_STROKE, Pencil, Trash2 } from '@/components/ui/icons';
 import { projectDashboardPath } from '@/constants/routes';
 import { EVM_TONE, EVM_TONE_TOKENS, costStatusTone, scheduleStatusTone } from '@/evm/tone';
 import { formatIndex } from '@/lib/format';
 import { REVEAL_ATTRIBUTE } from '@/motion/constants';
 
-import { ICON_BUTTON_TONE } from './icon-button-tone';
-import { IconButton } from './IconButton';
 import { activityCountLabel, PORTFOLIO_COPY } from './portfolio-copy';
 import { PORTFOLIO_LAYOUT } from './portfolio-layout';
 import { ProjectStatusPills } from './ProjectStatusPills';
@@ -116,6 +116,7 @@ export function ProjectListRow({ item, canManage, onEdit, onDelete }: ProjectLis
               icon={
                 <Pencil aria-hidden="true" size={ICON_SIZE.COMPACT} strokeWidth={ICON_STROKE.UI} />
               }
+              size={ICON_BUTTON_SIZE.SM}
               onClick={() => {
                 onEdit(project);
               }}
@@ -126,6 +127,7 @@ export function ProjectListRow({ item, canManage, onEdit, onDelete }: ProjectLis
                 <Trash2 aria-hidden="true" size={ICON_SIZE.COMPACT} strokeWidth={ICON_STROKE.UI} />
               }
               tone={ICON_BUTTON_TONE.DANGER}
+              size={ICON_BUTTON_SIZE.SM}
               onClick={() => {
                 onDelete(project);
               }}
