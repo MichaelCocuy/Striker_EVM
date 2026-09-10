@@ -5,8 +5,8 @@ import { createPortal } from 'react-dom';
 import { MOTION_DURATION_SECONDS, MOTION_EASE, MOTION_OFFSET_PX } from '@/motion/constants';
 import { prefersReducedMotion } from '@/motion/reduced-motion';
 
-import { Button } from './Button';
-import { BUTTON_VARIANT } from './button-variants';
+import { IconButton } from './IconButton';
+import { ICON_SIZE, ICON_STROKE, X } from './icons';
 
 import type { MouseEvent, ReactNode, RefObject } from 'react';
 
@@ -19,11 +19,11 @@ interface ModalDialogProps {
 
 const COPY = {
   CLOSE: 'Cerrar',
-  CLOSE_GLYPH: '×',
 } as const;
 
 const ESCAPE_KEY = 'Escape';
-const ENTER_SCALE = 0.98;
+/** The modal pop of the handoff: scale .95 → 1. */
+const ENTER_SCALE = 0.95;
 
 /**
  * Modal shell of the app: activity and project forms, and their delete confirmations.
@@ -49,7 +49,7 @@ export function ModalDialog({ title, description, onClose, children }: ModalDial
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-canvas/85 p-4 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-navy/45 p-4 backdrop-blur-sm sm:items-center"
       onMouseDown={handleBackdropMouseDown}
     >
       <div
@@ -62,19 +62,21 @@ export function ModalDialog({ title, description, onClose, children }: ModalDial
         className="card flex w-full max-w-xl flex-col gap-5 p-6 shadow-raised focus:outline-none"
       >
         <header className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <h2 id={titleId} className="text-lg font-semibold text-ink">
+          <div className="flex min-w-0 flex-col gap-1">
+            <h2 id={titleId} className="text-h3 font-semibold text-ink">
               {title}
             </h2>
             {description !== undefined && (
-              <p id={descriptionId} className="text-sm text-ink-muted">
+              <p id={descriptionId} className="text-small text-ink-body">
                 {description}
               </p>
             )}
           </div>
-          <Button variant={BUTTON_VARIANT.GHOST} onClick={onClose} aria-label={COPY.CLOSE}>
-            <span aria-hidden="true">{COPY.CLOSE_GLYPH}</span>
-          </Button>
+          <IconButton
+            label={COPY.CLOSE}
+            onClick={onClose}
+            icon={<X aria-hidden="true" size={ICON_SIZE.CONTENT} strokeWidth={ICON_STROKE.UI} />}
+          />
         </header>
         {children}
       </div>
