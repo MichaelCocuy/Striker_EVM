@@ -1,20 +1,19 @@
+import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { MONEY_DECIMALS } from '@/lib/format';
 
 import { activityDeviation } from './activity-deviation';
-import {
-  ACTIVITY_COLUMN_KIND,
-  ACTIVITY_COLUMN_LABELS,
-  ACTIVITY_INDICATOR_COLUMNS,
-  TABLE_CLASS,
-  TABLE_ROLE,
-} from './activity-table';
+import { ICON_SIZE, ICON_STROKE } from './activity-icons';
+import { INDICATOR_KIND, TABLE_INDICATORS } from './activity-indicators';
+import { ACTIVITY_COLUMN_LABELS, TABLE_CLASS, TABLE_ROLE } from './activity-table';
 import { ActivityDeviationGlyph } from './ActivityDeviationGlyph';
-import { ActivityIndexPill } from './ActivityIndexPill';
+import { ActivityIndexChip } from './ActivityIndexChip';
 import { ActivityProgressBar } from './ActivityProgressBar';
 
 import type { ActivityMeasures, EvmIndicators, UserSummary } from '@/api/types';
-import type { ReactNode } from 'react';
+import type { MouseEvent } from 'react';
 
 const COPY = {
   OWNER_PREFIX: `${ACTIVITY_COLUMN_LABELS.OWNER}: `,
@@ -38,19 +37,37 @@ interface ActivityNameCellProps {
   owner: UserSummary;
   /** Explanations the report attaches to the activity (EVM_GUIA §5); they stay visible. */
   notes: readonly string[];
+  /** Path of the activity detail, so the row is reachable with the keyboard too. */
+  detailPath: string;
 }
 
-/** The activity and who answers for it, one above the other, as the row's header. */
-export function ActivityNameCell({ name, owner, notes }: ActivityNameCellProps) {
+/**
+ * The activity and who answers for it, one above the other, as the row's header.
+ *
+ * The name is the link to the detail: the whole row navigates on click, but a link is what
+ * makes that destination reachable by keyboard, so the link owns its own click and the row
+ * only follows it for the mouse.
+ */
+export function ActivityNameCell({ name, owner, notes, detailPath }: ActivityNameCellProps) {
+  function keepClickOnTheLink(event: MouseEvent<HTMLAnchorElement>) {
+    event.stopPropagation();
+  }
+
   return (
     <th scope="row" role={TABLE_ROLE.ROW_HEADER} className={TABLE_CLASS.NAME_CELL}>
-      <span className="block font-semibold text-ink">{name}</span>
-      <span className="mt-0.5 block text-xs font-normal text-ink-subtle">
+      <Link
+        to={detailPath}
+        onClick={keepClickOnTheLink}
+        className="font-heading text-small font-semibold text-ink hover:text-accent"
+      >
+        {name}
+      </Link>
+      <span className="mt-0.5 block text-caption font-normal text-ink-subtle">
         <span className="sr-only">{COPY.OWNER_PREFIX}</span>
         <span>{owner.fullName}</span>
       </span>
       {notes.length > 0 && (
-        <ul className="mt-1 flex flex-col gap-0.5 text-xs font-normal text-ink-subtle">
+        <ul className="mt-1 flex flex-col gap-0.5 text-caption font-normal text-ink-subtle">
           {notes.map((note) => (
             <li key={note}>{note}</li>
           ))}
@@ -60,27 +77,12 @@ export function ActivityNameCell({ name, owner, notes }: ActivityNameCellProps) 
   );
 }
 
-interface ActivityTextCellProps {
-  label: string;
-  value: string;
-}
-
-/** Plain text column, used for the project the activity belongs to. */
-export function ActivityTextCell({ label, value }: ActivityTextCellProps) {
-  return (
-    <td role={TABLE_ROLE.CELL} className={TABLE_CLASS.CELL}>
-      <StackLabel label={label} />
-      <span>{value}</span>
-    </td>
-  );
-}
-
 interface ActivityMeasureCellsProps {
   input: ActivityMeasures;
   indicators: EvmIndicators;
 }
 
-/** Which side of the plan the activity is on, and how far the bar is from its marker. */
+/** Which side of the plan the activity is on, and how far the bar is from the planned fill. */
 export function ActivityMeasureCells({ input, indicators }: ActivityMeasureCellsProps) {
   return (
     <>
@@ -88,7 +90,7 @@ export function ActivityMeasureCells({ input, indicators }: ActivityMeasureCells
         <StackLabel label={ACTIVITY_COLUMN_LABELS.DEVIATION} />
         <ActivityDeviationGlyph deviation={activityDeviation(input)} />
       </td>
-      <td role={TABLE_ROLE.CELL} className={`${TABLE_CLASS.CELL} min-w-52`}>
+      <td role={TABLE_ROLE.CELL} className={`${TABLE_CLASS.CELL} min-w-40`}>
         <StackLabel label={ACTIVITY_COLUMN_LABELS.PROGRESS} />
         <ActivityProgressBar input={input} indicators={indicators} />
       </td>
@@ -102,35 +104,39 @@ interface ActivityIndicatorCellsProps {
 
 /**
  * One cell per indicator, exactly as the report brings it, in the order of
- * `ACTIVITY_INDICATOR_COLUMNS`: money counts up towards the new number when the report is
- * refetched, an index wears its traffic light and a `null` renders as an em dash.
+ * `TABLE_INDICATORS`: money counts up towards the new number when the report is refetched,
+ * an index wears its traffic light and a `null` renders as an em dash.
  */
 export function ActivityIndicatorCells({ indicators }: ActivityIndicatorCellsProps) {
   return (
     <>
-      {ACTIVITY_INDICATOR_COLUMNS.map((column) => (
-        <td key={column.key} role={TABLE_ROLE.CELL} className={TABLE_CLASS.NUMERIC_CELL}>
-          <StackLabel label={column.label} />
-          {column.kind === ACTIVITY_COLUMN_KIND.INDEX ? (
-            <ActivityIndexPill column={column} indicators={indicators} />
-          ) : (
-            <AnimatedNumber value={indicators[column.key]} decimals={MONEY_DECIMALS} />
-          )}
-        </td>
-      ))}
+      {TABLE_INDICATORS.map((indicator) =>
+        indicator.kind === INDICATOR_KIND.INDEX ? (
+          <td key={indicator.key} role={TABLE_ROLE.CELL} className={TABLE_CLASS.CHIP_CELL}>
+            <StackLabel label={indicator.label} />
+            <ActivityIndexChip index={indicator} indicators={indicators} />
+          </td>
+        ) : (
+          <td key={indicator.key} role={TABLE_ROLE.CELL} className={TABLE_CLASS.NUMERIC_CELL}>
+            <StackLabel label={indicator.label} />
+            <AnimatedNumber value={indicators[indicator.key]} decimals={MONEY_DECIMALS} />
+          </td>
+        ),
+      )}
     </>
   );
 }
 
-interface ActivityActionsCellProps {
-  children: ReactNode;
-}
-
-/** Last cell of the row; the buttons inside follow the permission matrix of ARQUITECTURA §11. */
-export function ActivityActionsCell({ children }: ActivityActionsCellProps) {
+/** Last cell of the row: the arrow that says the row leads somewhere. */
+export function ActivityDetailArrowCell() {
   return (
-    <td role={TABLE_ROLE.CELL} className={TABLE_CLASS.CELL}>
-      <span className="flex flex-wrap justify-end gap-2 max-[700px]:justify-start">{children}</span>
+    <td role={TABLE_ROLE.CELL} className={`${TABLE_CLASS.CELL} text-right max-[700px]:hidden`}>
+      <ArrowRight
+        aria-hidden="true"
+        size={ICON_SIZE.ROW}
+        strokeWidth={ICON_STROKE.UI}
+        className="inline-block text-ink-subtle"
+      />
     </td>
   );
 }
