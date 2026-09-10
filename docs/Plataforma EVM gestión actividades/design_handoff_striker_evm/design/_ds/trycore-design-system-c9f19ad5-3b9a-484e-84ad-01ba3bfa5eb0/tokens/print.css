@@ -1,0 +1,59 @@
+/* ════════════════════════════════════════════════
+   Trycore · Documentos y artefactos imprimibles
+   Capa de definición para informes, propuestas, actas, perfiles de cargo
+   y cualquier pieza que un área operativa produzca en papel o PDF.
+
+   Papel base: LETTER (estándar en Colombia y la región).
+   Márgenes: 0.75in. Todo en pt — nada de px ni unidades de viewport.
+   Mínimo legible: 10.5pt cuerpo. Nunca bajar de 9pt en tablas o notas.
+   ════════════════════════════════════════════════ */
+:root {
+  /* ── Geometría de página ── */
+  --tc-doc-margin:        0.75in;   /* @kind spacing */
+  --tc-doc-measure:       78ch;   /* @kind spacing */ /* medida máxima de un párrafo */
+  --tc-doc-rule:          0.75pt;   /* @kind spacing */ /* filete estándar del documento */
+  --tc-doc-rule-strong:   2pt;   /* @kind spacing */ /* filete teal bajo el H1 */
+
+  /* ── Escala tipográfica de impresión ── */
+  --tc-doc-fs-overline:   8pt;   /* @kind font */ /* Poppins 700, mayúsculas, tracking 1.2pt */
+  --tc-doc-fs-micro:      8.5pt;   /* @kind font */ /* pie de página, notas al pie */
+  --tc-doc-fs-caption:    9pt;   /* @kind font */ /* leyendas, celdas densas */
+  --tc-doc-fs-body:       10.5pt;   /* @kind font */ /* cuerpo Karla */
+  --tc-doc-fs-lead:       12pt;   /* @kind font */ /* entradilla / resumen ejecutivo */
+  --tc-doc-fs-h3:         11.5pt;   /* @kind font */
+  --tc-doc-fs-h2:         14pt;   /* @kind font */
+  --tc-doc-fs-h1:         22pt;   /* @kind font */
+  --tc-doc-fs-figure:     30pt;   /* @kind font */ /* cifra grande dentro del documento */
+
+  --tc-doc-lh-body:       1.55;   /* @kind font */
+  --tc-doc-lh-head:       1.2;   /* @kind font */
+  --tc-doc-ls-overline:   1.2pt;   /* @kind font */
+
+  /* ── Ritmo vertical ── */
+  --tc-doc-sp-1:          4pt;   /* @kind spacing */
+  --tc-doc-sp-2:          8pt;   /* @kind spacing */
+  --tc-doc-sp-3:          14pt;   /* @kind spacing */
+  --tc-doc-sp-4:          22pt;   /* @kind spacing */
+  --tc-doc-sp-5:          34pt;   /* @kind spacing */ /* separación entre secciones */
+
+  /* ── Color de documento (subconjunto seguro para impresión) ── */
+  --tc-doc-ink:           #1D2751;  /* titulares */
+  --tc-doc-body:          #333333;  /* cuerpo — más oscuro que en pantalla */
+  --tc-doc-muted:         #6B7280;  /* metadatos, pies */
+  --tc-doc-accent:        #00A19A;  /* filete, viñetas, cifras destacadas */
+  --tc-doc-hairline:      #D8DCE5;
+  --tc-doc-wash:          #F4F6F9;  /* bloque de datos / cita */
+
+  /* ── Figuras ──
+     Ancho útil en letter con márgenes de 0.75in = 7in = 504pt.
+     Toda figura se escala por ancho; la altura es consecuencia.
+     El archivo real se entrega al DOBLE de estas medidas (retina/impresión). */
+  --tc-doc-fig-full:      504pt;   /* @kind spacing */ /* a todo el ancho útil */
+  --tc-doc-fig-half:      244pt;   /* @kind spacing */ /* media columna (16pt de calle) */
+  --tc-doc-fig-third:     157pt;   /* @kind spacing */ /* tercio, para tríos */
+  --tc-doc-fig-portrait:  100pt;   /* @kind spacing */ /* retrato circular de persona */
+  --tc-doc-fig-ratio-wide: 21 / 9; /* @kind other */ /* figura de apertura */
+  --tc-doc-fig-ratio-std:  16 / 9; /* @kind other */ /* figura de sección */
+  --tc-doc-fig-gap:       16pt;    /* @kind spacing */ /* calle entre figuras */
+  --tc-doc-fig-cap-gap:   7pt;     /* @kind spacing */ /* figura → leyenda */
+}

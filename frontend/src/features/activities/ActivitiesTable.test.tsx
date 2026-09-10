@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -8,6 +8,8 @@ import { ERROR_CODE } from '@/api/errors';
 import { COST_STATUS, SCHEDULE_STATUS } from '@/api/types';
 import { env } from '@/config/env';
 import { HTTP_STATUS } from '@/constants/http';
+import { activityDetailPath, projectDashboardPath, ROUTES } from '@/constants/routes';
+import { EVM_TONE } from '@/evm/tone';
 import { NOT_COMPUTABLE } from '@/lib/format';
 import { mockDb, resetMockDatabase } from '@/mocks/db';
 import { evmReportFixture } from '@/mocks/fixtures';
@@ -16,9 +18,30 @@ import { mockServer } from '@/mocks/server';
 import { SEED_USER_EMAIL, renderWithRouter, signInAsSeedUser } from '@/test/render';
 
 import { ActivitiesTable } from './ActivitiesTable';
+import { DEVIATION_DIRECTION } from './activity-deviation';
+import { TABLE_INDICATORS } from './activity-indicators';
 
 import type { EvmActivityReport } from '@/api/types';
 import type { RouteObject } from 'react-router-dom';
+
+/** Attributes the row's graphics use to state their tone and their direction. */
+const TONE_ATTRIBUTE = 'data-tone';
+const DIRECTION_ATTRIBUTE = 'data-direction';
+
+/** Hidden reading of the deviation glyph for each activity of the fixture. */
+const DEVIATION_READING = {
+  DESIGN: 'Igual al plan: avance real 100% frente al 100% planificado a la fecha de corte',
+  DEVELOPMENT: 'Por debajo del plan: avance real 40% frente al 50% planificado a la fecha de corte',
+  TESTING: 'Por encima del plan: avance real 30% frente al 20% planificado a la fecha de corte',
+} as const;
+
+/** Hidden reading of the progress bar, which is also where BAC and PV stay reachable. */
+const PROGRESS_READING = {
+  DEVELOPMENT:
+    'Avance real 40% · Avance planificado 50% · Presupuesto total (BAC) 40.000,00 · Valor planificado (PV) 20.000,00',
+  TESTING:
+    'Avance real 30% · Avance planificado 20% · Presupuesto total (BAC) 10.000,00 · Valor planificado (PV) 2.000,00',
+} as const;
 
 const LABEL = {
   NAME: 'Nombre',
@@ -31,10 +54,6 @@ const LABEL = {
 const BUTTON = {
   CREATE: 'Nueva actividad',
   SUBMIT_CREATE: 'Crear actividad',
-  CONFIRM_DELETE: 'Eliminar',
-  EDIT_DESIGN: 'Editar Diseño',
-  EDIT_DEVELOPMENT: 'Editar Desarrollo',
-  DELETE_DESIGN: 'Eliminar Diseño',
 } as const;
 
 const NEW_ACTIVITY = {
@@ -48,6 +67,12 @@ const NEW_ACTIVITY = {
 const SERVER_FIELD_MESSAGE = 'plannedProgressPercent must be between 0 and 100';
 
 const ACTIVITIES_PATTERN = `*${env.apiBaseUrl}${API_PATHS.PROJECTS}/:projectId/activities`;
+
+/** Stand-in for the activity detail, so navigation can be asserted without its page. */
+const DETAIL_MARKER = 'Detalle de la actividad';
+
+const DASHBOARD_PATH = projectDashboardPath(SEED_IDS.PROJECT);
+const DEVELOPMENT_DETAIL_PATH = activityDetailPath(SEED_IDS.PROJECT, SEED_IDS.ACTIVITY_DEVELOPMENT);
 
 /** An activity whose indicators are not computable, as EVM_GUIA §5 describes. */
 const notApplicableActivity: EvmActivityReport = {
@@ -89,7 +114,7 @@ function renderTable({
   const onDataChanged = vi.fn();
   const routes: RouteObject[] = [
     {
-      path: '/',
+      path: ROUTES.PROJECT_DASHBOARD,
       element: (
         <ActivitiesTable
           projectId={SEED_IDS.PROJECT}
@@ -99,9 +124,10 @@ function renderTable({
         />
       ),
     },
+    { path: ROUTES.ACTIVITY_DETAIL, element: <p>{DETAIL_MARKER}</p> },
   ];
-  renderWithRouter({ routes, initialPath: '/' });
-  return { onDataChanged };
+  const { router } = renderWithRouter({ routes, initialPath: DASHBOARD_PATH });
+  return { onDataChanged, router };
 }
 
 function rowOf(activityName: string): HTMLElement {
@@ -113,10 +139,27 @@ function rowOf(activityName: string): HTMLElement {
   return row;
 }
 
-function cellTextsOf(activityName: string): (string | null)[] {
-  return within(rowOf(activityName))
-    .getAllByRole('cell')
-    .map((cell) => cell.textContent);
+/**
+ * Text of the indicator cells of a row, in the order of `TABLE_INDICATORS` and without the
+ * label each cell repeats for the stacked layout.
+ */
+function indicatorTextsOf(activityName: string): string[] {
+  const cells = within(rowOf(activityName)).getAllByRole('cell');
+  return TABLE_INDICATORS.map((indicator) => {
+    const cell = cells.find((candidate) => candidate.textContent?.startsWith(indicator.label));
+    if (cell === undefined) {
+      throw new Error(`The row of ${activityName} has no ${indicator.label} cell`);
+    }
+    return (cell.textContent ?? '').slice(indicator.label.length);
+  });
+}
+
+function deviationGlyphOf(activityName: string, reading: string): HTMLElement {
+  const glyph = within(rowOf(activityName)).getByText(reading).closest(`[${DIRECTION_ATTRIBUTE}]`);
+  if (!(glyph instanceof HTMLElement)) {
+    throw new Error(`The row of ${activityName} has no deviation glyph`);
+  }
+  return glyph;
 }
 
 async function fillNewActivityForm(dialog: HTMLElement): Promise<void> {
@@ -139,50 +182,101 @@ afterEach(() => mockServer.resetHandlers());
 afterAll(() => mockServer.close());
 
 describe('ActivitiesTable', () => {
-  it('renders one row per activity with the numbers the report brings', () => {
+  it('lays the nine columns out as the redesigned row reads', () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
+    renderTable();
+
+    expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual([
+      'Actividad',
+      'Desviación',
+      'Avance',
+      'EV',
+      'AC',
+      'CPI',
+      'SPI',
+      'EAC',
+      'Detalle',
+    ]);
+  });
+
+  it('renders one row per activity with its owner under the name', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable();
 
     expect(screen.getAllByRole('rowheader')).toHaveLength(evmReportFixture.activities.length);
-    /** docs/api/fixtures/evm-report.json, presented with the precision of EVM_GUIA §7. */
-    expect(cellTextsOf('Desarrollo').slice(0, 10)).toEqual([
-      'Ana Registradora',
-      '50%',
-      '40%',
-      '40.000,00',
-      '20.000,00',
-      '16.000,00',
-      '20.000,00',
-      '0,8000',
-      '0,8000',
-      '50.000,00',
-    ]);
-    expect(cellTextsOf('Diseño').slice(3, 10)).toEqual([
-      '10.000,00',
-      '10.000,00',
-      '10.000,00',
-      '9.000,00',
-      '1,1111',
-      '1,0000',
-      '9.000,00',
-    ]);
+    expect(within(rowOf('Desarrollo')).getByText('Ana Registradora')).toBeInTheDocument();
+    expect(within(rowOf('Diseño')).getByText('Carlos Registrador')).toBeInTheDocument();
+    expect(within(rowOf('Pruebas')).getByText('Carlos Registrador')).toBeInTheDocument();
   });
 
-  it('shows the consolidated traffic light of each activity', () => {
+  it('shows the money and each index inside the chip of its traffic light', () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
+    renderTable();
+
+    /** docs/api/fixtures/evm-report.json, presented with the precision of EVM_GUIA §7. */
+    expect(indicatorTextsOf('Desarrollo')).toEqual([
+      '16.000,00',
+      '20.000,00',
+      '0,8000Sobre presupuesto',
+      '0,8000Atrasado',
+      '50.000,00',
+    ]);
+    expect(indicatorTextsOf('Diseño')).toEqual([
+      '10.000,00',
+      '9.000,00',
+      '1,1111Bajo presupuesto',
+      '1,0000En cronograma',
+      '9.000,00',
+    ]);
+
+    const behindRow = rowOf('Desarrollo');
+    for (const chip of within(behindRow).getAllByText('0,8000')) {
+      expect(chip).toHaveAttribute(TONE_ATTRIBUTE, EVM_TONE.BAD);
+    }
+    expect(within(rowOf('Pruebas')).getByText('1,2000')).toHaveAttribute(
+      TONE_ATTRIBUTE,
+      EVM_TONE.GOOD,
+    );
+  });
+
+  it('stacks the real progress over the planned fill and keeps BAC and PV readable', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable();
 
     const row = rowOf('Desarrollo');
-    expect(within(row).getByText('Sobre presupuesto')).toBeInTheDocument();
-    expect(within(row).getByText('Atrasado')).toBeInTheDocument();
+    expect(within(row).getByText('40%')).toBeInTheDocument();
+    /** BAC and PV have no column of their own: the bar carries them as text and as a tooltip. */
+    expect(within(row).getByText(PROGRESS_READING.DEVELOPMENT)).toBeInTheDocument();
+    expect(within(row).getByTitle(PROGRESS_READING.DEVELOPMENT)).toBeInTheDocument();
+    expect(within(rowOf('Pruebas')).getByText(PROGRESS_READING.TESTING)).toBeInTheDocument();
   });
 
-  it('renders an em dash for indicators that are not computable', () => {
+  it('says as text which side of the plan each activity is on', () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
+    renderTable();
+
+    expect(deviationGlyphOf('Desarrollo', DEVIATION_READING.DEVELOPMENT)).toHaveAttribute(
+      DIRECTION_ATTRIBUTE,
+      DEVIATION_DIRECTION.BELOW,
+    );
+    expect(deviationGlyphOf('Pruebas', DEVIATION_READING.TESTING)).toHaveAttribute(
+      DIRECTION_ATTRIBUTE,
+      DEVIATION_DIRECTION.ABOVE,
+    );
+    expect(deviationGlyphOf('Diseño', DEVIATION_READING.DESIGN)).toHaveAttribute(
+      DIRECTION_ATTRIBUTE,
+      DEVIATION_DIRECTION.ON_PLAN,
+    );
+  });
+
+  it('renders an em dash in the no-aplica tone for indicators that are not computable', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable({ activities: [notApplicableActivity] });
 
     const row = rowOf('Sin iniciar');
-    expect(within(row).getAllByText(NOT_COMPUTABLE)).toHaveLength(3);
+    const notComputable = within(row).getAllByText(NOT_COMPUTABLE);
+    expect(notComputable).toHaveLength(3);
+    expect(notComputable.filter((element) => element.dataset.tone === EVM_TONE.NA)).toHaveLength(2);
     expect(within(row).getAllByText('No aplica')).toHaveLength(2);
     expect(within(row).getByText('CPI no calculable: AC = 0')).toBeInTheDocument();
   });
@@ -194,20 +288,38 @@ describe('ActivitiesTable', () => {
     expect(screen.queryByRole('table')).toBeNull();
   });
 
-  it('hides the edit action of an activity the registrar does not own', () => {
-    signInAsSeedUser(SEED_USER_EMAIL.REGISTRAR);
-    renderTable();
-
-    expect(screen.getByRole('button', { name: BUTTON.EDIT_DESIGN })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: BUTTON.EDIT_DEVELOPMENT })).toBeNull();
-  });
-
-  it('lets a reviewer edit and delete any activity', () => {
+  it('links every activity name to its detail, so the row is reachable by keyboard', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
     renderTable();
 
-    expect(screen.getByRole('button', { name: BUTTON.EDIT_DEVELOPMENT })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: BUTTON.DELETE_DESIGN })).toBeInTheDocument();
+    expect(within(rowOf('Desarrollo')).getByRole('link', { name: 'Desarrollo' })).toHaveAttribute(
+      'href',
+      DEVELOPMENT_DETAIL_PATH,
+    );
+  });
+
+  it('opens the activity detail when the row is clicked', async () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
+    const { router } = renderTable();
+
+    await userEvent.click(rowOf('Desarrollo'));
+
+    expect(await screen.findByText(DETAIL_MARKER)).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe(DEVELOPMENT_DETAIL_PATH);
+  });
+
+  it('pushes a single history entry when the name link itself is clicked', async () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
+    const { router } = renderTable();
+
+    await userEvent.click(within(rowOf('Desarrollo')).getByRole('link', { name: 'Desarrollo' }));
+    expect(router.state.location.pathname).toBe(DEVELOPMENT_DETAIL_PATH);
+
+    /** The link and the row must not both navigate, or going back would take two steps. */
+    await act(async () => {
+      await router.navigate(-1);
+    });
+    expect(router.state.location.pathname).toBe(DASHBOARD_PATH);
   });
 
   it('creates an activity and then asks the dashboard to refetch', async () => {
@@ -264,25 +376,10 @@ describe('ActivitiesTable', () => {
     expect(onDataChanged).not.toHaveBeenCalled();
   });
 
-  it('asks for confirmation before deleting an activity', async () => {
+  it('keeps editing and deleting out of the row, where the detail now owns them', () => {
     signInAsSeedUser(SEED_USER_EMAIL.REVIEWER);
-    const { onDataChanged } = renderTable();
+    renderTable();
 
-    await userEvent.click(screen.getByRole('button', { name: BUTTON.DELETE_DESIGN }));
-
-    const dialog = screen.getByRole('dialog');
-    expect(within(dialog).getByRole('heading', { name: 'Eliminar actividad' })).toBeInTheDocument();
-    expect(within(dialog).getByText('Diseño')).toBeInTheDocument();
-    expect(mockDb.activities).toHaveLength(evmReportFixture.activities.length);
-    expect(onDataChanged).not.toHaveBeenCalled();
-
-    await userEvent.click(within(dialog).getByRole('button', { name: BUTTON.CONFIRM_DELETE }));
-
-    await waitFor(() => {
-      expect(onDataChanged).toHaveBeenCalledTimes(1);
-    });
-    expect(mockDb.activities.map((activity) => activity.id)).not.toContain(
-      SEED_IDS.ACTIVITY_DESIGN,
-    );
+    expect(within(rowOf('Diseño')).queryByRole('button')).toBeNull();
   });
 });

@@ -1,28 +1,54 @@
-import { BUTTON_VARIANT } from './button-variants';
+import { BUTTON_SIZE, BUTTON_VARIANT } from './button-variants';
 
-import type { ButtonVariant } from './button-variants';
+import type { ButtonSize, ButtonVariant } from './button-variants';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  /** Measure of the button; the handoff's CTA size is the default. */
+  size?: ButtonSize;
   loading?: boolean;
   icon?: ReactNode;
   children: ReactNode;
 }
 
 const BASE_CLASSES =
-  'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-[background-color,box-shadow,transform] duration-150 disabled:cursor-not-allowed disabled:opacity-60 active:enabled:scale-[0.98]';
+  'inline-flex items-center justify-center gap-2 font-heading font-semibold transition-[background-color,box-shadow,transform] duration-150 disabled:cursor-not-allowed disabled:opacity-60 active:enabled:translate-y-px';
 
+/**
+ * Shape, case and colour of each variant.
+ *
+ * The four emphatic variants are pills in uppercase with the tracking of the system; the three
+ * ghosts are the quiet ones (logout, dismiss, the actions of a row) and keep sentence case on
+ * the 4px radius. `secondary` outlines in `--ink`, which is the handoff's navy in the light
+ * theme and stays legible in the dark one.
+ */
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  [BUTTON_VARIANT.PRIMARY]: 'bg-accent text-accent-ink shadow-glow hover:enabled:bg-accent-hover',
+  [BUTTON_VARIANT.PRIMARY]:
+    'rounded-pill uppercase tracking-[1.2px] bg-[image:var(--tc-grad-cta)] text-white hover:enabled:shadow-glow',
   [BUTTON_VARIANT.SECONDARY]:
-    'border border-line-strong bg-surface text-ink hover:enabled:bg-surface-sunken',
-  [BUTTON_VARIANT.GHOST]: 'text-ink-muted hover:enabled:bg-surface-sunken hover:enabled:text-ink',
-  [BUTTON_VARIANT.DANGER]: 'bg-danger-soft text-danger hover:enabled:brightness-95',
+    'rounded-pill uppercase tracking-[1.2px] border-[1.5px] border-ink bg-transparent text-ink hover:enabled:bg-accent-soft',
+  [BUTTON_VARIANT.TERTIARY]:
+    'rounded-pill uppercase tracking-[1.2px] border-[1.5px] border-line-strong bg-transparent text-ink-muted hover:enabled:bg-surface-sunken',
+  [BUTTON_VARIANT.DANGER]:
+    'rounded-pill uppercase tracking-[1.2px] bg-danger-soft text-danger hover:enabled:bg-danger hover:enabled:text-white',
+  [BUTTON_VARIANT.GHOST]:
+    'rounded-md text-ink-muted hover:enabled:bg-surface-sunken hover:enabled:text-ink',
+  [BUTTON_VARIANT.GHOST_DANGER]: 'rounded-md text-danger hover:enabled:bg-danger-soft',
+  [BUTTON_VARIANT.GHOST_ON_NAVY]:
+    'rounded-md text-white/68 hover:enabled:bg-white/9 hover:enabled:text-white',
+};
+
+const SIZE_CLASSES: Record<ButtonSize, string> = {
+  [BUTTON_SIZE.MD]: 'px-[18px] py-[10px] text-[11.5px]',
+  [BUTTON_SIZE.LG]: 'px-5 py-[13px] text-small',
+  [BUTTON_SIZE.ICON]: 'size-9 shrink-0 p-0',
+  [BUTTON_SIZE.ICON_SM]: 'size-8 shrink-0 p-0',
 };
 
 export function Button({
   variant = BUTTON_VARIANT.PRIMARY,
+  size = BUTTON_SIZE.MD,
   loading = false,
   icon,
   children,
@@ -34,7 +60,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={`${BASE_CLASSES} ${VARIANT_CLASSES[variant]} ${className}`}
+      className={`${BASE_CLASSES} ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
       disabled={disabled ?? loading}
       aria-busy={loading || undefined}
       {...rest}

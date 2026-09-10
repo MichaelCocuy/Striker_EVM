@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import { ROLES } from '@/api/types';
 import { ROUTES } from '@/constants/routes';
+import { ActivityDetailPage } from '@/features/activities/ActivityDetailPage';
 import { MyActivitiesPage } from '@/features/activities/MyActivitiesPage';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { RequireAuth } from '@/features/auth/RequireAuth';
@@ -29,6 +30,7 @@ export const appRoutes: RouteObject[] = [
             children: [{ path: ROUTES.PROJECTS, element: <ProjectsPage /> }],
           },
           { path: ROUTES.PROJECT_DASHBOARD, element: <ProjectDashboardPage /> },
+          { path: ROUTES.ACTIVITY_DETAIL, element: <ActivityDetailPage /> },
           {
             element: <RequireRole allowedRoles={[ROLES.REGISTRAR]} />,
             children: [{ path: ROUTES.MY_ACTIVITIES, element: <MyActivitiesPage /> }],

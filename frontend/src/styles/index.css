@@ -1,3 +1,7 @@
+/* Poppins (headings and figures) + Karla (body), the two families of the Trycore system.
+ * Served from the Google Fonts CDN, as the design system's fonts.css does. To self-host,
+ * drop the woff2 files under public/fonts and replace this import with @font-face rules. */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Karla:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 @import './tokens.css';
 @import './theme.css';

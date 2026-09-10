@@ -14,10 +14,16 @@ completo está en [`docs/reto.md`](docs/reto.md).
 - Cálculo automático de **PV, EV, CV, SV, CPI, SPI, EAC y VAC**, por actividad y consolidado
   por proyecto, con la **interpretación** de CPI y SPI (bajo/sobre presupuesto,
   adelantado/atrasado).
-- **Dashboard** con el resumen consolidado, semáforo de estado, gráfica que compara PV, EV y AC
-  por actividad, gauges de CPI y SPI con la referencia en 1.0, y la tabla de actividades con
-  sus indicadores.
+- **Tablero** que responde de un vistazo si el proyecto va bien o mal: el veredicto en lenguaje
+  llano, la comparación PV/EV/AC con sus brechas marcadas, el puente de varianzas, gauges de CPI
+  y SPI con la referencia en 1.0, el cuadrante y el mapa de calor por actividad, y la tabla de
+  actividades con sus indicadores.
+- **Portafolio** con la tira de KPIs y el cuadrante costo–cronograma, para ver todos los
+  proyectos a la vez, y **detalle por actividad** con sus diez indicadores.
 - **Roles**: quien registra el avance (`REGISTRAR`) y quien lo revisa (`REVIEWER`).
+- **Identidad Trycore**: navy y teal, Poppins y Karla, temas claro y oscuro. El diseño completo,
+  con sus tokens y sus assets, está en
+  [`docs/Plataforma EVM gestión actividades`](docs/Plataforma%20EVM%20gesti%C3%B3n%20actividades/design_handoff_striker_evm/README.md).
 
 Los indicadores **no se persisten**: se calculan al leer, así que editar una actividad actualiza
 todo el tablero. Un indicador que no es matemáticamente calculable se devuelve como `null` con
@@ -29,7 +35,7 @@ un estado `NOT_APPLICABLE` y el motivo, nunca como cero ni infinito.
 |---|---|
 | Backend | Python 3.12 · FastAPI · SQLAlchemy 2 · Alembic · Pydantic v2 · PyJWT · bcrypt |
 | Base de datos | PostgreSQL 16 |
-| Frontend | React 18 · TypeScript · Vite · Tailwind CSS 4 · GSAP · Recharts |
+| Frontend | React 18 · TypeScript · Vite · Tailwind CSS 4 · GSAP · Recharts · Lucide |
 | Pruebas | pytest + coverage (backend) · Vitest + Testing Library + MSW (frontend) |
 | Linters | ruff (backend) · ESLint + Prettier (frontend) |
 
@@ -87,9 +93,9 @@ real, crea `frontend/.env.development.local` con `VITE_USE_MOCKS=false`.
 ### Script de inicialización de la base de datos
 
 [`backend/db/init.sql`](backend/db/init.sql) crea el esquema completo, siembra los tres usuarios
-y carga el proyecto de ejemplo con sus tres actividades. Es idempotente y Docker Compose lo monta
-en el contenedor de PostgreSQL, así que se ejecuta solo en el primer arranque. Para aplicarlo a
-mano:
+y carga los ocho proyectos de demostración con sus 22 actividades. Es idempotente y Docker Compose
+lo monta en el contenedor de PostgreSQL, así que se ejecuta solo en el primer arranque. Para
+aplicarlo a mano:
 
 ```bash
 psql "postgresql://striker:striker@localhost:5432/striker" -f backend/db/init.sql
@@ -106,8 +112,35 @@ registrada la migración inicial para que ambos caminos queden coherentes.
 | `registrador@striker.local` | `Striker2026!` | REGISTRAR | Registrar avance y costo de **sus** actividades |
 | `registrador2@striker.local` | `Striker2026!` | REGISTRAR | Igual, sobre otras actividades |
 
-El proyecto de ejemplo **"Portal de clientes"** trae las tres actividades del caso resuelto en
-la guía, así que el dashboard abre con datos que se pueden verificar a mano.
+### Datos de demostración
+
+El script de inicialización carga **ocho proyectos**, uno por cada situación que sabe manejar el
+cálculo, así que la aplicación abre con datos que se pueden verificar a mano y sin tener que
+teclear nada. Aparecen en el portafolio en este orden:
+
+| # | Proyecto | Qué muestra | CPI | SPI |
+|---|---|---|---|---|
+| 1 | **Portal de clientes** | El caso resuelto paso a paso en [`docs/EVM_GUIA.md §6`](docs/EVM_GUIA.md). Gasta más de lo que avanza. | 0.9206 | 0.9063 |
+| 2 | **Migración a la nube** | Proyecto sano: los dos semáforos en verde. | 1.1636 | 1.1130 |
+| 3 | **Integración de pagos** | Adelantado pero caro. Avanzar rápido no es avanzar bien. | 0.7712 | 1.3000 |
+| 4 | **Rediseño del intranet** | Barato pero atrasado: el ahorro viene de no haber hecho el trabajo. Es el caso que mirar solo el gasto esconde. | 1.2136 | 0.7353 |
+| 5 | **Cumplimiento normativo** | Exactamente en meta. El único caso donde los índices valen 1 y las varianzas son cero. | 1.0000 | 1.0000 |
+| 6 | **App móvil de campo** | Los cuatro casos borde de [`docs/EVM_GUIA.md §5`](docs/EVM_GUIA.md): sin costo registrado, actividad no iniciada, gasto sin avance y actividad no programada. | 1.8125 | 0.3452 |
+| 7 | **Certificación ISO 27001** | Terminado a tiempo pero con sobrecosto. Comprobación de cordura: si ya terminó, **EAC = AC**. | 0.8929 | 1.0000 |
+| 8 | **Tablero de indicadores** | Proyecto sin actividades: el sistema dice que no hay nada que evaluar en lugar de inventar ceros. | — | — |
+
+Dos de ellos merecen mirarse con detalle:
+
+- **Rediseño del intranet** tiene CPI 1.21 y SPI 0.74. Un tablero que solo mostrara el gasto
+  diría que va bien; EVM muestra que el ahorro es consecuencia del atraso.
+- **App móvil de campo** tiene un CPI consolidado de 1.81 que **parece excelente y no lo es**:
+  sale alto porque casi no hay costos cargados todavía. Es el mejor recordatorio de por qué un
+  indicador hay que leerlo junto con los demás, y por qué el sistema marca como *no aplica* lo
+  que no puede calcular en vez de rellenarlo con ceros.
+
+Los valores consolidados esperados de cada proyecto están anotados en comentarios dentro de
+[`backend/db/init.sql`](backend/db/init.sql), calculados con las mismas reglas del dominio, para
+que cualquiera pueda contrastarlos contra lo que devuelve el API.
 
 ## Pruebas
 
@@ -115,7 +148,7 @@ la guía, así que el dashboard abre con datos que se pueden verificar a mano.
 # Backend: 306 pruebas, 100 % de cobertura (mínimo exigido: 80 % sobre la capa de negocio)
 cd backend && pytest --cov
 
-# Frontend: 117 pruebas
+# Frontend: 288 pruebas
 cd frontend && npm run test
 
 # Linters

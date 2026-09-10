@@ -1,40 +1,37 @@
-import { ACTIVITY_COLUMN_LABELS, ACTIVITY_INDICATOR_COLUMNS, TABLE_CLASS } from './activity-table';
+import { TABLE_INDICATORS } from './activity-indicators';
+import {
+  ACTIVITY_COLUMN_LABELS,
+  ACTIVITY_DEVIATION_DESCRIPTION,
+  TABLE_CLASS,
+  TABLE_ROLE,
+} from './activity-table';
 
-interface ActivityTableHeadProps {
-  /**
-   * Label of the second column, the only one that differs between the project table
-   * (the activity's owner) and the registrar's table (the project it belongs to).
-   */
-  contextColumnLabel: string;
-}
-
-/** Header of both activity tables, so their columns can never drift apart. */
-export function ActivityTableHead({ contextColumnLabel }: ActivityTableHeadProps) {
+/** Header of the nine-column row, so cells and headers can never drift apart. */
+export function ActivityTableHead() {
   return (
-    <thead className="sticky top-0 z-10 bg-surface">
-      <tr className={TABLE_CLASS.HEADER_ROW}>
-        <th scope="col" className={TABLE_CLASS.HEADER_CELL}>
+    <thead role={TABLE_ROLE.ROW_GROUP} className={TABLE_CLASS.HEAD}>
+      <tr role={TABLE_ROLE.ROW}>
+        <th scope="col" role={TABLE_ROLE.COLUMN_HEADER} className={TABLE_CLASS.HEADER_CELL}>
           {ACTIVITY_COLUMN_LABELS.NAME}
         </th>
-        <th scope="col" className={TABLE_CLASS.HEADER_CELL}>
-          {contextColumnLabel}
+        <th scope="col" role={TABLE_ROLE.COLUMN_HEADER} className={TABLE_CLASS.HEADER_CELL}>
+          <abbr title={ACTIVITY_DEVIATION_DESCRIPTION}>{ACTIVITY_COLUMN_LABELS.DEVIATION}</abbr>
         </th>
-        <th scope="col" className={TABLE_CLASS.NUMERIC_HEADER_CELL}>
-          {ACTIVITY_COLUMN_LABELS.PLANNED_PROGRESS}
+        <th scope="col" role={TABLE_ROLE.COLUMN_HEADER} className={TABLE_CLASS.HEADER_CELL}>
+          {ACTIVITY_COLUMN_LABELS.PROGRESS}
         </th>
-        <th scope="col" className={TABLE_CLASS.NUMERIC_HEADER_CELL}>
-          {ACTIVITY_COLUMN_LABELS.ACTUAL_PROGRESS}
-        </th>
-        {ACTIVITY_INDICATOR_COLUMNS.map((column) => (
-          <th key={column.key} scope="col" className={TABLE_CLASS.NUMERIC_HEADER_CELL}>
-            <abbr title={column.description}>{column.label}</abbr>
+        {TABLE_INDICATORS.map((indicator) => (
+          <th
+            key={indicator.key}
+            scope="col"
+            role={TABLE_ROLE.COLUMN_HEADER}
+            className={TABLE_CLASS.NUMERIC_HEADER_CELL}
+          >
+            <abbr title={indicator.description}>{indicator.label}</abbr>
           </th>
         ))}
-        <th scope="col" className={TABLE_CLASS.HEADER_CELL}>
-          {ACTIVITY_COLUMN_LABELS.STATUS}
-        </th>
-        <th scope="col" className={TABLE_CLASS.NUMERIC_HEADER_CELL}>
-          {ACTIVITY_COLUMN_LABELS.ACTIONS}
+        <th scope="col" role={TABLE_ROLE.COLUMN_HEADER} className={TABLE_CLASS.NUMERIC_HEADER_CELL}>
+          <span className="sr-only">{ACTIVITY_COLUMN_LABELS.DETAIL}</span>
         </th>
       </tr>
     </thead>

@@ -1,0 +1,27 @@
+/* ════════════════════════════════════════════════
+   Trycore · Spacing & radius tokens
+   ════════════════════════════════════════════════ */
+:root {
+  /* ── Espaciado (escala base 4px) ── */
+  --tc-sp-1:  4px;
+  --tc-sp-2:  8px;
+  --tc-sp-3:  12px;
+  --tc-sp-4:  16px;
+  --tc-sp-5:  18px;   /* padding estándar de card */
+  --tc-sp-6:  24px;   /* padding del área de contenido */
+  --tc-sp-8:  32px;
+  --tc-sp-10: 40px;
+
+  /* ── Radios ──
+     Regla de marca: las superficies rectangulares nunca superan 6px.
+     La forma de píldora se reserva a CTAs y chips, donde es intencional. */
+  --tc-r-sm:   2px;
+  --tc-r-md:   4px;
+  --tc-r-lg:   6px;
+  --tc-r-xl:   6px;   /* alias heredado — mismo valor, tope de la escala */
+  --tc-r-pill: 999px;
+
+  /* ── Dimensiones de layout ── */
+  --tc-sidebar-w: 252px;
+  --tc-topbar-h:  66px;
+}

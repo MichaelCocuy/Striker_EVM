@@ -18,8 +18,12 @@ interface FieldShellProps {
   children: (control: FieldControlAttributes) => ReactNode;
 }
 
+/**
+ * Focus replaces the global outline with the pair the handoff prescribes for inputs: the
+ * bright teal on the border and the 3px teal halo of `--shadow-focus`.
+ */
 const CONTROL_BASE_CLASS =
-  'w-full rounded-md border bg-surface px-3.5 py-2.5 text-base text-ink placeholder:text-ink-subtle transition-[border-color,box-shadow] duration-150 focus:outline-none focus:ring-2 focus:ring-focus-ring';
+  'w-full rounded-md border bg-surface px-3 py-2.5 text-body text-ink-body placeholder:text-ink-subtle transition-[border-color,box-shadow] duration-150 focus:border-accent-bright focus:shadow-focus focus:outline-none';
 const CONTROL_BORDER_CLASS = { VALID: 'border-line-strong', INVALID: 'border-danger' } as const;
 const MESSAGE_SUFFIX = '-message';
 
@@ -39,7 +43,7 @@ export function FieldShell({ label, error, hint, className = '', children }: Fie
 
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label htmlFor={fieldId} className="text-sm font-medium text-ink">
+      <label htmlFor={fieldId} className="font-heading text-caption font-semibold text-ink-muted">
         {label}
       </label>
       {children({
@@ -52,7 +56,7 @@ export function FieldShell({ label, error, hint, className = '', children }: Fie
         <p
           id={messageId}
           role={hasError ? 'alert' : undefined}
-          className={`text-sm ${hasError ? 'text-danger' : 'text-ink-subtle'}`}
+          className={`text-caption ${hasError ? 'text-danger' : 'text-ink-subtle'}`}
         >
           {message}
         </p>
