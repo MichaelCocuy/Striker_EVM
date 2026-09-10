@@ -23,26 +23,35 @@ export interface ChartSeries {
 }
 
 /**
- * Fixed categorical order and fixed hues: a series never changes color, so the legend read
- * once keeps working. Green and red stay reserved for the EVM traffic light and never encode
- * a series; the plan is therefore a neutral ink (it is the baseline), what was earned takes
- * the brand accent, and the spend takes the only other chromatic family the tokens offer.
+ * Fixed hues: a series never changes color, so the legend read once keeps working. Green and
+ * red stay reserved for the EVM traffic light and never encode a series; the plan is
+ * therefore a neutral ink (it is the baseline), what was earned takes the brand accent, and
+ * the spend takes the only other chromatic family the tokens offer.
+ *
+ * Exported by key so a card outside the plot can wear the same hue without restating it.
  */
+export const SERIES_COLOR_TOKEN: Record<SeriesKey, string> = {
+  [SERIES_KEYS.PLANNED_VALUE]: '--ink-muted',
+  [SERIES_KEYS.EARNED_VALUE]: '--accent',
+  [SERIES_KEYS.ACTUAL_COST]: '--evm-neutral',
+};
+
+/** Fixed categorical order of the series, with the name the legend and the tooltip use. */
 export const CHART_SERIES: readonly ChartSeries[] = [
   {
     key: SERIES_KEYS.PLANNED_VALUE,
     label: 'Valor planificado (PV)',
-    colorToken: '--ink-muted',
+    colorToken: SERIES_COLOR_TOKEN[SERIES_KEYS.PLANNED_VALUE],
   },
   {
     key: SERIES_KEYS.EARNED_VALUE,
     label: 'Valor ganado (EV)',
-    colorToken: '--accent',
+    colorToken: SERIES_COLOR_TOKEN[SERIES_KEYS.EARNED_VALUE],
   },
   {
     key: SERIES_KEYS.ACTUAL_COST,
     label: 'Costo real (AC)',
-    colorToken: '--evm-neutral',
+    colorToken: SERIES_COLOR_TOKEN[SERIES_KEYS.ACTUAL_COST],
   },
 ];
 

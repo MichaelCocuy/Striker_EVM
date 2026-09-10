@@ -15,7 +15,7 @@ import {
   REFERENCE_FRACTION,
   toArcFraction,
 } from './gauge-geometry';
-import { useArcSweep } from './useArcSweep';
+import { useFractionSweep } from './useFractionSweep';
 
 import type { EvmTone } from '@/evm/tone';
 
@@ -55,7 +55,7 @@ export function IndexGauge({ name, description, value, tone, statusLabel }: Inde
   /** A `null` index is never drawn as zero: zero would read as a real, terrible index. */
   const gaugeTone = isComputable ? tone : EVM_TONE.NA;
   const gaugeLabel = isComputable ? statusLabel : EVM_TONE_LABEL[EVM_TONE.NA];
-  const sweptFraction = useArcSweep(isComputable ? toArcFraction(value) : EMPTY_ARC);
+  const sweptFraction = useFractionSweep(isComputable ? toArcFraction(value) : EMPTY_ARC);
   const displayValue = useCountUp(value, { decimals: INDEX_DECIMALS });
   const { colorToken } = EVM_TONE_TOKENS[gaugeTone];
   const transition = { transitionDuration: `${String(COLOR_TRANSITION_MS)}ms` };
