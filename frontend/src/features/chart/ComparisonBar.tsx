@@ -1,8 +1,8 @@
 import { EVM_TONE_TOKENS } from '@/evm/tone';
 import { formatMoney } from '@/lib/format';
+import { useFractionSweep } from '@/motion/useFractionSweep';
 
 import { FULL_TRACK_PERCENT, toPercentLength, toScaleFraction } from './bar-scale';
-import { useFractionSweep } from './useFractionSweep';
 
 import type { ComparisonRow } from './comparison-rows';
 

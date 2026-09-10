@@ -1,9 +1,9 @@
 import { EVM_TONE_TOKENS } from '@/evm/tone';
 import { formatIndex, formatMoney } from '@/lib/format';
+import { useFractionSweep } from '@/motion/useFractionSweep';
 
 import { HALF_TRACK_PERCENT, toPercentLength, toScaleFraction } from './bar-scale';
 import { IMPACT_COPY } from './impact-rows';
-import { useFractionSweep } from './useFractionSweep';
 
 import type { ImpactRow } from './impact-rows';
 
