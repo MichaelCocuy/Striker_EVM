@@ -1,16 +1,14 @@
 import { EVM_TONE } from '@/evm/tone';
 
-import './band-tokens.css';
-
 import type { EvmTone } from '@/evm/tone';
 
 /**
  * Colours of the reading band, as CSS values rather than literals.
  *
- * The four traffic-light inks of this surface are declared in `band-tokens.css`, next to the
- * reason they cannot be the shared `--evm-*` ones. Everything else here is expressible with
- * what the design system already carries: `white` at an alpha for the band's own furniture,
- * and the shell's `--tc-nav-ink-active` and `--tc-orbit-node` for its two teals.
+ * The four traffic-light inks of this surface are `--evm-*-on-navy` in `styles/tokens.css`,
+ * declared next to the reason they cannot be the shared `--evm-*` ones. Everything else here
+ * is expressible with what the design system already carries: `white` at an alpha for the
+ * band's own furniture, and `--tc-nav-ink-active` and `--tc-orbit-node` for its two teals.
  */
 
 /** Traffic-light ink of the band, legible on navy (handoff §3.1). */
