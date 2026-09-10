@@ -44,6 +44,7 @@ export const ACTIVITY_FORM_MESSAGES = {
   MONEY_TOO_LARGE: 'El monto excede el máximo permitido.',
   PERCENT_RANGE: 'El porcentaje debe estar entre 0 y 100.',
   COST_NEGATIVE: 'El costo real no puede ser negativo.',
+  FORBIDDEN: 'No tienes permiso para editar esta actividad.',
 } as const;
 
 const DECIMAL_SEPARATOR = ',';
@@ -204,9 +205,17 @@ function isActivityFormField(field: string | null | undefined): field is Activit
   return ACTIVITY_FORM_FIELDS.some((candidate) => candidate === field);
 }
 
-/** Splits an API failure into per-field messages and a general one (contract `Error` shape). */
+/**
+ * Splits an API failure into per-field messages and a general one (contract `Error` shape).
+ *
+ * A `403` is the permission matrix of ARQUITECTURA §11 answering, and its message comes from
+ * the backend in English; it is replaced by the sentence the design asks for.
+ */
 export function activityErrorFeedback(error: ApiError): ActivityErrorFeedback {
   const fieldErrors: ActivityFieldErrors = {};
+  if (error.code === ERROR_CODE.FORBIDDEN) {
+    return { fieldErrors, message: ACTIVITY_FORM_MESSAGES.FORBIDDEN };
+  }
   if (error.code === ERROR_CODE.VALIDATION_ERROR) {
     for (const detail of error.details) {
       if (isActivityFormField(detail.field)) {
