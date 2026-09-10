@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { ROUTES } from '@/constants/routes';
+import { EVM_TONE } from '@/evm/tone';
 import { mockDb, resetMockDatabase } from '@/mocks/db';
 import { SEED_IDS } from '@/mocks/seed';
 import { mockServer } from '@/mocks/server';
@@ -17,6 +18,11 @@ const OWNED_ACTIVITIES = ['Diseño', 'Pruebas'] as const;
 const FOREIGN_ACTIVITY = 'Desarrollo';
 const EMPTY_MESSAGE = 'No tienes actividades asignadas.';
 const NEW_PROGRESS = '60';
+/** Reading of the "Diseño" row of docs/api/fixtures/evm-report.json. */
+const OWNER_NAME = 'Carlos Registrador';
+const DESIGN_DEVIATION_READING =
+  'Igual al plan: avance real 100% frente al 100% planificado a la fecha de corte';
+const DESIGN_COST_INDEX = '1,1111';
 
 const routes: RouteObject[] = [{ path: ROUTES.MY_ACTIVITIES, element: <MyActivitiesPage /> }];
 
@@ -41,6 +47,17 @@ describe('MyActivitiesPage', () => {
       expect(within(row ?? header).getByText(PROJECT_NAME)).toBeInTheDocument();
     }
     expect(screen.queryByRole('rowheader', { name: FOREIGN_ACTIVITY })).toBeNull();
+  });
+
+  it('gives its rows the same treatment as the project table', async () => {
+    signInAsSeedUser(SEED_USER_EMAIL.REGISTRAR);
+    renderPage();
+
+    const header = await screen.findByRole('rowheader', { name: new RegExp(OWNED_ACTIVITIES[0]) });
+    const row = within(header.closest('tr') ?? header);
+    expect(row.getByText(OWNER_NAME)).toBeInTheDocument();
+    expect(row.getByText(DESIGN_DEVIATION_READING)).toBeInTheDocument();
+    expect(row.getByText(DESIGN_COST_INDEX)).toHaveAttribute('data-tone', EVM_TONE.GOOD);
   });
 
   it('shows the consolidated status of each project as read-only context', async () => {
